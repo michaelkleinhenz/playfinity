@@ -1,0 +1,8 @@
+.project
+.classpath
+.settings/
+bin/
+target/
+gen/
+coverage/
+*.swp

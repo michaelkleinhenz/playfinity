@@ -1,0 +1,11 @@
+{
+    "name": "TenHeadShotsAchievement",
+    "type": "SingleCounterAchievementType",
+    "events": [ {"name": "HeadShotEvent"} ],
+    "locked": true,
+    
+    "singleCounterEvent": {"name": "HeadShotEvent"},
+    "counter": 0,
+    "COUNTER_MAX": 10    
+    
+}
