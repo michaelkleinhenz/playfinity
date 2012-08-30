@@ -10,3 +10,5 @@ ACHV.SingleCounterEngine.prototype.process = function(event, achievement, notify
 	}
     }
 };
+
+exports.SingleCounterEngine = ACHV.SingleCounterEngine;

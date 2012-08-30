@@ -15,7 +15,7 @@ ACHV.AchievementEngine.prototype.registerAchievement = function(achievement) {
     for ( var i = 0; i < achievement.events.length; i++) {
 	var currentEvent = achievement.events[i];
 	if (this.achievements.has(currentEvent.name)) {
-	    var currentAchievements = this.achievements.get(event.name);
+	    var currentAchievements = this.achievements.get(currentEvent.name);
 	    currentAchievements.push(achievement);
 	    this.achievements.set(currentEvent.name, currentAchievements);
 	} else {
@@ -45,10 +45,11 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
   var fittingAchievements = this.achievements.get(event.name);
   for ( var i = 0; i < fittingAchievements.length; i++) {
     var currentAchievement = fittingAchievements[i];
-    var fittingEngine = this.engines.get(currentAchievement.type);
-    fittingEngine.process(event, currentAchievement, notifyUnlockCallback);
+    if (this.engines.has(currentAchievement.type)) {
+	var fittingEngine = this.engines.get(currentAchievement.type);
+	fittingEngine.process(event, currentAchievement, notifyUnlockCallback);
+    }
   }
 };
 
 exports.AchievementEngine = ACHV.AchievementEngine;
-exports.getAchievements = ACHV.AchievementEngine.prototype.getAchievements;

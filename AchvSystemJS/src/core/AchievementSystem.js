@@ -18,10 +18,13 @@ ACHV.AchievementSystem.prototype.isRegistered = function(game) {
     return this.game === game;
 };
 
-ACHV.AchievementSystem.prototype.triggerEvent = function(event, unlockAchievementCallback) {
+ACHV.AchievementSystem.prototype.triggerEvent = function(event, notifyUnlockCallback) {
     this.achievementEngine.processEvent( event,
-	    				 function notifyUnlocked(achievementName) {
-	    				 	unlockAchievementCallback(achievementName);
+	    				 function notifyUnlocked(achievement) {
+					// TODO notify systems that are interessted, like the assetmanagement.
+					notifyUnlockCallback(achievement);
+
+						console.log(achievement);
 					 }
     					);
 };
@@ -31,12 +34,10 @@ ACHV.AchievementSystem.prototype.isAchievementUnlocked = function(achievement) {
     var achievements = this.achievementEngine.getAchievements();
     var index = achievements.indexOf(achievement);
     if (index > -1) {
-	var currentAchievement = this.achievements[index];
+	var currentAchievement = achievements[index];
 	isUnlocked = !currentAchievement.locked;
     }
     return isUnlocked;
 };
 
 exports.AchievementSystem = ACHV.AchievementSystem;
-exports.registerAchievement = ACHV.AchievementSystem.prototype.registerAchievement;
-exports.getAchievements = ACHV.AchievementSystem.prototype.getAchievements;

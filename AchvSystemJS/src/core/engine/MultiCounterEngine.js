@@ -18,3 +18,5 @@ ACHV.MultiCounterEngine.prototype.process = function(event, achievement, notifyU
 	}
     }
 };
+
+exports.MultiCounterEngine = ACHV.MultiCounterEngine;

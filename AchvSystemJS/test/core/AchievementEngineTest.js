@@ -23,6 +23,17 @@ TestCase("AchievementEngineTest", {
     	assertEquals(expectedAchievements, resultAchievements);
     },
     
+    testRegisterAdditionallyAchievementForEvent: function() {
+	var startGameAchievement = FIXTURE.getStartGameAchievement();
+    	achievementEngine.registerAchievement(startGameAchievement);
+    	var firstStartAchievement = FIXTURE.getFirstStartAchievement();
+    	achievementEngine.registerAchievement(firstStartAchievement);
+    	var event = startGameAchievement.events[0];
+    	var resultAchievements = achievementEngine.getAchievementsForEventType(event.name);
+    	var expectedAchievements = [startGameAchievement, firstStartAchievement];
+    	assertEquals(expectedAchievements, resultAchievements);
+    },
+    
     testGetAchievements: function() {
 	var startGameAchievement = FIXTURE.getStartGameAchievement();
 	var headShotAchievement = FIXTURE.getTenHeadShotsAchievement();

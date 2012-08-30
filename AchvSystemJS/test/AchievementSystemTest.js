@@ -14,5 +14,15 @@ TestCase("AchievementSystemTest", {
 	achievementSystem.registerGame("MyGame");
 	var isRegistered = achievementSystem.isRegistered("MyGame");
 	assertTrue(isRegistered);
-    }   
+    },
+    
+    testIsAchivementUnlocked: function() {
+	var achievementEngineMock = mock(ACHV.AchievementEngine);
+	var achievementSystem = new ACHV.AchievementSystem(achievementEngineMock);
+	var achievement = mock(ACHV.Achievement);
+	achievementSystem.registerAchievement(achievement);
+	when(achievementEngineMock).getAchievements().thenReturn([achievement]);
+	var isUnlocked = achievementSystem.isAchievementUnlocked(achievement);
+	assertFalse(isUnlocked);
+    }    
 });

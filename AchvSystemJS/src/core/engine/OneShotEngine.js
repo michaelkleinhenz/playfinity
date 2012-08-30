@@ -9,3 +9,5 @@ ACHV.OneShotEngine.prototype.process = function(event, achievement, notifyUnlock
 	notifyUnlockCallback(achievement);
     }
 };
+
+exports.OneShotEngine = ACHV.OneShotEngine;

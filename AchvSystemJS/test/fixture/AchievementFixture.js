@@ -21,6 +21,10 @@ FIXTURE = {
 	getStartGameAchievement: function() {
 	    return FIXTURE.getFixtureObj("StartGameAchievement.json");
 	},
+
+	getFirstStartAchievement: function() {
+	    return FIXTURE.getFixtureObj("FirstStartAchievement.json");
+	},
 	
 	getHeadShotEvent: function() {
 	    return FIXTURE.getFixtureObj("HeadShotEvent.json");

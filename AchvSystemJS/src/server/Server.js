@@ -6,7 +6,10 @@ function start(achvSystem) {
     }
 
     function triggerEvent(req, res, next) {
-	achvSystem.triggerEvent(req.params);
+	achvSystem.triggerEvent(req.params, function(achievement) {
+	    // TODO remove callback when notification mechanism is done.
+	    console.log(achievement);
+	});
 	res.status(204);
 	res.send();
     }
