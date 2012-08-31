@@ -1,6 +1,7 @@
 {
     "name": "TenHeadAndKneeShotsAchievement",
     "type": "MultiCounterAchievementType",
+    "frequency": "Once",
     "events": [ {
     				"name": "HeadShotEvent",
     				"counter": 0,

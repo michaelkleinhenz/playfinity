@@ -1,6 +1,7 @@
 {
     "name": "FirstStartAchievement",
     "type": "OneShotAchievementType",
+    "frequency": "Once",
     "events": [ {"name": "StartGameEvent"} ],
     "locked": true,
     "oneShotEvent": {"name": "StartGameEvent"}
