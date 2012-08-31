@@ -46,16 +46,35 @@ TestCase("AchievementEngineTest", {
     },
     
     testProcessOneShotEvent: function() {
-	var engine = mock(ACHV.OneShotEngine);
-	engine.achievementType = "OneShotAchievementType";
+	var engine = new ACHV.OneShotEngine();
 	achievementEngine.registerEngine(engine);
-	
+		
 	var achievement = FIXTURE.getStartGameAchievement();
 	achievementEngine.registerAchievement(achievement);
 	
 	var event = FIXTURE.getStartGameEvent();
-	achievementEngine.processEvent(event, function notifyUnlock(achievement) {
-	    assertFalse(achievement.locked);
+	
+	achievementEngine.processEvent(event, function notifyUnlock(achievements) {
+	    var index = achievements.indexOf(achievement);
+	    var resultAchievement = achievements[index];
+	    assertFalse(resultAchievement.locked);
 	});
+    },
+    
+    testAchievementTypeOnce: function() {
+	var engine = new ACHV.OneShotEngine();
+	achievementEngine.registerEngine(engine);
+	
+	var onceAchievement = FIXTURE.getFirstStartAchievement();
+	achievementEngine.registerAchievement(onceAchievement);
+	var achievements = achievementEngine.getAchievements();
+	assertTrue(Utils.arrayContains(achievements, onceAchievement));
+	
+	var event = FIXTURE.getStartGameEvent();
+	achievementEngine.processEvent(event, function(unlockedAchievements) {
+	    assertTrue(Utils.arrayContains(unlockedAchievements, onceAchievement));
+	});
+	achievements = achievementEngine.getAchievements();
+	assertFalse(Utils.arrayContains(achievements, onceAchievement));	
     }
 });

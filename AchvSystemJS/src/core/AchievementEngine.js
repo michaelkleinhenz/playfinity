@@ -38,18 +38,45 @@ ACHV.AchievementEngine.prototype.getAchievements = function() {
 };
 
 ACHV.AchievementEngine.prototype.getAchievementsForEventType = function(eventType) {
-    return this.achievements.get(eventType);  
+    var achievements = [];
+    if(this.achievements.has(eventType)) {
+	achievements = this.achievements.get(eventType);
+    }
+    return achievements;
 };
 
 ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCallback) {
-  var fittingAchievements = this.achievements.get(event.name);
-  for ( var i = 0; i < fittingAchievements.length; i++) {
-    var currentAchievement = fittingAchievements[i];
-    if (this.engines.has(currentAchievement.type)) {
-	var fittingEngine = this.engines.get(currentAchievement.type);
-	fittingEngine.process(event, currentAchievement, notifyUnlockCallback);
+    var unlockedAchievements = [];
+    
+    var eventToAchievementsMap = this.achievements;
+        
+    var fittingAchievements = this.getAchievementsForEventType(event.name);
+    processAchievements(this.engines, fittingAchievements);
+    
+    notifyUnlockCallback(unlockedAchievements);
+    
+    function processAchievements(engines, achievements) {
+	for (var i = 0; i < achievements.length; i++) {
+	    processAchievement(engines, achievements[i]);
+	}
+	
+	function processAchievement(engines, achievement) {
+	    if (engines.has(achievement.type)) {
+		var fittingEngine = engines.get(achievement.type);
+		fittingEngine.process(event, achievement, unlockAchievement);
+	    }
+	}
     }
-  }
+    
+    function unlockAchievement(achievement) {
+	if (achievement.frequency === 'Once') {
+	    for (var i = 0; i < achievement.events.length; i++) {
+		var currentEvent = achievement.events[i];
+		Utils.mapRemoveArrayValue(eventToAchievementsMap, currentEvent.name, achievement);
+	    }
+	}
+	unlockedAchievements.push(achievement);
+    }
 };
 
 exports.AchievementEngine = ACHV.AchievementEngine;
