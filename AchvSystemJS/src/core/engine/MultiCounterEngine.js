@@ -1,4 +1,6 @@
-ACHV.MultiCounterEngine = function() {};
+ACHV.MultiCounterEngine = function() {
+    this.achievementType = "MultiCounterAchievementType";
+};
 
 ACHV.MultiCounterEngine.prototype.process = function(event, achievement, notifyUnlockCallback) {
     for (var i = 0; i < achievement.events.length; i++) {

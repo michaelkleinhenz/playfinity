@@ -76,5 +76,35 @@ TestCase("AchievementEngineTest", {
 	});
 	achievements = achievementEngine.getAchievements();
 	assertFalse(Utils.arrayContains(achievements, onceAchievement));	
+    },
+    
+    testRemoveOnceAchievementForTwoEvents: function() {
+	// set engine
+	var engine = new ACHV.MultiCounterEngine();
+	achievementEngine.registerEngine(engine);
+	
+	// set achievement that has the frequency: once property
+	var achievement = FIXTURE.getTenHeadAndKneeShotsAchievement();
+	achievementEngine.registerAchievement(achievement);
+	
+	// check achievement registered
+	var achievements = achievementEngine.getAchievements();
+	assertTrue(Utils.arrayContains(achievements, achievement));
+	
+	// trigger unlock event
+	var headShotEvent = FIXTURE.getHeadShotEvent();
+	var kneeShotEvent = FIXTURE.getKneeShotEvent();
+	for (var i = 0; i < 10; i++) {
+	    achievementEngine.processEvent(headShotEvent, notifyUnlock);
+	    achievementEngine.processEvent(kneeShotEvent, notifyUnlock);
+	}
+	
+	// check achievement removed
+	achievements = achievementEngine.getAchievements();
+	assertFalse(Utils.arrayContains(achievements, achievement));
+	
+	function notifyUnlock(unlockedAchievements) {
+	    assertTrue(Utils.arrayContains(unlockedAchievements, achievement));
+	}
     }
 });

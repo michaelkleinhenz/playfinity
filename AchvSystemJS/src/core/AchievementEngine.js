@@ -51,9 +51,13 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
     var eventToAchievementsMap = this.achievements;
         
     var fittingAchievements = this.getAchievementsForEventType(event.name);
+    
     processAchievements(this.engines, fittingAchievements);
     
-    notifyUnlockCallback(unlockedAchievements);
+    // TODO remove when removing callback style
+    if (unlockedAchievements.length > 0) {
+	notifyUnlockCallback(unlockedAchievements);
+    }
     
     function processAchievements(engines, achievements) {
 	for (var i = 0; i < achievements.length; i++) {
@@ -69,7 +73,7 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
     }
     
     function unlockAchievement(achievement) {
-	if (achievement.frequency === 'Once') {
+	if (achievement.frequency === "Once") {
 	    for (var i = 0; i < achievement.events.length; i++) {
 		var currentEvent = achievement.events[i];
 		Utils.mapRemoveArrayValue(eventToAchievementsMap, currentEvent.name, achievement);
