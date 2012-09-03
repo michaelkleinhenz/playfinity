@@ -1,8 +1,8 @@
-ACHV.MultiCounterEngine = function() {
-    this.achievementType = "MultiCounterAchievementType";
+ACHV.CounterEngine = function() {
+    this.achievementType = "CounterAchievementType";
 };
 
-ACHV.MultiCounterEngine.prototype.process = function(event, achievement, notifyUnlockCallback) {
+ACHV.CounterEngine.prototype.process = function(event, achievement, notifyUnlockCallback) {
     for (var i = 0; i < achievement.events.length; i++) {
 	var currentEvent = achievement.events[i];
 	if (currentEvent.counter >= currentEvent.COUNTER_MAX) {
@@ -21,4 +21,4 @@ ACHV.MultiCounterEngine.prototype.process = function(event, achievement, notifyU
     }
 };
 
-exports.MultiCounterEngine = ACHV.MultiCounterEngine;
+exports.CounterEngine = ACHV.CounterEngine;

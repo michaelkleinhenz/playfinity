@@ -73,13 +73,38 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
     }
     
     function unlockAchievement(achievement) {
-	if (achievement.frequency === "Once") {
-	    for (var i = 0; i < achievement.events.length; i++) {
-		var currentEvent = achievement.events[i];
-		Utils.mapRemoveArrayValue(eventToAchievementsMap, currentEvent.name, achievement);
-	    }
-	}
-	unlockedAchievements.push(achievement);
+        incFrequencyCounter(achievement);
+        resetEventCounters(achievement);
+        checkFrequencyReached(achievement);
+ 	    unlockedAchievements.push(achievement);
+
+        function incFrequencyCounter(achievement) {
+            if(achievement.hasOwnProperty("frequencyCounter")) {
+                achievement.frequencyCounter = achievement.frequencyCounter + 1;
+            }
+        }
+
+        function resetEventCounters(achievement) {
+            for (var i = 0; i < achievement.events.length; i++) {
+                var currentEvent = achievement.events[i];
+                if (currentEvent.hasOwnProperty("counter")) {
+                 currentEvent.counter = 0;
+                }
+            }
+        }
+
+        function checkFrequencyReached(achievement) {
+            if (achievement.frequencyCounter >= achievement.FREQUENCY_COUNTER_MAX) {
+                removeAchievement(achievement);
+            }
+
+            function removeAchievement(achievement) {
+ 	            for (var i = 0; i < achievement.events.length; i++) {
+        	    	var currentEvent = achievement.events[i];
+    	    	    Utils.mapRemoveArrayValue(eventToAchievementsMap, currentEvent.name, achievement);
+	            }
+            }
+        }
     }
 };
 

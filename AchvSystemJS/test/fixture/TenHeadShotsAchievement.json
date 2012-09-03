@@ -1,11 +1,16 @@
 {
     "name": "TenHeadShotsAchievement",
-    "type": "SingleCounterAchievementType",
-    "events": [ {"name": "HeadShotEvent"} ],
+    "type": "CounterAchievementType",
+    "frequencyCounter": 0,
+    "FREQUENCY_COUNTER_MAX": 2,
+    "events": [ {
+    				"name": "HeadShotEvent",
+    				"counter": 0,
+    				"COUNTER_MAX": 10
+    			}
+    		  ],
+
     "locked": true,
-    
-    "singleCounterEvent": {"name": "HeadShotEvent"},
-    "counter": 0,
-    "COUNTER_MAX": 10    
-    
+    "unlockCounter": 0,
+    "UNLOCK_COUNTER_MAX": 1
 }
