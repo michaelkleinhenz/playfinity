@@ -13,8 +13,7 @@ var achievements = new hashMap.HashMap();
 
 var achvEngineInstance = new achvEngine.AchievementEngine(engines, achievements);
 achvEngineInstance.registerEngine(new engineDir.OneShotEngine.OneShotEngine());
-achvEngineInstance.registerEngine(new engineDir.MultiCounterEngine.MultiCounterEngine());
-achvEngineInstance.registerEngine(new engineDir.SingleCounterEngine.SingleCounterEngine());
+achvEngineInstance.registerEngine(new engineDir.CounterEngine.CounterEngine());
 
 var achvSystemInstance = new achvSystem.AchievementSystem(achvEngineInstance);
 

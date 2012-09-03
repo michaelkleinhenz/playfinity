@@ -79,32 +79,97 @@ TestCase("AchievementEngineTest", {
     },
     
     testRemoveOnceAchievementForTwoEvents: function() {
-	// set engine
-	var engine = new ACHV.MultiCounterEngine();
-	achievementEngine.registerEngine(engine);
+	    // set engine
+    	var engine = new ACHV.CounterEngine();
+    	achievementEngine.registerEngine(engine);
 	
-	// set achievement that has the frequency: once property
-	var achievement = FIXTURE.getTenHeadAndKneeShotsAchievement();
-	achievementEngine.registerAchievement(achievement);
+	    // set achievement
+    	var achievement = FIXTURE.getTenHeadAndKneeShotsAchievement();
+    	achievementEngine.registerAchievement(achievement);
 	
-	// check achievement registered
-	var achievements = achievementEngine.getAchievements();
-	assertTrue(Utils.arrayContains(achievements, achievement));
+	    // check achievement registered
+    	var achievements = achievementEngine.getAchievements();
+    	assertTrue(Utils.arrayContains(achievements, achievement));
 	
-	// trigger unlock event
-	var headShotEvent = FIXTURE.getHeadShotEvent();
-	var kneeShotEvent = FIXTURE.getKneeShotEvent();
-	for (var i = 0; i < 10; i++) {
-	    achievementEngine.processEvent(headShotEvent, notifyUnlock);
-	    achievementEngine.processEvent(kneeShotEvent, notifyUnlock);
-	}
+	    // trigger unlock event
+    	var headShotEvent = FIXTURE.getHeadShotEvent();
+	    var kneeShotEvent = FIXTURE.getKneeShotEvent();
+    	for (var i = 0; i < 10; i++) {
+	        achievementEngine.processEvent(headShotEvent, notifyUnlock);
+	        achievementEngine.processEvent(kneeShotEvent, notifyUnlock);
+	    }
 	
-	// check achievement removed
-	achievements = achievementEngine.getAchievements();
-	assertFalse(Utils.arrayContains(achievements, achievement));
+    	// check achievement removed
+	    achievements = achievementEngine.getAchievements();
+    	assertFalse(Utils.arrayContains(achievements, achievement));
 	
-	function notifyUnlock(unlockedAchievements) {
-	    assertTrue(Utils.arrayContains(unlockedAchievements, achievement));
-	}
-    }
+	    function notifyUnlock(unlockedAchievements) {
+	        assertTrue(Utils.arrayContains(unlockedAchievements, achievement));
+    	}
+    },
+    
+    testAchievementTypeMultiInfinite: function() {
+	    // set engine
+    	var engine = new ACHV.OneShotEngine();
+    	achievementEngine.registerEngine(engine);
+	
+    	// set achievement without frequency property
+    	var achievement = FIXTURE.getStartGameAchievement();
+    	achievementEngine.registerAchievement(achievement);
+
+		// check achievement registered
+    	var achievements = achievementEngine.getAchievements();
+	    assertTrue(Utils.arrayContains(achievements, achievement));
+
+    	// trigger unlock event twice
+    	var event = FIXTURE.getStartGameEvent();
+        achievementEngine.processEvent(event, notifyUnlock);
+	    achievementEngine.processEvent(event, notifyUnlock);
+
+	    // check achievement still there
+    	achievements = achievementEngine.getAchievements();
+	    assertTrue(Utils.arrayContains(achievements, achievement));
+	
+    	function notifyUnlock(unlockedAchievements) {
+	        assertTrue(Utils.arrayContains(unlockedAchievements, achievement));
+    	}
+    },
+
+    testAchievementTypeMultiTwoTimes: function() {
+
+	    // set engine
+    	var engine = new ACHV.CounterEngine();
+    	achievementEngine.registerEngine(engine);
+
+    	// set achievement with frequency property
+    	var achievement = FIXTURE.getTenHeadShotsAchievement();
+    	achievementEngine.registerAchievement(achievement);
+
+		// check achievement registered
+    	var achievements = achievementEngine.getAchievements();
+	    assertTrue(Utils.arrayContains(achievements, achievement));
+
+    	// trigger event to unlock first time
+    	var event = FIXTURE.getHeadShotEvent();
+        for (var i = 0; i < 10; i++) {
+         achievementEngine.processEvent(event, notifyUnlock);
+        }
+
+	    // check achievement still there
+    	achievements = achievementEngine.getAchievements();
+	    assertTrue(Utils.arrayContains(achievements, achievement));
+
+        // trigger event to unlock second time
+        for (var i = 0; i < 10; i++) {
+         achievementEngine.processEvent(event, notifyUnlock);
+        }
+
+        // check achievement removed
+        achievements = achievementEngine.getAchievements();
+        assertFalse(Utils.arrayContains(achievements, achievement));
+
+    	function notifyUnlock(unlockedAchievements) {
+	        assertTrue(Utils.arrayContains(unlockedAchievements, achievement));
+    	}
+     }
 });

@@ -23,8 +23,6 @@ ACHV.AchievementSystem.prototype.triggerEvent = function(event, notifyUnlockCall
 	    				 function notifyUnlocked(achievement) {
 					// TODO notify systems that are interessted, like the assetmanagement.
 					notifyUnlockCallback(achievement);
-
-						console.log(achievement);
 					 }
     					);
 };
