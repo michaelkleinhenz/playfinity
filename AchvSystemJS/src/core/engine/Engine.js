@@ -1,9 +1,7 @@
-var engine = function(spec) {
+ACHV.engine = function(spec) {
     var that = {};
 
-    that.getAchievementType = function() {
-        return spec.achievementType;
-    };
+    that.achievementType = spec.achievementType;
 
     that.unlockAchievement = function(achievement, notifyUnlockCallback) {
         achievement.unlockCounter = achievement.unlockCounter + 1;
@@ -14,3 +12,4 @@ var engine = function(spec) {
     };
     return that;
 };
+exports.engine = ACHV.engine;

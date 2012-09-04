@@ -4,7 +4,7 @@ ACHV.AchievementEngine = function(engines, achievements) {
 };
 
 ACHV.AchievementEngine.prototype.registerEngine = function(engine) {
-    this.engines.set(engine.achievementType, engine);
+      this.engines.set(engine.achievementType, engine);
 };
 
 ACHV.AchievementEngine.prototype.getEngineForAchievementType = function(achievementType) {

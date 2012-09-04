@@ -1,5 +1,5 @@
-var timerEngine = function(spec) {
-    var that = engine(spec);
+ACHV.timerEngine = function(spec) {
+    var that = ACHV.engine(spec);
 
     that.process = function(event, achievement, notifyUnlockCallback) {
         processStartEvent(event);
@@ -25,4 +25,4 @@ var timerEngine = function(spec) {
     return that;
 };
 
-exports.timerEngine = timerEngine;
+exports.timerEngine = ACHV.timerEngine;
