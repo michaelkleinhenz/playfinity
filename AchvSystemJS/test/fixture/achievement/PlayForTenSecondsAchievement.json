@@ -1,0 +1,13 @@
+{
+    "name": "PlayForTenSecondsAchievement",
+    "type": "TimerAchievementType",
+    "events": [
+        {"name": "StartGameEvent"},
+        {"name": "StopGameEvent"}
+    ],
+    "locked": true,
+    "unlockCounter": 0,
+    "UNLOCK_COUNTER_MAX": 1,
+    "timer": 0,
+    "TIMER_MAX_SEC": 10
+}
