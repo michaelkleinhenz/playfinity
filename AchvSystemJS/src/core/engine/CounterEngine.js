@@ -1,5 +1,5 @@
 ACHV.CounterEngine = function() {
-    this.achievementType = "CounterAchievementType";
+    this.achievementType = 'CounterAchievementType';
 };
 
 ACHV.CounterEngine.prototype.process = function(event, achievement, notifyUnlockCallback) {

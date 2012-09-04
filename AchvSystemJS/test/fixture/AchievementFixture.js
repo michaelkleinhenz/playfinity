@@ -2,7 +2,7 @@ FIXTURE = {
 	
 	getFixtureContent : function(fixtureFileName) {
 	    var url ='/test/test/fixture/' + fixtureFileName;
-	    request = new XMLHttpRequest();
+	    var request = new XMLHttpRequest();
 	    request.open('GET', url, false);
 	    request.send(null);
 	    return request.responseText;
@@ -17,6 +17,10 @@ FIXTURE = {
 	getStartGameEvent: function() {
 	    return FIXTURE.getFixtureObj("StartGameEvent.json");
 	},
+
+    getStopGameEvent: function(){
+        return FIXTURE.getFixtureObj("event/StopGameEvent.json");
+    },
 	
 	getStartGameAchievement: function() {
 	    return FIXTURE.getFixtureObj("StartGameAchievement.json");
@@ -40,7 +44,11 @@ FIXTURE = {
 	
 	getTenHeadAndKneeShotsAchievement: function() {
 	    return FIXTURE.getFixtureObj("TenHeadAndKneeShotsAchievement.json");
-	}
+	},
+
+    getPlayForTenSecondsAchievement: function() {
+        return FIXTURE.getFixtureObj("achievement/PlayForTenSecondsAchievement.json");
+    }
 };
 
 FIXTURE.MyAchievement = new ACHV.Achievement("MyAchievement");
