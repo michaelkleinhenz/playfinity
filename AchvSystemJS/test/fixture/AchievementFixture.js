@@ -23,11 +23,11 @@ FIXTURE = {
     },
 	
 	getStartGameAchievement: function() {
-	    return FIXTURE.getFixtureObj("StartGameAchievement.json");
+	    return FIXTURE.getFixtureObj("achievement/StartGameAchievement.json");
 	},
 
 	getFirstStartAchievement: function() {
-	    return FIXTURE.getFixtureObj("FirstStartAchievement.json");
+	    return FIXTURE.getFixtureObj("achievement/FirstStartAchievement.json");
 	},
 	
 	getHeadShotEvent: function() {
@@ -35,7 +35,7 @@ FIXTURE = {
 	},
 	
 	getTenHeadShotsAchievement: function() {
-	    return FIXTURE.getFixtureObj("TenHeadShotsAchievement.json");
+	    return FIXTURE.getFixtureObj("achievement/TenHeadShotsAchievement.json");
 	},
 	
 	getKneeShotEvent: function() {
@@ -43,12 +43,14 @@ FIXTURE = {
 	},
 	
 	getTenHeadAndKneeShotsAchievement: function() {
-	    return FIXTURE.getFixtureObj("TenHeadAndKneeShotsAchievement.json");
+	    return FIXTURE.getFixtureObj("achievement/TenHeadAndKneeShotsAchievement.json");
 	},
 
     getPlayForTenSecondsAchievement: function() {
         return FIXTURE.getFixtureObj("achievement/PlayForTenSecondsAchievement.json");
+    },
+
+    getTenHeadShotsInTenMinutesAchievement: function() {
+        return FIXTURE.getFixtureObj("achievement/TenHeadShotsInTenMinutesAchievement.json");
     }
 };
-
-FIXTURE.MyAchievement = new ACHV.Achievement("MyAchievement");

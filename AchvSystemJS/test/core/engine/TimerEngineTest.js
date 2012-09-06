@@ -5,8 +5,9 @@ TestCase("TimerEngineTest", {
         var startGameEvent = FIXTURE.getStartGameEvent();
         var stopGameEvent = FIXTURE.getStopGameEvent();
         var playForTenSecondsAchievement = FIXTURE.getPlayForTenSecondsAchievement();
-        myEngine.process(startGameEvent, playForTenSecondsAchievement, function(achievement){});
-        myEngine.process(stopGameEvent, playForTenSecondsAchievement, function(achievement){});
-        assertFalse(playForTenSecondsAchievement.locked);
+        var achievementType = playForTenSecondsAchievement.types[0];
+        myEngine.process(startGameEvent, playForTenSecondsAchievement, achievementType);
+        myEngine.process(stopGameEvent, playForTenSecondsAchievement, achievementType);
+        assertEquals("broken", achievementType.result);
     }
 });

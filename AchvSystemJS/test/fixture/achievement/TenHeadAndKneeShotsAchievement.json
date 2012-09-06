@@ -1,6 +1,11 @@
 {
     "name": "TenHeadAndKneeShotsAchievement",
-    "type": "CounterAchievementType",
+    "types":    [
+                    {
+                        "achievementType": "CounterAchievementType",
+                        "result": "stillSatisfiable"
+                    }
+                ],
     "frequencyCounter": 0,
     "FREQUENCY_COUNTER_MAX": 1,
     "events": [ {

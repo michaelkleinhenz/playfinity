@@ -2,11 +2,10 @@ ACHV.OneShotEngine = function() {
     this.achievementType = "OneShotAchievementType";
 };
 
-ACHV.OneShotEngine.prototype.process = function(event, achievement, notifyUnlockCallback) {
+ACHV.OneShotEngine.prototype.process = function(event, achievement, achievementType) {
     var oneShotEvent = achievement.oneShotEvent;
     if(oneShotEvent.name === event.name) {
-	achievement.locked = false;
-	notifyUnlockCallback(achievement);
+	    achievementType.result = "satisfied";
     }
 };
 

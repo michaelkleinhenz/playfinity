@@ -1,22 +1,25 @@
 ACHV.timerEngine = function(spec) {
     var that = ACHV.engine(spec);
 
-    that.process = function(event, achievement, notifyUnlockCallback) {
+    that.process = function(event, achievement, achievementType) {
+        var result = "stillSatisfiable";
         processStartEvent(event);
-        processStopEvent(event);
+        processCurrentEvent(event);
 
         function processStartEvent(event) {
-           if(event.hasOwnProperty("startTsInit")) {
-               achievement.startTime = event.startTsInit;
+           if(event.hasOwnProperty("tsInit") && !achievement.hasOwnProperty("startTime")) {
+               achievement.startTime = event.tsInit;
            }
         }
 
-        function processStopEvent(event) {
-            if(event.hasOwnProperty("stopTsInit")) {
-                achievement.stopTime = event.stopTsInit;
-                achievement.timer = achievement.stopTime - achievement.startTime;
-                if (achievement.timer >= achievement.TIMER_MAX_SEC) {
-                    that.unlockAchievement(achievement, notifyUnlockCallback);
+        function processCurrentEvent(event) {
+            if(event.hasOwnProperty("tsInit")) {
+                achievement.lastEventTime = event.tsInit;
+                achievement.timer = achievement.lastEventTime - achievement.startTime;
+                if (achievement.timer <= achievement.TIMER_MAX_SEC) {
+                        achievementType.result = "satisfied";
+                } else {
+                        achievementType.result = "broken";
                 }
             }
         }

@@ -5,13 +5,11 @@ TestCase("CounterEngineTest", {
 	    var engine = new ACHV.CounterEngine();
     	var event = FIXTURE.getHeadShotEvent();
     	var achievement = FIXTURE.getTenHeadShotsAchievement();
-    	var callback = function(unlockedAchievement) {
-	        isLocked = achievement.locked;
-    	};
+        var achievementType = achievement.types[0];
     	for (var i = 0; i < 10; i++) {
-	        engine.process(event, achievement, callback);
+	        engine.process(event, achievement, achievement.types[0]);
     	}
-	    assertFalse(isLocked);
+	    assertEquals("satisfied", achievementType.result);
     },
 
     testProcessStillLockedSingleCounter: function() {
@@ -27,50 +25,46 @@ TestCase("CounterEngineTest", {
     },
 
     testProcessToUnlockEventAlternate: function () {
-	var isLocked = true;
-	var engine = new ACHV.CounterEngine();
-	var headShotEvent = FIXTURE.getHeadShotEvent();
-	var kneeShotEvent = FIXTURE.getKneeShotEvent();
-	var achievement = FIXTURE.getTenHeadAndKneeShotsAchievement();
-	var callback = function(unlockedAchievement) {
-	    isLocked = achievement.locked;
-	};
-	for (var i = 0; i < 10; i++) {
-	    engine.process(headShotEvent, achievement, callback);
-	    engine.process(kneeShotEvent, achievement, callback);
-	}
-	assertFalse(isLocked);
+        var isLocked = true;
+        var engine = new ACHV.CounterEngine();
+        var headShotEvent = FIXTURE.getHeadShotEvent();
+        var kneeShotEvent = FIXTURE.getKneeShotEvent();
+        var achievement = FIXTURE.getTenHeadAndKneeShotsAchievement();
+        var achievementType = achievement.types[0];
+        for (var i = 0; i < 10; i++) {
+            engine.process(headShotEvent, achievement, achievementType);
+            engine.process(kneeShotEvent, achievement, achievementType);
+        }
+        assertEquals("satisfied", achievementType.result);
     },
-    
+
     testProcessToUnlockEventInRow: function () {
-	var isLocked = true;
-	var engine = new ACHV.CounterEngine();
-	var headShotEvent = FIXTURE.getHeadShotEvent();
-	var kneeShotEvent = FIXTURE.getKneeShotEvent();
-	var achievement = FIXTURE.getTenHeadAndKneeShotsAchievement();
-	var callback = function(unlockedAchievement) {
-	    isLocked = achievement.locked;
-	};
-	for (var i = 0; i < 10; i++) {
-	    engine.process(headShotEvent, achievement, callback);
-	}
-	for (var i = 0; i < 10; i++) {
-	    engine.process(kneeShotEvent, achievement, callback);
-	}    
-	assertFalse(isLocked);
+        var isLocked = true;
+        var engine = new ACHV.CounterEngine();
+        var headShotEvent = FIXTURE.getHeadShotEvent();
+        var kneeShotEvent = FIXTURE.getKneeShotEvent();
+        var achievement = FIXTURE.getTenHeadAndKneeShotsAchievement();
+        var achievementType = achievement.types[0];
+        for (var i = 0; i < 10; i++) {
+            engine.process(headShotEvent, achievement, achievementType);
+        }
+        for (var i = 0; i < 10; i++) {
+            engine.process(kneeShotEvent, achievement, achievementType);
+        }
+        assertEquals("satisfied", achievementType.result);
     },
-    
+
     testProcessStillLocked: function() {
-	var isLocked = true;
-	var engine = new ACHV.CounterEngine();
-	var kneeShotEvent = FIXTURE.getKneeShotEvent();
-	var achievement = FIXTURE.getTenHeadAndKneeShotsAchievement();
-	var callback = function(unlockedAchievement) {
-	    isLocked = achievement.locked;
-	};
-	for (var i = 0; i < 10; i++) {
-	    engine.process(kneeShotEvent, achievement, callback);
-	}
-	assertTrue(isLocked);
+        var isLocked = true;
+        var engine = new ACHV.CounterEngine();
+        var kneeShotEvent = FIXTURE.getKneeShotEvent();
+        var achievement = FIXTURE.getTenHeadAndKneeShotsAchievement();
+        var callback = function(unlockedAchievement) {
+            isLocked = achievement.locked;
+        };
+        for (var i = 0; i < 10; i++) {
+            engine.process(kneeShotEvent, achievement, callback);
+        }
+        assertTrue(isLocked);
     }
 });

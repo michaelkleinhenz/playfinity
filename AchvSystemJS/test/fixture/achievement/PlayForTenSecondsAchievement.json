@@ -1,6 +1,12 @@
 {
     "name": "PlayForTenSecondsAchievement",
-    "type": "TimerAchievementType",
+    "types":    [
+                    {
+                        "achievementType": "TimerAchievementType",
+                        "result": "stillSatisfiable"
+                    }
+                ],
+
     "events": [
         {"name": "StartGameEvent"},
         {"name": "StopGameEvent"}
