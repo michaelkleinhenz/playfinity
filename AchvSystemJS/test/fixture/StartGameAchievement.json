@@ -1,7 +1,0 @@
-{
-    "name": "StartGameAchievement",
-    "type": "OneShotAchievementType",
-    "events": [ {"name": "StartGameEvent"} ],
-    "locked": true,
-    "oneShotEvent": {"name": "StartGameEvent"}
-}

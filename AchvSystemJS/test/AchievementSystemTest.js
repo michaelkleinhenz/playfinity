@@ -2,7 +2,7 @@ TestCase("AchievementSystemTest", {
     testRegisterAchievement : function() {
 	var achievementEngineMock = mock(ACHV.AchievementEngine);
 	var achievementSystem = new ACHV.AchievementSystem(achievementEngineMock);
-	var achievement = mock(ACHV.Achievement);
+	var achievement = FIXTURE.getStartGameAchievement();
 	achievementSystem.registerAchievement(achievement);
 	when(achievementEngineMock).getAchievements().thenReturn([achievement]);
 	var achievements = achievementSystem.getAchievements();
@@ -19,7 +19,7 @@ TestCase("AchievementSystemTest", {
     testIsAchivementUnlocked: function() {
 	var achievementEngineMock = mock(ACHV.AchievementEngine);
 	var achievementSystem = new ACHV.AchievementSystem(achievementEngineMock);
-	var achievement = mock(ACHV.Achievement);
+	var achievement = FIXTURE.getStartGameAchievement();
 	achievementSystem.registerAchievement(achievement);
 	when(achievementEngineMock).getAchievements().thenReturn([achievement]);
 	var isUnlocked = achievementSystem.isAchievementUnlocked(achievement);

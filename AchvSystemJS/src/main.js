@@ -1,6 +1,5 @@
 global.Utils = require('./util/utils');
 var hashMap = require('./../libs/hashmap');
-var achv = require('./core/Achievement');
 var achvEngine = require('./core/AchievementEngine');
 var achvSystem = require('./core/AchievementSystem');
 var server = require('./server/Server');

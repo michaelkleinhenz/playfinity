@@ -1,3 +1,5 @@
+ACHV = {};
+
 ACHV.AchievementEngine = function(engines, achievements) {
     this.engines = engines;
     this.achievements = achievements;
@@ -53,26 +55,68 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
     var fittingAchievements = this.getAchievementsForEventType(event.name);
     
     processAchievements(this.engines, fittingAchievements);
-    
+
     // TODO remove when removing callback style
     if (unlockedAchievements.length > 0) {
-	notifyUnlockCallback(unlockedAchievements);
+        notifyUnlockCallback(unlockedAchievements);
     }
     
     function processAchievements(engines, achievements) {
-	for (var i = 0; i < achievements.length; i++) {
-	    processAchievement(engines, achievements[i]);
-	}
-	
-	function processAchievement(engines, achievement) {
-	    if (engines.has(achievement.type)) {
-		var fittingEngine = engines.get(achievement.type);
-		fittingEngine.process(event, achievement, unlockAchievement);
-	    }
-	}
+        for (var i = 0; i < achievements.length; i++) { processAchievement(engines, achievements[i]); }  function processAchievement(engines, achievement) {
+            for (var i = 0; i < achievement.types.length; i++) {
+                processAchievementType(achievement.types[i]);
+            }
+            evaluateRuleResults();
+
+            function processAchievementType(achievementType) {
+                // TODO rename achievementType.achievementType
+                if (engines.has(achievementType.achievementType)) {
+                    var fittingRuleEvaluator = engines.get(achievementType.achievementType);
+                    fittingRuleEvaluator.process(event, achievement, achievementType);
+                }
+            }
+
+            function evaluateRuleResults() {
+
+                var isAchieved = true;
+                for (var i = 0; i < achievement.types.length; i++) {
+                    var currentResult = achievement.types[i].result;
+                    if (currentResult.hasOwnProperty("negation")) {
+                        if (currentResult.negation) {
+                            if (currentResult === "satisfied") {
+                                resetAchievement(achievement);
+                                isAchieved = false;
+                                break;
+                            } else if (currentResult === "stillSatisfiable") {
+                                isAchieved = false;
+                                break;
+                            }
+                        }
+                    } else {
+                        if (currentResult === "broken") {
+                            resetAchievement(achievement);
+                            isAchieved = false;
+                            break;
+                        } else if (currentResult === "stillSatisfiable") {
+                            isAchieved = false;
+                            break;
+                        }
+                    }
+                }
+                if (isAchieved) {
+                    unlockAchievement(achievement);
+                }
+            }
+
+            function resetAchievement(achievement) {
+                console.log("resetAchievement: " + JSON.stringify(achievement));
+            }
+
+        }
     }
-    
+
     function unlockAchievement(achievement) {
+        achievement.locked = false;
         incFrequencyCounter(achievement);
         resetEventCounters(achievement);
         checkFrequencyReached(achievement);

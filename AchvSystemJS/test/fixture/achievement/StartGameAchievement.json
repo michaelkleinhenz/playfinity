@@ -1,0 +1,12 @@
+{
+    "name": "StartGameAchievement",
+    "types":    [
+                    {
+                        "achievementType": "OneShotAchievementType",
+                        "result": "stillSatisfiable"
+                    }
+                ],
+    "events": [ {"name": "StartGameEvent"} ],
+    "locked": true,
+    "oneShotEvent": {"name": "StartGameEvent"}
+}
