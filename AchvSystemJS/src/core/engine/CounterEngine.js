@@ -1,23 +1,21 @@
 ACHV.CounterEngine = function() {
-    this.achievementType = 'CounterAchievementType';
+    this.achievementType = 'CounterRule';
 };
 
-ACHV.CounterEngine.prototype.process = function(event, achievement, achievementType) {
-    for (var i = 0; i < achievement.events.length; i++) {
-        var currentEvent = achievement.events[i];
-        if (currentEvent.counter >= currentEvent.COUNTER_MAX) {
-            continue;
-        }
-        if (currentEvent.name === event.name) {
-            currentEvent.counter = currentEvent.counter + 1;
-            if(currentEvent.counter >= currentEvent.COUNTER_MAX) {
-                achievement.unlockCounter = achievement.unlockCounter + 1;
-                if(achievement.unlockCounter >= achievement.UNLOCK_COUNTER_MAX) {
-                    achievementType.result = "satisfied";
-                }
-            }
+ACHV.CounterEngine.prototype.process = function(event, achievement, rule) {
+    if (event.name === rule.interruptEvent) {
+        this.reset(rule);
+    } else if (rule.event === event.name) {
+        rule.counter++;
+        if (rule.counter >= rule.COUNTER_MAX) {
+            rule.state = "satisfied";
         }
     }
+};
+
+ACHV.CounterEngine.prototype.reset = function(rule) {
+    rule.counter = 0;
+    rule.state = "inProgress";
 };
 
 exports.CounterEngine = ACHV.CounterEngine;

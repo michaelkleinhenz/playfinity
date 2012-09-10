@@ -1,11 +1,12 @@
 {
-    "name": "TenHeadAndKneeShotsAchievement",
+    "name": "TenHeadShotsUninterruptableAndTenKneeShotsAchievement",
     "process":  [
             [
                 {
                     "type": "CounterRule",
                     "state": "inProgress",
                     "event": "HeadShotEvent",
+                    "interruptEvent": "KneeShotEvent",
                     "counter": 0,
                     "COUNTER_MAX": 10
                 },

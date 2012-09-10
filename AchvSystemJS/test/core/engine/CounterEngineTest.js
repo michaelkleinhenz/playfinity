@@ -5,11 +5,12 @@ TestCase("CounterEngineTest", {
 	    var engine = new ACHV.CounterEngine();
     	var event = FIXTURE.getHeadShotEvent();
     	var achievement = FIXTURE.getTenHeadShotsAchievement();
-        var achievementType = achievement.types[0];
-    	for (var i = 0; i < 10; i++) {
-	        engine.process(event, achievement, achievement.types[0]);
+        achievement = ACHV.achievementWrapper(achievement);
+        var rules = achievement.getRules();
+        for (var i = 0; i < 10; i++) {
+	        engine.process(event, achievement, rules[0]);
     	}
-	    assertEquals("satisfied", achievementType.result);
+	    assertEquals("satisfied", rules[0].state);
     },
 
     testProcessStillLockedSingleCounter: function() {
@@ -30,12 +31,14 @@ TestCase("CounterEngineTest", {
         var headShotEvent = FIXTURE.getHeadShotEvent();
         var kneeShotEvent = FIXTURE.getKneeShotEvent();
         var achievement = FIXTURE.getTenHeadAndKneeShotsAchievement();
-        var achievementType = achievement.types[0];
+        achievement = ACHV.achievementWrapper(achievement);
+        var rules = achievement.getRules();
         for (var i = 0; i < 10; i++) {
-            engine.process(headShotEvent, achievement, achievementType);
-            engine.process(kneeShotEvent, achievement, achievementType);
+            engine.process(headShotEvent, achievement, rules[0]);
+            engine.process(kneeShotEvent, achievement, rules[1]);
         }
-        assertEquals("satisfied", achievementType.result);
+        assertEquals("satisfied", rules[0].state);
+        assertEquals("satisfied", rules[1].state);
     },
 
     testProcessToUnlockEventInRow: function () {
@@ -44,14 +47,16 @@ TestCase("CounterEngineTest", {
         var headShotEvent = FIXTURE.getHeadShotEvent();
         var kneeShotEvent = FIXTURE.getKneeShotEvent();
         var achievement = FIXTURE.getTenHeadAndKneeShotsAchievement();
-        var achievementType = achievement.types[0];
+        achievement = ACHV.achievementWrapper(achievement);
+        var rules = achievement.getRules();
         for (var i = 0; i < 10; i++) {
-            engine.process(headShotEvent, achievement, achievementType);
+            engine.process(headShotEvent, achievement, rules[0]);
         }
-        for (var i = 0; i < 10; i++) {
-            engine.process(kneeShotEvent, achievement, achievementType);
+        for (var j = 0; j < 10; j++) {
+            engine.process(kneeShotEvent, achievement, rules[1]);
         }
-        assertEquals("satisfied", achievementType.result);
+        assertEquals("satisfied", rules[0].state);
+        assertEquals("satisfied", rules[1].state);
     },
 
     testProcessStillLocked: function() {

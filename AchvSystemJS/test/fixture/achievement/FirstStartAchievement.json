@@ -1,14 +1,15 @@
 {
     "name": "FirstStartAchievement",
-    "types":    [
-                    {
-                        "achievementType": "OneShotAchievementType",
-                        "result": "stillSatisfiable"
-                    }
-                ],
+    "process":  [
+        [
+            {
+                "type": "OneShotRule",
+                "state": "inProgress",
+                "event": "StartGameEvent"
+            }
+        ]
+    ],
     "frequencyCounter": 0,
     "FREQUENCY_COUNTER_MAX": 1,
-    "events": [ {"name": "StartGameEvent"} ],
-    "locked": true,
-    "oneShotEvent": {"name": "StartGameEvent"}
+    "locked": true
 }

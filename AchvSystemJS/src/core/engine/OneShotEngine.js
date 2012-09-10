@@ -1,12 +1,15 @@
 ACHV.OneShotEngine = function() {
-    this.achievementType = "OneShotAchievementType";
+    this.achievementType = "OneShotRule";
 };
 
-ACHV.OneShotEngine.prototype.process = function(event, achievement, achievementType) {
-    var oneShotEvent = achievement.oneShotEvent;
-    if(oneShotEvent.name === event.name) {
-	    achievementType.result = "satisfied";
+ACHV.OneShotEngine.prototype.process = function(event, achievement, rule) {
+    if(rule.event === event.name) {
+	    rule.state = "satisfied";
     }
+};
+
+ACHV.OneShotEngine.prototype.reset = function(rule) {
+    rule.state = "inProgress";
 };
 
 exports.OneShotEngine = ACHV.OneShotEngine;

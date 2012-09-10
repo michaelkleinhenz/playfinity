@@ -1,7 +1,0 @@
-{
-    "name": "MyAchievement",
-    "unlockRules": [ {"name": "MyUnlockRule",  "unlockEvent": {"type": "MyUnlockEvent"} } ],
-    "events": [{"type": "MyUnlockEvent"}],
-    "eventCounter": "0",
-   "locked": "true"
-}
