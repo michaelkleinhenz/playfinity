@@ -88,9 +88,24 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
             evaluateRuleResults(engines);
 
             function processAchievementProcessParts() {
-                var rules = getRules(achievement);
+                var rules = getActiveRules(achievement);
                 for (var i = 0; i < rules.length; i++) {
+                    // console.log(achievement.name + ": " + event.name + " --> " + rules[i].event);
                     processAchievementRule(rules[i]);
+                }
+
+                function getActiveRules(achievement) {
+                    var activeRules = [];
+                    for (var i = 0; i < achievement.process.length; i++) {
+                        var currentParallelRules = achievement.process[i];
+                        for(var j = 0; j < currentParallelRules.length; j++) {
+                            if (currentParallelRules[j].state != 'satisfied') {
+                                activeRules.push(currentParallelRules[j]);
+                                break;
+                            }
+                        }
+                    }
+                    return activeRules;
                 }
             }
 
@@ -187,6 +202,7 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
 	        }
         }
     }
+
     function getRules(achievement) {
         var rules = [];
         for (var i = 0; i < achievement.process.length; i++) {
@@ -198,6 +214,7 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
         }
         return rules;
     }
+
 };
 
 exports.AchievementEngine = ACHV.AchievementEngine;

@@ -41,6 +41,10 @@ FIXTURE = {
 	getKneeShotEvent: function() {
 	    return FIXTURE.getFixtureObj("event/KneeShotEvent.json");
 	},
+
+    getChestShotEvent: function() {
+        return FIXTURE.getFixtureObj("event/ChestShotEvent.json");
+    },
 	
 	getTenHeadAndKneeShotsAchievement: function() {
 	    return FIXTURE.getFixtureObj("achievement/TenHeadAndKneeShotsAchievement.json");

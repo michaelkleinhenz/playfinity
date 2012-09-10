@@ -101,9 +101,11 @@ TestCase("AchievementEngineTest", {
 	    var kneeShotEvent = FIXTURE.getKneeShotEvent();
     	for (var i = 0; i < 10; i++) {
 	        achievementEngine.processEvent(headShotEvent, notifyUnlock);
-	        achievementEngine.processEvent(kneeShotEvent, notifyUnlock);
 	    }
-	
+	    for (var j = 0; j < 10; j++) {
+            achievementEngine.processEvent(kneeShotEvent, notifyUnlock);
+        }
+
     	// check achievement removed
 	    achievements = achievementEngine.getAchievements();
     	assertFalse(Utils.arrayContains(achievements, achievement));
@@ -238,6 +240,8 @@ TestCase("AchievementEngineTest", {
     /**
      * Unlock achievement.
      * (TenHeadShots -> TenKneeShots) || TenChestShots
+     * All events are triggered in row.
+     * First TenHeadShots, then TenKneeShots and finally TenChestShots.
      */
     testTenHeadShotsSeqTenKneeShotsParTenChestShots: function() {
         // set engine
@@ -251,9 +255,58 @@ TestCase("AchievementEngineTest", {
         // trigger events
         var headShotEvent = FIXTURE.getHeadShotEvent();
         this.multiProcessEvent(headShotEvent, 10);
+        achievement = ACHV.achievementWrapper(achievement);
+        var rules = achievement.getRules();
+        assertEquals("satisfied", rules[0].state);
 
-        console.log("testTenHeadShotSeq...:" + JSON.stringify(achievement));
+        var kneeShotEvent = FIXTURE.getKneeShotEvent();
+        this.multiProcessEvent(kneeShotEvent, 10);
+        rules = achievement.getRules();
+        assertEquals("satisfied", rules[1].state);
 
+        var chestShotEvent = FIXTURE.getChestShotEvent();
+        this.multiProcessEvent(chestShotEvent, 10);
+        rules = achievement.getRules();
+        assertEquals("satisfied", rules[2].state);
+
+        var achievements = achievementEngine.getAchievements();
+        assertFalse(Utils.arrayContains(achievements, achievement));
+    },
+
+    /**
+     * Locked achievement.
+     * (TenHeadShots -> TenKneeShots) || TenChestShots
+     * Sequential events are triggered in wrong order.
+     * First TenKneeShots, then TenHeadShots and finally TenChestShots.
+     */
+    testTenHeadShotsSeqTenKneeShotsParTenChestShotsTwo: function() {
+       // set engine
+        var counterEngine = new ACHV.CounterEngine();
+        achievementEngine.registerEngine(counterEngine);
+
+        // set achievement
+        var achievement = FIXTURE.getTenHeadShotsSeqTenKneeShotsParTenChestShots();
+        achievementEngine.registerAchievement(achievement);
+        achievement = ACHV.achievementWrapper(achievement);
+
+        // trigger events
+        var kneeShotEvent = FIXTURE.getKneeShotEvent();
+        this.multiProcessEvent(kneeShotEvent, 10);
+        var rules = achievement.getRules();
+        assertEquals("inProgress", rules[1].state);
+
+        var headShotEvent = FIXTURE.getHeadShotEvent();
+        this.multiProcessEvent(headShotEvent, 10);
+        rules = achievement.getRules();
+        assertEquals("satisfied", rules[0].state);
+
+        var chestShotEvent = FIXTURE.getChestShotEvent();
+        this.multiProcessEvent(chestShotEvent, 10);
+        rules = achievement.getRules();
+        assertEquals("satisfied", rules[2].state);
+
+        var achievements = achievementEngine.getAchievements();
+        assertTrue(Utils.arrayContains(achievements, achievement));
     },
 
     multiProcessEvent: function(event, times) {
