@@ -15,7 +15,7 @@ FIXTURE = {
 	},
 	
 	getStartGameEvent: function() {
-	    return FIXTURE.getFixtureObj("StartGameEvent.json");
+    return FIXTURE.getFixtureObj("event/StartGameEvent.json");
 	},
 
     getStopGameEvent: function(){
@@ -31,7 +31,7 @@ FIXTURE = {
 	},
 	
 	getHeadShotEvent: function() {
-	    return FIXTURE.getFixtureObj("HeadShotEvent.json");
+	    return FIXTURE.getFixtureObj("event/HeadShotEvent.json");
 	},
 	
 	getTenHeadShotsAchievement: function() {
@@ -39,7 +39,7 @@ FIXTURE = {
 	},
 	
 	getKneeShotEvent: function() {
-	    return FIXTURE.getFixtureObj("KneeShotEvent.json");
+	    return FIXTURE.getFixtureObj("event/KneeShotEvent.json");
 	},
 	
 	getTenHeadAndKneeShotsAchievement: function() {
@@ -52,5 +52,9 @@ FIXTURE = {
 
     getTenHeadShotsInTenMinutesAchievement: function() {
         return FIXTURE.getFixtureObj("achievement/TenHeadShotsInTenMinutesAchievement.json");
-    }
+    },
+
+   getTenHeadShotsSeqTenKneeShotsParTenChestShots: function() {
+       return FIXTURE.getFixtureObj("achievement/TenHeadShotsSeqTenKneeShotsParTenChestShotsAchievement.json");
+   }
 };

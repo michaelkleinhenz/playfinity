@@ -1,19 +1,24 @@
 {
     "name": "PlayForTenSecondsAchievement",
-    "types":    [
-                    {
-                        "achievementType": "TimerAchievementType",
-                        "result": "stillSatisfiable"
-                    }
-                ],
+    "process":  [
+            [
+                {
+                    "type": "StopWatchRule",
+                    "events": [
+                        {"name": "StartGameEvent"},
+                        {"name": "StopGameEvent"}
+                    ],
+                    "state": "inProgress",
+                    "startEvent": "StartGameEvent",
+                    "stopEvent": "StopGameEvent",
+                    "timer": 0,
+                    "TIMER_MAX_SEC": 10
+                }
 
-    "events": [
-        {"name": "StartGameEvent"},
-        {"name": "StopGameEvent"}
+           ]
     ],
+
     "locked": true,
-    "unlockCounter": 0,
-    "UNLOCK_COUNTER_MAX": 1,
-    "timer": 0,
-    "TIMER_MAX_SEC": 10
+    "frequencyCounter": 0,
+    "FREQUENCY_COUNTER_MAX": 1
 }

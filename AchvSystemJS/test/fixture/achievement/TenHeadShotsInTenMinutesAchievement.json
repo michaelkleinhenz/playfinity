@@ -1,29 +1,24 @@
 {
     "name": "TenHeadShotsInTenMinutesAchievement",
-    "types":    [
-                    {
-                        "achievementType": "TimerAchievementType",
-                        "result": "stillSatisfiable"
-                    },
-                    {
-                        "achievementType": "CounterAchievementType",
-                        "result": "stillSatisfiable"
-                    }
-                ],
-    "events": [
-        {
-            "name": "HeadShotEvent",
-            "counter": 0,
-            "COUNTER_MAX": 10
-        }
+    "process":  [
+        [
+            {
+                "type": "TimerRule",
+                "event": "HeadShotEvent",
+                "state": "inProgress",
+                "timer": 0,
+                "TIMER_MAX_SEC": 600
+            },
+            {
+                "type": "CounterRule",
+                "event": "HeadShotEvent",
+                "state": "inProgress",
+                "counter": 0,
+                "COUNTER_MAX": 10
+            }
+        ]
     ],
     "locked": true,
-    "unlockCounter": 0,
-    "UNLOCK_COUNTER_MAX": 1,
-
     "frequencyCounter": 0,
-    "FREQUENCY_COUNTER_MAX": 1,
-
-    "timer": 0,
-    "TIMER_MAX_SEC": 600
+    "FREQUENCY_COUNTER_MAX": 1
 }

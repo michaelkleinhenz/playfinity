@@ -1,21 +1,17 @@
 {
     "name": "TenHeadShotsAchievement",
-    "types":    [
-                    {
-                        "achievementType": "CounterAchievementType",
-                        "result": "stillSatisfiable"
-                    }
-                ],
+    "process": [
+        [
+            {
+                "type": "CounterRule",
+                "state": "inProgress",
+                "counter": 0,
+                "COUNTER_MAX": 10,
+                "event": "HeadShotEvent"
+            }
+        ]
+    ],
     "frequencyCounter": 0,
     "FREQUENCY_COUNTER_MAX": 2,
-    "events": [ {
-    				"name": "HeadShotEvent",
-    				"counter": 0,
-    				"COUNTER_MAX": 10
-    			}
-    		  ],
-
-    "locked": true,
-    "unlockCounter": 0,
-    "UNLOCK_COUNTER_MAX": 1
+    "locked": true
 }

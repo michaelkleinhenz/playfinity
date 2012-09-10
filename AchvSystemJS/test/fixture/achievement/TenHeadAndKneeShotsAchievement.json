@@ -1,25 +1,24 @@
 {
     "name": "TenHeadAndKneeShotsAchievement",
-    "types":    [
-                    {
-                        "achievementType": "CounterAchievementType",
-                        "result": "stillSatisfiable"
-                    }
-                ],
+    "process":  [
+            [
+                {
+                    "type": "CounterRule",
+                    "state": "inProgress",
+                    "event": "HeadShotEvent",
+                    "counter": 0,
+                    "COUNTER_MAX": 10
+                },
+                {
+                    "type": "CounterRule",
+                    "state": "inProgress",
+                    "event": "KneeShotEvent",
+                    "counter": 0,
+                    "COUNTER_MAX": 10
+                }
+            ]
+    ],
     "frequencyCounter": 0,
     "FREQUENCY_COUNTER_MAX": 1,
-    "events": [ {
-    				"name": "HeadShotEvent",
-    				"counter": 0,
-    				"COUNTER_MAX": 10
-    			},
-
-    			{
-    				"name": "KneeShotEvent",
-    				"counter": 0,
-    				"COUNTER_MAX": 10
-    			} ],
-    "locked": true,
-    "unlockCounter": 0,
-    "UNLOCK_COUNTER_MAX": 2
+    "locked": true
 }

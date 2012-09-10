@@ -14,15 +14,32 @@ ACHV.AchievementEngine.prototype.getEngineForAchievementType = function(achievem
 };
 
 ACHV.AchievementEngine.prototype.registerAchievement = function(achievement) {
-    for ( var i = 0; i < achievement.events.length; i++) {
-	var currentEvent = achievement.events[i];
-	if (this.achievements.has(currentEvent.name)) {
-	    var currentAchievements = this.achievements.get(currentEvent.name);
-	    currentAchievements.push(achievement);
-	    this.achievements.set(currentEvent.name, currentAchievements);
-	} else {
-	    this.achievements.set(currentEvent.name, [achievement]);
-	}
+    for (var j = 0; j < achievement.process.length; j++) {
+        registerProcessParts(achievement.process[j], this.achievements);
+    }
+
+    function registerProcessParts(processParts, achievements) {
+        for (var i = 0; i < processParts.length; i++) {
+            registerEvent(processParts[i].event, achievements);
+        }
+    }
+
+    function registerEvent(event, achievements) {
+        if (achievements.has(event)) {
+            var registeredAchievements = achievements.get(event);
+            registeredAchievements.push(achievement);
+        } else {
+            achievements.set(event, [achievement]);
+        }
+    }
+};
+
+ACHV.AchievementEngine.prototype.getAchievement = function(achievementName) {
+    var allAchievements = this.getAchievements();
+    for (var i = 0; i < allAchievements.length; i++) {
+        if (allAchievements[i].name === achievementName) {
+            return allAchievements[i];
+        }
     }
 };
 
@@ -53,7 +70,7 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
     var eventToAchievementsMap = this.achievements;
         
     var fittingAchievements = this.getAchievementsForEventType(event.name);
-    
+
     processAchievements(this.engines, fittingAchievements);
 
     // TODO remove when removing callback style
@@ -62,65 +79,83 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
     }
     
     function processAchievements(engines, achievements) {
-        for (var i = 0; i < achievements.length; i++) { processAchievement(engines, achievements[i]); }  function processAchievement(engines, achievement) {
-            for (var i = 0; i < achievement.types.length; i++) {
-                processAchievementType(achievement.types[i]);
-            }
-            evaluateRuleResults();
+        for (var i = 0; i < achievements.length; i++) {
+            processAchievement(engines, achievements[i]);
+        }
 
-            function processAchievementType(achievementType) {
-                // TODO rename achievementType.achievementType
-                if (engines.has(achievementType.achievementType)) {
-                    var fittingRuleEvaluator = engines.get(achievementType.achievementType);
-                    fittingRuleEvaluator.process(event, achievement, achievementType);
+        function processAchievement(engines, achievement) {
+            processAchievementProcessParts();
+            evaluateRuleResults(engines);
+
+            function processAchievementProcessParts() {
+                var rules = getRules(achievement);
+                for (var i = 0; i < rules.length; i++) {
+                    processAchievementRule(rules[i]);
                 }
             }
 
-            function evaluateRuleResults() {
+            function processAchievementRule(rule) {
+                if (engines.has(rule.type)) {
+                    var fittingRuleEvaluator = engines.get(rule.type);
+                    fittingRuleEvaluator.process(event, achievement, rule);
+                }
+            }
 
+            function evaluateRuleResults(engines) {
                 var isAchieved = true;
-                for (var i = 0; i < achievement.types.length; i++) {
-                    var currentResult = achievement.types[i].result;
-                    if (currentResult.hasOwnProperty("negation")) {
-                        if (currentResult.negation) {
-                            if (currentResult === "satisfied") {
-                                resetAchievement(achievement);
-                                isAchieved = false;
-                                break;
-                            } else if (currentResult === "stillSatisfiable") {
-                                isAchieved = false;
-                                break;
-                            }
-                        }
-                    } else {
-                        if (currentResult === "broken") {
-                            resetAchievement(achievement);
-                            isAchieved = false;
-                            break;
-                        } else if (currentResult === "stillSatisfiable") {
-                            isAchieved = false;
-                            break;
-                        }
+                var rules = getRules(achievement);
+                for (var i=0; i < rules.length; i++) {
+                    if (!evaluateRule(rules[i])) {
+                        isAchieved = false;
+                        break;
                     }
                 }
                 if (isAchieved) {
-                    unlockAchievement(achievement);
+                    unlockAchievement(engines, achievement);
+                }
+
+                function evaluateRule(rule) {
+                    if (rule.hasOwnProperty("negation")) {
+                        if (rule.negation) {
+                            if (rule.state === "satisfied") {
+                                resetAchievement(achievement);
+                                return false;
+                            } else if (rule.state === "inProgress") {
+                                return false;
+                            }
+                        }
+                    } else {
+                        if (rule.state === "broken") {
+                            resetAchievement(achievement);
+                            return false;
+                        } else if (rule.state === "inProgress") {
+                            return false;
+                        }
+                    }
+                    return true;
                 }
             }
 
             function resetAchievement(achievement) {
-                console.log("resetAchievement: " + JSON.stringify(achievement));
+                var rules = getRules(achievement);
+                for (var i = 0; i < rules.length; i++) {
+                    var engine = engines.get(rules[i].type);
+                    engine.reset(rules[i]);
+                }
             }
 
         }
     }
 
-    function unlockAchievement(achievement) {
-        achievement.locked = false;
+    function unlockAchievement(engines, achievement) {
         incFrequencyCounter(achievement);
-        resetEventCounters(achievement);
-        checkFrequencyReached(achievement);
- 	    unlockedAchievements.push(achievement);
+        if (isFrequencyReached(achievement)) {
+            removeAchievement(achievement);
+        } else {
+            resetAchievementState(achievement);
+        }
+        achievement.locked = false; // TODO remove this property
+        unlockedAchievements.push(achievement);
 
         function incFrequencyCounter(achievement) {
             if(achievement.hasOwnProperty("frequencyCounter")) {
@@ -128,27 +163,40 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
             }
         }
 
-        function resetEventCounters(achievement) {
-            for (var i = 0; i < achievement.events.length; i++) {
-                var currentEvent = achievement.events[i];
-                if (currentEvent.hasOwnProperty("counter")) {
-                 currentEvent.counter = 0;
-                }
+        function resetAchievementState(achievement) {
+            var rules = getRules(achievement);
+            for (var i = 0; i < rules.length; i++) {
+                var engine = engines.get(rules[i].type);
+                engine.reset(rules[i]);
             }
         }
 
-        function checkFrequencyReached(achievement) {
-            if (achievement.frequencyCounter >= achievement.FREQUENCY_COUNTER_MAX) {
-                removeAchievement(achievement);
-            }
-
-            function removeAchievement(achievement) {
- 	            for (var i = 0; i < achievement.events.length; i++) {
-        	    	var currentEvent = achievement.events[i];
-    	    	    Utils.mapRemoveArrayValue(eventToAchievementsMap, currentEvent.name, achievement);
-	            }
+        function isFrequencyReached(achievement) {
+            if (achievement.hasOwnProperty("FREQUENCY_COUNTER_MAX")) {
+                return achievement.frequencyCounter >= achievement.FREQUENCY_COUNTER_MAX;
+            } else {
+                return false;
             }
         }
+
+        function removeAchievement(achievement) {
+            var rules = getRules(achievement);
+            for (var i = 0; i < rules.length; i++) {
+                var currentEvent = rules[i].event;
+    	        Utils.mapRemoveArrayValue(eventToAchievementsMap, currentEvent, achievement);
+	        }
+        }
+    }
+    function getRules(achievement) {
+        var rules = [];
+        for (var i = 0; i < achievement.process.length; i++) {
+            for (var j = 0; j < achievement.process[i].length; j++) {
+                var tmpRuleSet = achievement.process[i];
+                var currentRule = tmpRuleSet[j];
+                rules.push(currentRule);
+            }
+        }
+        return rules;
     }
 };
 

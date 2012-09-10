@@ -1,28 +1,32 @@
 ACHV.timerEngine = function(spec) {
     var that = ACHV.engine(spec);
 
-    that.process = function(event, achievement, achievementType) {
-        var result = "stillSatisfiable";
-        processStartEvent(event);
-        processCurrentEvent(event);
+    that.process = function(event, achievement, rule) {
+        that.processStartEvent(event, rule);
+        that.processCurrentEvent(event, rule);
+    };
 
-        function processStartEvent(event) {
-           if(event.hasOwnProperty("tsInit") && !achievement.hasOwnProperty("startTime")) {
-               achievement.startTime = event.tsInit;
-           }
+    that.processStartEvent = function(event, rule) {
+        if(event.hasOwnProperty("tsInit") && !rule.hasOwnProperty("startTime")) {
+            rule.startTime = event.tsInit;
         }
+    };
 
-        function processCurrentEvent(event) {
-            if(event.hasOwnProperty("tsInit")) {
-                achievement.lastEventTime = event.tsInit;
-                achievement.timer = achievement.lastEventTime - achievement.startTime;
-                if (achievement.timer <= achievement.TIMER_MAX_SEC) {
-                        achievementType.result = "satisfied";
-                } else {
-                        achievementType.result = "broken";
-                }
+    that.processCurrentEvent = function(event, rule) {
+        if(event.hasOwnProperty("tsInit")) {
+            rule.lastEventTime = event.tsInit;
+            rule.timer = rule.lastEventTime - rule.startTime;
+            if (rule.timer <= rule.TIMER_MAX_SEC) {
+                rule.state = "satisfied";
+            } else {
+                rule.state = "broken";
             }
         }
+    };
+
+    that.reset = function(rule) {
+        rule.timer = 0;
+        rule.state = "inProgress";
     };
 
     return that;
