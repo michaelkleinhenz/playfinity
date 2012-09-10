@@ -21,6 +21,9 @@ ACHV.AchievementEngine.prototype.registerAchievement = function(achievement) {
     function registerProcessParts(processParts, achievements) {
         for (var i = 0; i < processParts.length; i++) {
             registerEvent(processParts[i].event, achievements);
+            if (processParts[i].hasOwnProperty("interruptEvent")) {
+                registerEvent(processParts[i].interruptEvent, achievements);
+            }
         }
     }
 

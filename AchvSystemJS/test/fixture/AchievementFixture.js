@@ -60,5 +60,9 @@ FIXTURE = {
 
    getTenHeadShotsSeqTenKneeShotsParTenChestShots: function() {
        return FIXTURE.getFixtureObj("achievement/TenHeadShotsSeqTenKneeShotsParTenChestShotsAchievement.json");
+   },
+
+   getTenHeadShotsUninterruptableAndTenKneeShotsAchievement: function() {
+       return FIXTURE.getFixtureObj("achievement/TenHeadShotsUninterruptableAndTenKneeShotsAchievement.json");
    }
 };
