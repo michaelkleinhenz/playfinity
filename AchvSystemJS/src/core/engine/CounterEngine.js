@@ -4,7 +4,8 @@ ACHV.CounterEngine = function() {
 
 ACHV.CounterEngine.prototype.process = function(event, achievement, rule) {
     if (event.name === rule.interruptEvent) {
-        this.reset(rule);
+        rule.counter = 0;
+        rule.state = "inProgress";
     } else if (rule.event === event.name) {
         rule.counter++;
         if (rule.counter >= rule.COUNTER_MAX) {
@@ -13,9 +14,10 @@ ACHV.CounterEngine.prototype.process = function(event, achievement, rule) {
     }
 };
 
-ACHV.CounterEngine.prototype.reset = function(rule) {
+ACHV.CounterEngine.prototype.reset = function(event, achievement, rule) {
     rule.counter = 0;
     rule.state = "inProgress";
+    this.process(event, achievement, rule);
 };
 
 exports.CounterEngine = ACHV.CounterEngine;

@@ -24,9 +24,11 @@ ACHV.timerEngine = function(spec) {
         }
     };
 
-    that.reset = function(rule) {
+    that.reset = function(event, achievement, rule) {
         rule.timer = 0;
-        rule.state = "inProgress";
+        rule.state = "satisfied";
+        delete rule.startTime;
+        that.process(event, achievement, rule);
     };
 
     return that;

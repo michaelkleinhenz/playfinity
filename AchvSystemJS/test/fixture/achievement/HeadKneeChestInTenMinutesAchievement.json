@@ -1,0 +1,45 @@
+{
+    "name": "HeadKneeChestInTenMinutesAchievement",
+    "process": [
+        [
+            {
+                "type": "OneShotRule",
+                "state": "inProgress",
+                "event": "HeadShotEvent"
+            },
+            {
+                "type": "CounterRule",
+                "state": "inProgress",
+                "interruptEvent": "HeadShotEvent",
+                "counter": 0,
+                "COUNTER_MAX": 10,
+                "event": "KneeShotEvent"
+            }
+        ],
+        [
+            {
+                "type": "CounterRule",
+                "state": "inProgress",
+                "counter": 0,
+                "COUNTER_MAX": 10,
+                "event": "ChestShotEvent"
+            }
+        ],
+        [
+            {
+                "type": "TimerRule",
+                "events": [
+                    {"name": "HeadShotEvent"},
+                    {"name": "KneeShotEvent"},
+                    {"name": "ChestShotEvent"}
+                ],
+                "state": "satisfied",
+                "timer": 0,
+                "TIMER_MAX_SEC": 600
+            }
+        ]
+    ],
+    "frequencyCounter": 0,
+    "FREQUENCY_COUNTER_MAX": 1,
+    "locked": true
+}

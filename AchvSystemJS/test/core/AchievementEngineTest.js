@@ -4,6 +4,14 @@ TestCase("AchievementEngineTest", {
         var engines = new HashMap();
         var achievements = new HashMap();
         achievementEngine = new ACHV.AchievementEngine(engines, achievements);
+        var counterEnginge = new ACHV.CounterEngine();
+        achievementEngine.registerEngine(counterEnginge);
+        var timerEngine = ACHV.timerEngine({"achievementType": "TimerRule"});
+        achievementEngine.registerEngine(timerEngine);
+        var oneShotEngine = new ACHV.OneShotEngine();
+        achievementEngine.registerEngine(oneShotEngine);
+        var stopWatchEngine = ACHV.stopWatchEngine({"achievementType": "StopWatchRule"});
+        achievementEngine.registerEngine(stopWatchEngine);
     },
 
     testRegisterEngine : function() {
@@ -20,6 +28,13 @@ TestCase("AchievementEngineTest", {
     	achievementEngine.registerAchievement(achievement);
         achievements = achievementEngine.getAchievements();
         assertTrue(Utils.arrayContains(achievements, achievement));
+    },
+
+    testRegisterAchievementTwo: function() {
+        var achievement = FIXTURE.getTenHeadShotsInTenMinutesAchievement();
+        achievementEngine.registerAchievement(achievement);
+        var achievements = achievementEngine.getAchievementsForEventType("HeadShotEvent");
+        assertEquals(1, achievements.length);
     },
 
     testGetAchievement: function() {
@@ -181,12 +196,6 @@ TestCase("AchievementEngineTest", {
     },
 
     testTenHeadShotsInTenMinutesAchievementUnlocked: function() {
-        // set engines
-    	var counterEngine = new ACHV.CounterEngine();
-    	achievementEngine.registerEngine(counterEngine);
-        var timerEngine = ACHV.timerEngine({"achievementType": "TimerRule"});
-        achievementEngine.registerEngine(timerEngine);
-
     	// set achievement
     	var achievement = FIXTURE.getTenHeadShotsInTenMinutesAchievement();
     	achievementEngine.registerAchievement(achievement);
@@ -209,12 +218,6 @@ TestCase("AchievementEngineTest", {
     },
 
     testTenHeadShotsInTenMinutesAchievementLocked: function() {
-        // set engines
-        var counterEngine = new ACHV.CounterEngine();
-        achievementEngine.registerEngine(counterEngine);
-        var timerEngine = ACHV.timerEngine('TimerAchievementType');
-        achievementEngine.registerEngine(timerEngine);
-
         // set achievement
         var achievement = FIXTURE.getTenHeadShotsInTenMinutesAchievement();
         achievementEngine.registerAchievement(achievement);
@@ -223,17 +226,19 @@ TestCase("AchievementEngineTest", {
         var event = FIXTURE.getHeadShotEvent();
         var initDate = Date.now() / 1000;
         for (var i = 0; i < 10; i++) {
-            event.tsInit = initDate + (i * 60); // add i x one minute.
-            achievementEngine.processEvent(event, notifyUnlock);
+            event.tsInit = initDate + (i * 120); // add i x two minutes.
+            achievementEngine.processEvent(event, function(achievement) {});
         }
+        achievement = ACHV.achievementWrapper(achievement);
+        var rules = achievement.getRules();
+        assertEquals("satisfied", rules[0].state);
+        assertEquals(360, rules[0].timer);
+        assertEquals("inProgress", rules[1].state);
+        assertEquals(4, rules[1].counter);
 
-        // check achievement removed
+        // check achievement not removed
         var achievements = achievementEngine.getAchievements();
         assertTrue(Utils.arrayContains(achievements, achievement));
-
-        function notifyUnlock(unlockedAchievements) {
-            assertFalse(Utils.arrayContains(unlockedAchievements, achievement));
-        }
     },
 
 
@@ -244,10 +249,6 @@ TestCase("AchievementEngineTest", {
      * First TenHeadShots, then TenKneeShots and finally TenChestShots.
      */
     testTenHeadShotsSeqTenKneeShotsParTenChestShots: function() {
-        // set engine
-        var counterEngine = new ACHV.CounterEngine();
-        achievementEngine.registerEngine(counterEngine);
-
         // set achievement
         var achievement = FIXTURE.getTenHeadShotsSeqTenKneeShotsParTenChestShots();
         achievementEngine.registerAchievement(achievement);
@@ -280,10 +281,6 @@ TestCase("AchievementEngineTest", {
      * First TenKneeShots, then TenHeadShots and finally TenChestShots.
      */
     testTenHeadShotsSeqTenKneeShotsParTenChestShotsTwo: function() {
-       // set engine
-        var counterEngine = new ACHV.CounterEngine();
-        achievementEngine.registerEngine(counterEngine);
-
         // set achievement
         var achievement = FIXTURE.getTenHeadShotsSeqTenKneeShotsParTenChestShots();
         achievementEngine.registerAchievement(achievement);
@@ -314,10 +311,6 @@ TestCase("AchievementEngineTest", {
      * (TenHeadShots -> TenKneeShots) || TenChestShots
      */
     testTenHeadShotsSeqTenKneeShotsParTenChestShotsThree: function() {
-        // set engine
-        var counterEngine = new ACHV.CounterEngine();
-        achievementEngine.registerEngine(counterEngine);
-
         // set achievement
         var achievement = FIXTURE.getTenHeadShotsSeqTenKneeShotsParTenChestShots();
         achievementEngine.registerAchievement(achievement);
@@ -361,10 +354,6 @@ TestCase("AchievementEngineTest", {
 
 
     testTenHeadShotsTenKneeShotsUninterruptible: function() {
-        // set engine
-        var counterEngine = new ACHV.CounterEngine();
-        achievementEngine.registerEngine(counterEngine);
-
         // set achievement
         var achievement = FIXTURE.getTenHeadShotsUninterruptableAndTenKneeShotsAchievement();
         achievementEngine.registerAchievement(achievement);
@@ -382,6 +371,49 @@ TestCase("AchievementEngineTest", {
         assertEquals(0, rules[1].counter);
         assertEquals(0, rules[0].counter);
 
+
+    },
+
+    /**
+     * Unlock achievement.
+     * (TenHeadShots -> TenKneeShots) || TenChestShots || InTenMinutes
+     */
+    testCombinedAchievementOne: function() {
+        //setup achievements
+        var achievement = FIXTURE.getHeadKneeChestTenMinutesAchievement();
+        achievementEngine.registerAchievement(achievement);
+
+        // setup events
+        var headShotEvent = FIXTURE.getHeadShotEvent();
+        var kneeShotEvent = FIXTURE.getKneeShotEvent();
+        var chestShotEvent = FIXTURE.getChestShotEvent();
+
+        // trigger events
+        var currentDate = Date.now()/1000;
+        this.multiProcessTimedEvent(chestShotEvent, 5, currentDate, 10);
+        this.multiProcessTimedEvent(headShotEvent,1, currentDate, 10);
+        this.multiProcessTimedEvent(kneeShotEvent,10, currentDate, 10);
+        this.multiProcessTimedEvent(chestShotEvent, 5, currentDate, 10);
+
+        // assertion
+        achievement = ACHV.achievementWrapper(achievement);
+        var rules = achievement.getRules();
+        for (var i = 0; i < rules.length; i++) {
+            assertEquals("satisfied", rules[i].state);
+        }
+    },
+
+    multiProcessTimedEvent: function(event, times, startTime, intervalDurationSec) {
+        var unlockedAchievements = [];
+        for (var i = 0; i < times; i++) {
+            event.tsInit = startTime + i * intervalDurationSec;
+            achievementEngine.processEvent(event, function notifyUnlock(achievements) {
+                for(var j = 0; j< achievements.length; j++) {
+                    unlockedAchievements.push(achievements[j]);
+                }
+            });
+        }
+        return unlockedAchievements;
 
     },
 

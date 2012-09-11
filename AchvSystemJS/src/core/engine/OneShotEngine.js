@@ -8,7 +8,7 @@ ACHV.OneShotEngine.prototype.process = function(event, achievement, rule) {
     }
 };
 
-ACHV.OneShotEngine.prototype.reset = function(rule) {
+ACHV.OneShotEngine.prototype.reset = function(event, achievement, rule) {
     rule.state = "inProgress";
 };
 

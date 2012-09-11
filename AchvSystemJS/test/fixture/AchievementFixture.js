@@ -64,5 +64,9 @@ FIXTURE = {
 
    getTenHeadShotsUninterruptableAndTenKneeShotsAchievement: function() {
        return FIXTURE.getFixtureObj("achievement/TenHeadShotsUninterruptableAndTenKneeShotsAchievement.json");
+   },
+
+   getHeadKneeChestTenMinutesAchievement: function() {
+       return FIXTURE.getFixtureObj("achievement/HeadKneeChestInTenMinutesAchievement.json");
    }
 };
