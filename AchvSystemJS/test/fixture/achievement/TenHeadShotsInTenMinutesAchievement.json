@@ -8,7 +8,9 @@
                 "state": "inProgress",
                 "timer": 0,
                 "TIMER_MAX_SEC": 600
-            },
+            }
+        ],
+        [
             {
                 "type": "CounterRule",
                 "event": "HeadShotEvent",

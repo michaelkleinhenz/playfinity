@@ -4,7 +4,8 @@ ACHV.CounterEngine = function() {
 
 ACHV.CounterEngine.prototype.process = function(event, achievement, rule) {
     if (event.name === rule.interruptEvent) {
-        this.reset(rule);
+        rule.counter = 0;
+        rule.state = "inProgress";
     } else if (rule.event === event.name) {
         rule.counter++;
         if (rule.counter >= rule.COUNTER_MAX) {
