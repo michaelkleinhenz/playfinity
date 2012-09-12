@@ -3,6 +3,7 @@ TestCase("AchievementEngineTest", {
     setUp: function() {
         var engines = new HashMap();
         var achievements = new HashMap();
+        // setup achievement engine
         achievementEngine = new ACHV.AchievementEngine(engines, achievements);
         var counterEnginge = new ACHV.CounterEngine();
         achievementEngine.registerEngine(counterEnginge);
@@ -12,6 +13,11 @@ TestCase("AchievementEngineTest", {
         achievementEngine.registerEngine(oneShotEngine);
         var stopWatchEngine = ACHV.stopWatchEngine({"achievementType": "StopWatchRule"});
         achievementEngine.registerEngine(stopWatchEngine);
+        // setup events
+        headShotEvent = FIXTURE.getHeadShotEvent();
+        kneeShotEvent = FIXTURE.getKneeShotEvent();
+        chestShotEvent = FIXTURE.getChestShotEvent();
+
     },
 
     testRegisterEngine : function() {
@@ -43,15 +49,15 @@ TestCase("AchievementEngineTest", {
         var resultAchievement = achievementEngine.getAchievement(achievement.name);
         assertEquals(achievement, resultAchievement);
     },
-    
+
     testRegisterAdditionallyAchievementForEvent: function() {
-	var startGameAchievement = FIXTURE.getStartGameAchievement();
-    	achievementEngine.registerAchievement(startGameAchievement);
-    	var firstStartAchievement = FIXTURE.getFirstStartAchievement();
-    	achievementEngine.registerAchievement(firstStartAchievement);
-    	var resultAchievements = achievementEngine.getAchievementsForEventType("StartGameEvent");
-    	var expectedAchievements = [startGameAchievement, firstStartAchievement];
-    	assertEquals(expectedAchievements, resultAchievements);
+        var startGameAchievement = FIXTURE.getStartGameAchievement();
+        achievementEngine.registerAchievement(startGameAchievement);
+        var firstStartAchievement = FIXTURE.getFirstStartAchievement();
+        achievementEngine.registerAchievement(firstStartAchievement);
+        var resultAchievements = achievementEngine.getAchievementsForEventType("StartGameEvent");
+        var expectedAchievements = [startGameAchievement, firstStartAchievement];
+        assertEquals(expectedAchievements, resultAchievements);
     },
     
     testGetAchievements: function() {
@@ -66,9 +72,6 @@ TestCase("AchievementEngineTest", {
     },
 
     testProcessOneShotEvent: function() {
-        var engine = new ACHV.OneShotEngine();
-        achievementEngine.registerEngine(engine);
-
         var achievement = FIXTURE.getStartGameAchievement();
         achievementEngine.registerAchievement(achievement);
 
@@ -82,9 +85,6 @@ TestCase("AchievementEngineTest", {
     },
 
     testAchievementTypeOnce: function() {
-        var engine = new ACHV.OneShotEngine();
-        achievementEngine.registerEngine(engine);
-
         var onceAchievement = FIXTURE.getFirstStartAchievement();
         achievementEngine.registerAchievement(onceAchievement);
         var achievements = achievementEngine.getAchievements();
@@ -99,10 +99,6 @@ TestCase("AchievementEngineTest", {
     },
 
     testRemoveOnceAchievementForTwoEvents: function() {
-	    // set engine
-    	var engine = new ACHV.CounterEngine();
-    	achievementEngine.registerEngine(engine);
-	
 	    // set achievement
     	var achievement = FIXTURE.getTenHeadAndKneeShotsAchievement();
     	achievementEngine.registerAchievement(achievement);
@@ -131,10 +127,6 @@ TestCase("AchievementEngineTest", {
     },
     
     testAchievementTypeMultiInfinite: function() {
-	    // set engine
-    	var engine = new ACHV.OneShotEngine();
-    	achievementEngine.registerEngine(engine);
-	
     	// set achievement without frequency property
     	var achievement = FIXTURE.getStartGameAchievement();
     	achievementEngine.registerAchievement(achievement);
@@ -158,11 +150,6 @@ TestCase("AchievementEngineTest", {
     },
 
     testAchievementTypeMultiTwoTimes: function() {
-
-	    // set engine
-    	var engine = new ACHV.CounterEngine();
-    	achievementEngine.registerEngine(engine);
-
     	// set achievement with frequency property
     	var achievement = FIXTURE.getTenHeadShotsAchievement();
     	achievementEngine.registerAchievement(achievement);
@@ -378,35 +365,120 @@ TestCase("AchievementEngineTest", {
      * Unlock achievement.
      * (TenHeadShots -> TenKneeShots) || TenChestShots || InTenMinutes
      */
-    testCombinedAchievementOne: function() {
+    testCombinedAchievement: function() {
         //setup achievements
         var achievement = FIXTURE.getHeadKneeChestTenMinutesAchievement();
         achievementEngine.registerAchievement(achievement);
 
-        // setup events
-        var headShotEvent = FIXTURE.getHeadShotEvent();
-        var kneeShotEvent = FIXTURE.getKneeShotEvent();
-        var chestShotEvent = FIXTURE.getChestShotEvent();
-
         // trigger events
         var currentDate = Date.now()/1000;
         this.multiProcessTimedEvent(chestShotEvent, 5, currentDate, 10);
-        this.multiProcessTimedEvent(headShotEvent,1, currentDate, 10);
+        this.multiProcessTimedEvent(headShotEvent, 1, currentDate, 10);
         this.multiProcessTimedEvent(kneeShotEvent,10, currentDate, 10);
         this.multiProcessTimedEvent(chestShotEvent, 5, currentDate, 10);
 
         // assertion
         achievement = ACHV.achievementWrapper(achievement);
         var rules = achievement.getRules();
-        for (var i = 0; i < rules.length; i++) {
-            assertEquals("satisfied", rules[i].state);
-        }
+        assertEquals("satisfied", rules[0].state);
+        assertEquals("satisfied", rules[1].state);
+        assertEquals("satisfied", rules[2].state);
+        assertEquals("satisfied", rules[3].state);
     },
+
+    /**
+     * Still locked.
+     * (TenHeadShots -> TenKneeShots) || TenChestShots || InTenMinutes
+     * During TenKneeShots there will be an interrupt by HeadShotEvent.
+     */
+    testCombinedAchievementInterrupt: function() {
+        //setup achievements
+        var achievement = FIXTURE.getHeadKneeChestTenMinutesAchievement();
+        achievementEngine.registerAchievement(achievement);
+
+        // trigger events
+        var currentDate = Date.now()/1000;
+        this.multiProcessTimedEvent(chestShotEvent, 5, currentDate, 10);
+        currentDate = currentDate + 50;
+        this.multiProcessTimedEvent(headShotEvent,1, currentDate, 10);
+        currentDate = currentDate + 10;
+        this.multiProcessTimedEvent(kneeShotEvent,9, currentDate, 10);
+        currentDate = currentDate + 90;
+        this.multiProcessTimedEvent(headShotEvent,1, currentDate, 10);
+        currentDate = currentDate + 10;
+        this.multiProcessTimedEvent(kneeShotEvent,3, currentDate, 10);
+        currentDate = currentDate + 30;
+        this.multiProcessTimedEvent(chestShotEvent, 4, currentDate, 10);
+
+        // assertion
+        achievement = ACHV.achievementWrapper(achievement);
+        var rules = achievement.getRules();
+        assertEquals("satisfied", rules[0].state);
+        assertEquals("inProgress", rules[1].state);
+        assertEquals(3, rules[1].counter);
+        assertEquals("inProgress", rules[2].state);
+        assertEquals(9, rules[2].counter);
+        assertEquals("satisfied", rules[3].state);
+        assertEquals(220, rules[3].timer);
+    },
+
+    /**
+     * Still locked.
+     * (TenHeadShots -> TenKneeShots) || TenChestShots || InTenMinutes
+     * Timer first times out, but achievement will be unlocked in second try.
+     */
+    testCombinedAchievementTimer: function() {
+        //setup achievements
+        var achievement = FIXTURE.getHeadKneeChestTenMinutesAchievement();
+        achievementEngine.registerAchievement(achievement);
+
+        // trigger events
+        var currentDate = Date.now()/1000;
+        this.multiProcessTimedEvent(chestShotEvent, 2, currentDate, 100);
+        currentDate = currentDate + 200;
+        this.multiProcessTimedEvent(headShotEvent,1, currentDate, 150);
+        currentDate = currentDate + 150;
+        this.multiProcessTimedEvent(kneeShotEvent,2, currentDate, 150);
+        currentDate = currentDate + 300;
+        achievement = ACHV.achievementWrapper(achievement);
+        var rules = achievement.getRules();
+        assertEquals("satisfied", rules[0].state);
+        assertEquals("inProgress", rules[1].state);
+        assertEquals(2, rules[1].counter);
+        assertEquals("inProgress", rules[2].state);
+        assertEquals(2, rules[2].counter);
+        assertEquals("satisfied", rules[3].state);
+        assertEquals(500, rules[3].timer);
+        // next event will break timer
+        this.multiProcessTimedEvent(kneeShotEvent,1, currentDate, 200);
+        currentDate = currentDate + 200;
+        assertEquals("inProgress", rules[0].state);
+        assertEquals("inProgress", rules[1].state);
+        assertEquals(0, rules[1].counter); // TODO test the case, when event is valid in sequence
+        assertEquals("inProgress", rules[2].state);
+        assertEquals(0, rules[2].counter);
+        assertEquals("inProgress", rules[3].state);
+        assertEquals(0, rules[3].timer);
+        // unlock achievement
+        this.multiProcessTimedEvent(headShotEvent,1, currentDate, 10);
+        currentDate = currentDate + 10;
+        this.multiProcessTimedEvent(kneeShotEvent,10, currentDate, 10);
+        currentDate = currentDate + 100;
+        this.multiProcessTimedEvent(chestShotEvent, 10, currentDate, 10);
+        assertEquals("satisfied", rules[0].state);
+        assertEquals("satisfied", rules[1].state);
+        assertEquals(10, rules[1].counter);
+        assertEquals("satisfied", rules[2].state);
+        assertEquals(10, rules[2].counter);
+        assertEquals("satisfied", rules[3].state);
+        assertEquals(200, rules[3].timer);
+    },
+
 
     multiProcessTimedEvent: function(event, times, startTime, intervalDurationSec) {
         var unlockedAchievements = [];
         for (var i = 0; i < times; i++) {
-            event.tsInit = startTime + i * intervalDurationSec;
+            event.tsInit = startTime+ i * intervalDurationSec;
             achievementEngine.processEvent(event, function notifyUnlock(achievements) {
                 for(var j = 0; j< achievements.length; j++) {
                     unlockedAchievements.push(achievements[j]);
@@ -414,7 +486,6 @@ TestCase("AchievementEngineTest", {
             });
         }
         return unlockedAchievements;
-
     },
 
     multiProcessEvent: function(event, times) {

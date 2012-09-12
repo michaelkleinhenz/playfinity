@@ -28,12 +28,9 @@
         [
             {
                 "type": "TimerRule",
-                "events": [
-                    {"name": "HeadShotEvent"},
-                    {"name": "KneeShotEvent"},
-                    {"name": "ChestShotEvent"}
-                ],
-                "state": "satisfied",
+                "events": ["HeadShotEvent", "KneeShotEvent", "ChestShotEvent"],
+                "startTimerEvents": ["HeadShotEvent", "ChestShotEvent"],
+                "state": "inProgress",
                 "timer": 0,
                 "TIMER_MAX_SEC": 600
             }

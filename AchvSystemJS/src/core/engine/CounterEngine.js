@@ -14,10 +14,9 @@ ACHV.CounterEngine.prototype.process = function(event, achievement, rule) {
     }
 };
 
-ACHV.CounterEngine.prototype.reset = function(event, achievement, rule) {
+ACHV.CounterEngine.prototype.reset = function(rule) {
     rule.counter = 0;
     rule.state = "inProgress";
-    this.process(event, achievement, rule);
 };
 
 exports.CounterEngine = ACHV.CounterEngine;

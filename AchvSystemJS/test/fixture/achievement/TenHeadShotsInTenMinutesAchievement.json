@@ -5,7 +5,7 @@
             {
                 "type": "TimerRule",
                 "event": "HeadShotEvent",
-                "state": "satisfied",
+                "state": "inProgress",
                 "timer": 0,
                 "TIMER_MAX_SEC": 600
             }

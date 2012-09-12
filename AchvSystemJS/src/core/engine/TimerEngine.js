@@ -7,8 +7,19 @@ ACHV.timerEngine = function(spec) {
     };
 
     that.processStartEvent = function(event, rule) {
-        if(event.hasOwnProperty("tsInit") && !rule.hasOwnProperty("startTime")) {
-            rule.startTime = event.tsInit;
+        if (rule.hasOwnProperty("startTimerEvents")) {
+            if (Utils.arrayContains(rule.startTimerEvents, event.name)) {
+                setTimeProperties();
+            }
+        } else {
+            setTimeProperties();
+        }
+
+        function setTimeProperties() {
+            if(event.hasOwnProperty("tsInit") && !rule.hasOwnProperty("startTime")) {
+                rule.startTime = event.tsInit;
+                rule.state = "satisfied";
+            }
         }
     };
 
@@ -19,16 +30,15 @@ ACHV.timerEngine = function(spec) {
             if (rule.timer <= rule.TIMER_MAX_SEC) {
                 rule.state = "satisfied";
             } else {
-                rule.state = "broken";
+               rule.state = "broken";
             }
         }
     };
 
-    that.reset = function(event, achievement, rule) {
+    that.reset = function(rule) {
         rule.timer = 0;
-        rule.state = "satisfied";
+        rule.state = "inProgress";
         delete rule.startTime;
-        that.process(event, achievement, rule);
     };
 
     return that;
