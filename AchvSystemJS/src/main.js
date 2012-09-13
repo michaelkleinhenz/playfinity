@@ -14,7 +14,8 @@ var achvEngineInstance = new achvEngine.AchievementEngine(engines, achievements)
 
 achvEngineInstance.registerEngine(new engineDir.OneShotEngine.OneShotEngine());
 achvEngineInstance.registerEngine(new engineDir.CounterEngine.CounterEngine());
-achvEngineInstance.registerEngine(engineDir.TimerEngine.timerEngine({"achievementType": "TimerAchievementType"}));
+achvEngineInstance.registerEngine(engineDir.TimerEngine.timerEngine({"achievementType": "TimerRule"}));
+achvEngineInstance.registerEngine(engineDir.StopWatchEngine.stopWatchEngine({"achievementType": "StopWatchRule"}));
 
 var achvSystemInstance = new achvSystem.AchievementSystem(achvEngineInstance);
 

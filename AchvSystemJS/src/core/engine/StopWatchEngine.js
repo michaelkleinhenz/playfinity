@@ -13,4 +13,4 @@ ACHV.stopWatchEngine = function(spec) {
     return that;
 };
 
-exports.timerEngine = ACHV.timerEngine;
+exports.stopWatchEngine = ACHV.stopWatchEngine;
