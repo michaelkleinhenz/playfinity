@@ -142,24 +142,12 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
                 }
 
                 function evaluateRule(rule) {
-                    if (rule.hasOwnProperty("negation")) {
-                        if (rule.negation) {
-                            if (rule.state === "satisfied") {
-                                resetAchievement(achievement);
-                                hasToRetriggerEvent = true;
-                                return false;
-                            } else if (rule.state === "inProgress") {
-                                return false;
-                            }
-                        }
-                    } else {
-                        if (rule.state === "broken") {
-                            resetAchievement(achievement);
-                            hasToRetriggerEvent = true;
-                            return false;
-                        } else if (rule.state === "inProgress") {
-                            return false;
-                        }
+                    if (rule.state === "broken") {
+                        resetAchievement(achievement);
+                        hasToRetriggerEvent = true;
+                        return false;
+                    } else if (rule.state === "inProgress") {
+                        return false;
                     }
                     return true;
                 }
