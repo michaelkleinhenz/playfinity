@@ -1,0 +1,10 @@
+{
+    "name": "achvsystem",
+    "version": "0.1.0",
+    "main": "./src/main",
+    "private": true,
+    "dependencies": {
+        "require-dir": "0.1.0",
+        "restify": "1.4.4"
+    }
+}
