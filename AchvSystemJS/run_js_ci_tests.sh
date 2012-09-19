@@ -9,7 +9,7 @@ then
     exit 1
 fi
 
-FIREFOX=`which iceweasel`
+FIREFOX=`which firefox`
 if [ "$?" -eq 1 ];
 then
     echo "Firefox not found."
