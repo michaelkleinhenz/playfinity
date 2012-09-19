@@ -6,4 +6,5 @@ bin/
 target/
 gen/
 coverage/
+test-reports/
 *.swp
