@@ -1,5 +1,5 @@
 #!/bin/bash
-OUTPUT_DIR="test-reports"
+OUTPUT_DIR="AchvSystemJS/test-reports"
 mkdir $OUTPUT_DIR
 
 XVFB=`which Xvfb`
@@ -21,7 +21,7 @@ fi
 # export DISPLAY=:99 # set display to use that of the xvfb
 
 # run the tests
-java -jar ../JsTestDriver/JsTestDriver-1.3.4.b.jar --config jsTestDriver.conf --port 9876 --browser $FIREFOX --tests all --testOutput $OUTPUT_DIR
+java -jar JsTestDriver/JsTestDriver-1.3.4.b.jar --config AchvSystemJS/jsTestDriver.conf --port 9876 --browser $FIREFOX --tests all --testOutput $OUTPUT_DIR
 
 # kill $PID_XVFB     # shut down xvfb (firefox will shut down cleanly by JsTestDriver)
 echo "Done."
