@@ -9,12 +9,13 @@ then
     exit 1
 fi
 
-FIREFOX=`which firefox`
-if [ "$?" -eq 1 ];
-then
-    echo "Firefox not found."
-    exit 1
-fi
+FIREFOX=/opt/firefox-10.0.7esr/firefox-bin
+# FIREFOX=`which firefox`
+# if [ "$?" -eq 1 ];
+# then
+#     echo "Firefox not found."
+#     exit 1
+# fi
 
 $XVFB :99 -ac &    # launch virtual framebuffer into the background
 PID_XVFB="$!"      # take the process ID
