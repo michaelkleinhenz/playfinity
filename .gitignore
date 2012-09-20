@@ -7,4 +7,5 @@ target/
 gen/
 coverage/
 test-reports/
+node-modules/
 *.swp
