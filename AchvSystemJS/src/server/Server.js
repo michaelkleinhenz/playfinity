@@ -1,4 +1,5 @@
-var restify = require('restify');
+var express = require('express');
+var winston = require('winston');
 var fs = require('fs');
 
 function start(achvSystem) {
@@ -31,18 +32,19 @@ function start(achvSystem) {
     }
 
     // Setup server
-    var server = restify.createServer();
-    server.use(restify.bodyParser());
+    var app = express();
+    app.set('name', 'Achievement-System');
+    app.use('/store', require('./../store/Store'));
 
     // Setup routes
-    server.get('/', getIndexHtml);
-    server.put('/achv/event', triggerEvent);
-    server.put('/achv', registerAchievement);
-    server.get('/achv', getAchievements);
+    app.get('/', getIndexHtml);
+    app.put('/achv/event', triggerEvent);
+    app.put('/achv', registerAchievement);
+    app.get('/achv', getAchievements);
 
     // Run Server
-    server.listen(8080, function() {
-	console.log('%s listening at %s', server.name, server.url);
+    app.listen(8080, function() {
+        winston.info(app.get('name') + " listening at port 8080");
     });
 }
 
