@@ -1,8 +1,14 @@
 var restify = require('restify');
+var fs = require('fs');
 
 function start(achvSystem) {
-    function respond(req, res, next) {
-	res.send('hello ' + req.params.name);
+
+    function getIndexHtml(req, res, next) {
+          fs.readFile('pages/index.html', function(err, data) {
+            res.writeHead(200, {'Content-Type': 'text/html', 'Content-Length': data.length});
+            res.write(data);
+            res.end();
+        });
     }
 
     function triggerEvent(req, res, next) {
@@ -29,8 +35,7 @@ function start(achvSystem) {
     server.use(restify.bodyParser());
 
     // Setup routes
-    server.get('/hello/:name', respond);
-    server.head('/hello/:name', respond);
+    server.get('/', getIndexHtml);
     server.put('/achv/event', triggerEvent);
     server.put('/achv', registerAchievement);
     server.get('/achv', getAchievements);

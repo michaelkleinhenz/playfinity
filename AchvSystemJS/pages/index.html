@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Achievement-System</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script type="text/javascript">
+        function getAchievements() {
+            $.ajax( {
+                headers: {
+
+                },
+                type: "GET",
+                url: "/achv",
+                contentType: 'application/x-www-form-urlencoded; charset=utf-8'
+
+            }).done(function(result) {
+                        alert("My Achievements: " + JSON.stringify(result));
+                    }).fail(function() {
+                        alert("fail");
+                    }).always(function() {
+                        console.log("GET /achv");
+                    });
+        }
+    </script>
+</head>
+
+<body>
+    <form name="Achievements" action="">
+    <input type="button" value="Get Achievements" onclick="getAchievements()">
+</form>
+</body>
+
+
+</html>
