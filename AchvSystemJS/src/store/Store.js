@@ -31,24 +31,16 @@ function readAchievement(req, res, next) {
 }
 
 function createAchievement(req, res, next) {
-    logger.info('createAchievement()');
-    var doc = {"name": "myAchievement"};
-    db.insert(doc, doc.name, function(error, http_body, http_headers) {
-        if (error) {
-            if(error.message === 'no_db_file') {
-                return nano.db.create(db_name, function() {
-                    db.insert(doc, doc.name, function(error, http_body, http_headers){
-                       return logger.error("Not able to insert " + doc + "Reason: " + error);
-                    });
-                })
-            } else {
-                return logger.error("Not able to insert " + doc + " Reason: " + error);
-            }
-        }
-        logger.debug(JSON.stringify(http_body));
+    var doc = req.body;
+    logger.info('createAchievement(' + JSON.stringify(doc) + ')' );
+    db.insert(doc, doc.name, function(error, body, headers) {
+       if(error) {
+           res.send(404);
+           logger.error("Not able to insert " + doc + " Reason:" + error);
+       }
+       logger.debug(JSON.stringify(body));
+       res.send(204);
     });
-    res.status(204);
-	res.send();
 }
 
 // Setup routes

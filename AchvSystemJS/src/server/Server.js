@@ -33,6 +33,7 @@ function start(achvSystem) {
 
     // Setup server
     var app = express();
+    app.use(express.bodyParser());
     app.set('name', 'Achievement-System');
     app.use('/store', require('./../store/Store'));
 
