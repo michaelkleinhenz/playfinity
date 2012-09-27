@@ -7,9 +7,21 @@ var db = nano.use(db_name);
 
 var app = module.exports = express();
 
+function readAchievements(req, res, next) {
+    logger.info('readAchievements()');
+    db.list(function(error, body) {
+        if (!error) {
+            res.json(200, body.rows);
+        } else {
+            res.send(404);
+        }
+    });
+}
+
 function readAchievement(req, res, next) {
-    logger.info('readAchievement()');
-    db.get("myAchievement", function(err, body) {
+    var achievementName = req.params.achievementName;
+    logger.info('readAchievement(' + achievementName + ')' );
+    db.get(achievementName, function(err, body) {
         if(!err) {
             res.json(200, body);
         } else {
@@ -40,5 +52,6 @@ function createAchievement(req, res, next) {
 }
 
 // Setup routes
-app.get('/', readAchievement);
+app.get('/', readAchievements);
+app.get('/:achievementName', readAchievement);
 app.put('/', createAchievement);
