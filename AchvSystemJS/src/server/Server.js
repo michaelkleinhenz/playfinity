@@ -35,6 +35,7 @@ function start(achvSystem) {
     var app = express();
     app.use(express.bodyParser());
     app.set('name', 'Achievement-System');
+    app.use('/oauth', require('./../oauth/Oauth'));
     app.use('/store', require('./../store/Store'));
 
     // Setup routes
