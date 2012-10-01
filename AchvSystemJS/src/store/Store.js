@@ -1,7 +1,9 @@
+var http = require('http');
 var express = require('express');
 var logger = require('winston');
 var nano = require('nano')('http://localhost:5984');
 var serializer = require('serializer');
+
 
 var db_name = "achievement";
 var db = nano.use(db_name);
@@ -22,18 +24,21 @@ function readAchievements(req, res, next) {
 function readAchievement(req, res, next) {
     if (req.headers["authorization"] && req.headers["authorization"].indexOf('Bearer ') == 0) {
         var accessToken = getAccessToken(req.headers["authorization"]);
-        var data = parseAccessToken(accessToken);
 
-        var achievementName = req.params.achievementName;
-        logger.info('readAchievement(' + achievementName + ')' );
-        db.get(achievementName, function(err, body) {
-            if(!err) {
-                logger.debug("response:" + JSON.stringify(body));
-                res.json(200, body);
-            } else {
-                res.send(404);
-            }
-        });
+        validateAccessToken(accessToken, sendResponse);
+
+        function sendResponse(error) {
+            var achievementName = req.params.achievementName;
+            logger.info('readAchievement(' + achievementName + ')' );
+            db.get(achievementName, function(err, body) {
+                if(!err) {
+                    logger.debug("response:" + JSON.stringify(body));
+                    res.json(200, body);
+                } else {
+                    res.send(404);
+                }
+            });
+        }
 
         function getAccessToken(authorizationHeader) {
             var accessToken = authorizationHeader.replace("Bearer","").trim();
@@ -41,10 +46,50 @@ function readAchievement(req, res, next) {
             return accessToken;
         }
 
-        function parseAccessToken(accessToken) {
-            var mySerializer = serializer.createSecureSerializer("Crypt_Key", "Sign_Key"); // TODO use real keys and extract
-            var data = mySerializer.parse(accessToken);
-            logger.debug("data=" + JSON.stringify(data));
+        function validateAccessToken(accessToken, sendResponse) {
+            callValidationServer(accessToken, isValid);
+
+            function isValid(error, data) {
+                var responseJson = JSON.parse(data);
+                logger.debug(responseJson + responseJson.valid);
+                if(responseJson.valid) {
+                    logger.debug("AccessToken is valid.");
+                    parseAccessToken(accessToken);
+                    sendResponse(error);
+                } else {
+                    logger.debug("AccessToken is not valid.");
+                    res.send(401);
+                }
+            }
+
+            function callValidationServer(accessToken, isValid) {
+                var options = {
+                    host: '127.0.0.1',
+                    path: '/oauth/validate/' + accessToken,
+                    port: '8080',
+                    method: 'GET'
+                };
+
+                var callback = function(response) {
+                    var str = '';
+                    response.on('data', function (chunk) {
+                        str += chunk;
+                    });
+
+                    response.on('end', function() {
+                        logger.debug("callValidationServer:" + str);
+                        isValid(null, str);
+                    });
+                };
+
+                var req = http.request(options, callback).end();
+            }
+
+            function parseAccessToken(accessToken) {
+                var mySerializer = serializer.createSecureSerializer("Crypt_Key", "Sign_Key"); // TODO use real keys and extract
+                var data = mySerializer.parse(accessToken);
+                logger.debug("data=" + JSON.stringify(data));
+            }
         }
     } else {
         res.send(401);
