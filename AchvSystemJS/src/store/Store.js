@@ -109,7 +109,21 @@ function createAchievement(req, res, next) {
     });
 }
 
+function getAchievementsForGameId(req, res, next) {
+   var gameId = req.params.gameId;
+   ACHV.achievementStore().getAchievementsForGameId(gameId, callback);
+
+   function callback(error, body, headers) {
+       if(error) {
+           res.send(404);
+       } else {
+           res.json(200, body);
+       }
+   }
+}
+
 // Setup routes
 app.get('/', readAchievements);
 app.get('/:achievementName', readAchievement);
 app.put('/', createAchievement);
+app.get('/achievements/:gameId', getAchievementsForGameId);

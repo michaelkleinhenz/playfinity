@@ -2,6 +2,12 @@ ACHV.AchievementSystem = function(achievementEngine) {
     this.achievementEngine = achievementEngine;
 };
 
+
+ACHV.AchievementSystem.prototype.setAchievementEngines = function(achievementEngines) {
+    this.achievementEngines = achievementEngines;
+};
+
+
 ACHV.AchievementSystem.prototype.registerAchievement = function(achievement) {
     this.achievementEngine.registerAchievement(achievement);
 };
@@ -19,12 +25,52 @@ ACHV.AchievementSystem.prototype.isRegistered = function(game) {
 };
 
 ACHV.AchievementSystem.prototype.triggerEvent = function(event, notifyUnlockCallback) {
-    this.achievementEngine.processEvent( event,
-	    				 function notifyUnlocked(achievement) {
-					// TODO notify systems that are interessted, like the assetmanagement.
-					notifyUnlockCallback(achievement);
-					 }
-    					);
+    var eventProcesses = {
+    'InitGameEvent': initAchievements(),
+    'StartGameEvent': initAchievementEngine()
+    };
+    if (typeof eventProcesses[event.name] == 'function') {
+        eventProcesses[event.name]();
+    }
+    this.achievementEngine.processEvent(event, notifyUnlockCallback);
+
+    function initAchievements() {
+        /*
+        loadAllAchivementsForGame <- AchievementStore
+        storeAchievementInstancesWithGameIdAndUserId SaveGameId? -> AchievementInstanceStore
+        */
+        console.log("initAchievements");
+        initAchievementEngine();
+    }
+
+    function initAchievementEngine() {
+        console.log('initAchievementEngine');
+    }
+
+    /*
+    var achievementEngine = getAchievementEngine(event);
+    achievementEngine.processEvent(event, notifyUnlock());
+
+    function getAchievementEngine(event) {
+        var key = event.gameId + "_" + event.userId;
+        if (achievementEngines.has(key)) {
+            var engine = achievementEngines.get(key);
+            engine.processEvent(event, notifyUnlock);
+        } else {
+            var engine = createAchievementEngine();
+            engine.processEvent(event, notifyUnlock);
+        }
+
+        function createAchievementEngine() {
+
+        }
+    }
+
+    function notifyUnlock(achievement) {
+        // TODO notify systems that are interessted, like the assetmanagement.
+        notifyUnlockCallback(achievement);
+    }
+    */
 };
 
 ACHV.AchievementSystem.prototype.isAchievementUnlocked = function(achievement) {
