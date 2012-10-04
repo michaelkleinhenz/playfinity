@@ -1,5 +1,6 @@
-ACHV.AchievementSystem = function(achievementEngine) {
-    this.achievementEngine = achievementEngine;
+ACHV.AchievementSystem = function(configuration) {
+    this.achievementStore = configuration.achievementStore;
+    this.achievementEngine = configuration.achievementEngine;
 };
 
 
@@ -35,6 +36,12 @@ ACHV.AchievementSystem.prototype.triggerEvent = function(event, notifyUnlockCall
     this.achievementEngine.processEvent(event, notifyUnlockCallback);
 
     function initAchievements() {
+        this.achievementStore.getAchievementsForGameId(event.gameId, function callback(error, body, header) {
+            if (error) {
+                console.log(error);
+            }
+            console.log(body);
+        });
         /*
         loadAllAchivementsForGame <- AchievementStore
         storeAchievementInstancesWithGameIdAndUserId SaveGameId? -> AchievementInstanceStore

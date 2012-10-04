@@ -1,11 +1,14 @@
 global.Utils = require('./util/utils');
+
+var requireDir = require('require-dir');
+
 var hashMap = require('./../libs/hashmap');
 var achvEngine = require('./core/AchievementEngine');
 var achvSystem = require('./core/AchievementSystem');
+var achvStore = require('./store/AchievementStore');
 var server = require('./server/Server');
-
-var requireDir = require('require-dir');
 var engineDir = requireDir('./core/engine');
+
 
 var engines = new hashMap.HashMap();
 var achievements = new hashMap.HashMap();
@@ -17,6 +20,11 @@ achvEngineInstance.registerEngine(new engineDir.CounterEngine.CounterEngine());
 achvEngineInstance.registerEngine(engineDir.TimerEngine.timerEngine({"achievementType": "TimerRule"}));
 achvEngineInstance.registerEngine(engineDir.StopWatchEngine.stopWatchEngine({"achievementType": "StopWatchRule"}));
 
-var achvSystemInstance = new achvSystem.AchievementSystem(achvEngineInstance);
+var achvSystemConfiguration = {
+    "achievementStore":  achvStore.achievementStore(),
+    "achievementEngine": achvEngineInstance
+};
+
+var achvSystemInstance = new achvSystem.AchievementSystem(achvSystemConfiguration);
 
 server.start(achvSystemInstance);

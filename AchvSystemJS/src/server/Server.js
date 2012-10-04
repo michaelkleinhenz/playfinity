@@ -14,7 +14,7 @@ function start(achvSystem) {
 
     function triggerEvent(req, res, next) {
     var event = req.params;
-    event.tsInit(Date.now()/1000);
+    event.tsInit = Date.now()/1000;
 	achvSystem.triggerEvent(event, function(achievement) {
 	    // TODO remove callback when notification mechanism is done.
 	    console.log(achievement);
