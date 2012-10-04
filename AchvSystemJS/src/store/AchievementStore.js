@@ -7,13 +7,7 @@ ACHV.achievementStore = function() {
     var self = {};
 
     self.getAchievementsForGameId = function (gameId, callback) {
-        db.view('achievement', 'getByGameId', gameId, function(error, body) {
-           if(!error) {
-               body.rows.forEach(function(doc) {
-                    console.log(doc);
-               });
-           }
-        });
+        db.view('achievement', 'byGameId', {"key": gameId}, callback);
     };
 
     return self;

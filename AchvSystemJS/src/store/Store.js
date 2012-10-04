@@ -3,7 +3,7 @@ var express = require('express');
 var logger = require('winston');
 var nano = require('nano')('http://localhost:5984');
 var serializer = require('serializer');
-
+var achievementStore = require('./AchievementStore');
 
 var db_name = "achievement";
 var db = nano.use(db_name);
@@ -110,11 +110,12 @@ function createAchievement(req, res, next) {
 }
 
 function getAchievementsForGameId(req, res, next) {
-   var gameId = req.params.gameId;
-   ACHV.achievementStore().getAchievementsForGameId(gameId, callback);
+   var gameId = parseInt(req.params.gameId);
+   achievementStore.achievementStore().getAchievementsForGameId(gameId, callback);
 
    function callback(error, body, headers) {
        if(error) {
+           logger.error("Not able to load documents: " + error);
            res.send(404);
        } else {
            res.json(200, body);
