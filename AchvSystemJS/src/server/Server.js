@@ -13,8 +13,9 @@ function start(achvSystem) {
     }
 
     function triggerEvent(req, res, next) {
-    var event = req.params;
-    event.tsInit = Date.now()/1000;
+    var event = req.body;
+    event.tsInit =  Date.now()/1000;
+    winston.debug("triggerEvent - event: " + JSON.stringify(event));
 	achvSystem.triggerEvent(event, function(achievement) {
 	    // TODO remove callback when notification mechanism is done.
 	    console.log(achievement);

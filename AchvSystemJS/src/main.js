@@ -6,6 +6,7 @@ var hashMap = require('./../libs/hashmap');
 var achvEngine = require('./core/AchievementEngine');
 var achvSystem = require('./core/AchievementSystem');
 var achvStore = require('./store/AchievementStore');
+var achvInstanceStore = require('./store/AchievementInstanceStore');
 var server = require('./server/Server');
 var engineDir = requireDir('./core/engine');
 
@@ -22,6 +23,7 @@ achvEngineInstance.registerEngine(engineDir.StopWatchEngine.stopWatchEngine({"ac
 
 var achvSystemConfiguration = {
     "achievementStore":  achvStore.achievementStore(),
+    "achievementInstanceStore": achvInstanceStore.achievementInstanceStore(),
     "achievementEngine": achvEngineInstance
 };
 

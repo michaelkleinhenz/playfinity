@@ -17,3 +17,4 @@ ACHV.achievementInstanceStore = function(configuration) {
 
     return self;
 };
+exports.achievementInstanceStore = ACHV.achievementInstanceStore;

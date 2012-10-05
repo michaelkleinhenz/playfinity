@@ -1,6 +1,7 @@
-ACHV.AchievementSystem = function(configuration) {
-    this.achievementStore = configuration.achievementStore;
-    this.achievementEngine = configuration.achievementEngine;
+ACHV.AchievementSystem = function(conf) {
+    this.achievementStore = conf.achievementStore;
+    this.achievementInstanceStore = conf.achievementInstanceStore;
+    this.achievementEngine = conf.achievementEngine;
 };
 
 
@@ -26,27 +27,48 @@ ACHV.AchievementSystem.prototype.isRegistered = function(game) {
 };
 
 ACHV.AchievementSystem.prototype.triggerEvent = function(event, notifyUnlockCallback) {
+    var self = {};
+    self.achvInstanceStore = this.achievementInstanceStore;
+
     var eventProcesses = {
-    'InitGameEvent': initAchievements(),
-    'StartGameEvent': initAchievementEngine()
+        'InitGameEvent': initAchievements(this.achievementStore, createAchievementInstance),
+        'StartGameEvent': initAchievementEngine()
     };
     if (typeof eventProcesses[event.name] == 'function') {
         eventProcesses[event.name]();
     }
     this.achievementEngine.processEvent(event, notifyUnlockCallback);
 
-    function initAchievements() {
-        this.achievementStore.getAchievementsForGameId(event.gameId, function callback(error, body, header) {
+    function initAchievements(achievementStore, createAchievementInstance) {
+        console.log("initAchievements - gameId: "  +  event.gameId);
+        achievementStore.getAchievementsForGameId(event.gameId, function callback(error, body, header) {
             if (error) {
-                console.log(error);
+                console.log("Not able to get achievements for gameId: " + event.gameId + " Error: " + error);
+            } else {
+                console.log("getAchievementsForGameId:" + JSON.stringify(body));
+                body.rows.forEach(createAchievementInstance);
             }
-            console.log(body);
         });
         /*
         loadAllAchivementsForGame <- AchievementStore
         storeAchievementInstancesWithGameIdAndUserId SaveGameId? -> AchievementInstanceStore
         */
-        console.log("initAchievements");
+    }
+
+    function createAchievementInstance(doc) {
+        console.log("createAchievementInstance doc: " +  JSON.stringify(doc));
+        var achievementInstance = doc.value;
+        achievementInstance.gameId = event.gameId;
+        achievementInstance.userId = event.userId;
+        console.log(self.achvInstanceStore);
+        self.achvInstanceStore.createAchievementInstance(achievementInstance, function(error, body) {
+            if (error) {
+                console.log("Not able to create achievement instance for doc: " + doc + " Error:" + error);
+            }
+            else {
+                console.log("createAchievementInstance body:" + JSON.stringify(body));
+            }
+        });
         initAchievementEngine();
     }
 
