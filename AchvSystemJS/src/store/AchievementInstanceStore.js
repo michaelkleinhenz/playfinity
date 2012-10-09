@@ -1,8 +1,6 @@
-var logger = require('winston');
-var nano = require('nano')('http://127.0.0.1:5984/');
-var db = nano.use('achievements_instances');
-
-ACHV.achievementInstanceStore = function(configuration) {
+ACHV.achievementInstanceStore = function(conf) {
+    var logger = conf.logger;
+    var db = conf.db;
 
     var self = {};
 
@@ -13,6 +11,10 @@ ACHV.achievementInstanceStore = function(configuration) {
             }
             callback(error, body);
         });
+    };
+
+    self.getAchievementsForGameIdAndUserId = function(gameId, userId, callback) {
+        db.view('achievement_instance', 'byGameIdAndUserId', {"key": [gameId, userId]}, callback);
     };
 
     return self;

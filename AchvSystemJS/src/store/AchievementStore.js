@@ -1,8 +1,6 @@
-var logger = require('winston');
-var nano = require('nano')('http://127.0.0.1:5984/');
-var db = nano.use('achievement');
-
-ACHV.achievementStore = function() {
+ACHV.achievementStore = function(conf) {
+    var logger = conf.logger;
+    var db = conf.db;
 
     var self = {};
 

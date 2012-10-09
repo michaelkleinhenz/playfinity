@@ -1,10 +1,8 @@
 TestCase("AchievementEngineTest", {
     
     setUp: function() {
-        var engines = new HashMap();
-        var achievements = new HashMap();
         // setup achievement engine
-        achievementEngine = new ACHV.AchievementEngine(engines, achievements);
+        achievementEngine = new ACHV.AchievementEngine();
         var counterEnginge = new ACHV.CounterEngine();
         achievementEngine.registerEngine(counterEnginge);
         var timerEngine = ACHV.timerEngine({"achievementType": "TimerRule"});

@@ -1,0 +1,8 @@
+{
+  "_id" : "_design/achievement_instance",
+  "views" : {
+    "byGameIdAndUserId" : {
+      "map" : "function(doc){ emit([doc.gameId,doc.userId], doc)}"
+    }
+  }
+}

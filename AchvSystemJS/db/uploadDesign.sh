@@ -1,17 +1,18 @@
 #!/bin/bash
 
 usage() {
-	echo "usage: $0 DESIGN_NAME DESIGN_JSON_FILE"
+	echo "usage: $0 DB DESIGN_NAME DESIGN_JSON_FILE"
 }
-DESIGN_NAME=$1
-DESIGN_JSON=$2
+DB=$1
+DESIGN_NAME=$2
+DESIGN_JSON=$3
 
-if [ $# -eq 3 ] ; then
+if [ $# -eq 4 ] ; then
 	usage
 	exit 1
 fi
 
-RESPONSE=$(curl -X PUT http://127.0.0.1:5984/achievement/_design/$DESIGN_NAME --data-binary @$DESIGN_JSON)
+RESPONSE=$(curl -X PUT http://127.0.0.1:5984/$DB/_design/$DESIGN_NAME --data-binary @$DESIGN_JSON)
 echo "curl response: $RESPONSE"
 
 UPDATE_CONFLICT='Document update conflict'
