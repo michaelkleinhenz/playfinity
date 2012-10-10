@@ -1,6 +1,6 @@
 ACHV.achievementStore = function(conf) {
-    var logger = conf.logger;
     var db = conf.db;
+    var logger = conf.logger;
 
     var self = {};
 

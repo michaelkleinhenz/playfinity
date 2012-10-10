@@ -8,6 +8,11 @@ var achievementStore = require('./AchievementStore');
 var db_name = "achievement";
 var db = nano.use(db_name);
 
+var achvStoreConf = {
+    "db": db,
+    "logger": logger
+};
+
 var app = module.exports = express();
 
 function readAchievements(req, res, next) {
@@ -111,7 +116,7 @@ function createAchievement(req, res, next) {
 
 function getAchievementsForGameId(req, res, next) {
    var gameId = parseInt(req.params.gameId);
-   achievementStore.achievementStore().getAchievementsForGameId(gameId, callback);
+   achievementStore.achievementStore(achvStoreConf).getAchievementsForGameId(gameId, callback);
 
    function callback(error, body, headers) {
        if(error) {
