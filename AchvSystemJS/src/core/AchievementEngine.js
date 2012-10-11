@@ -74,7 +74,7 @@ ACHV.AchievementEngine.prototype.getAchievementsForEventType = function(eventTyp
 };
 
 ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCallback) {
-    // console.log("processEvent(event) - " + JSON.stringify(event));
+    console.log("processEvent(event) - " + JSON.stringify(event));
     var unlockedAchievements = [];
     var eventToAchievementsMap = this.achievementsMap;
     var fittingAchievements = this.getAchievementsForEventType(event.name);

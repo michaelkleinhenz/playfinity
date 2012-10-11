@@ -3,31 +3,46 @@ SYSTEM = {};
 SYSTEM.Environment = function Environment() {};
 
 SYSTEM.Environment.prototype.init = function () {
+    // setup achievement engine.
     var achievementEngine = new ACHV.AchievementEngine();
     var oneShotEngine = new ACHV.OneShotEngine();
     achievementEngine.registerEngine(oneShotEngine);
 
+    // create db moock
     var db = {
         view: function() {}
     };
     var dbMock = mock(db);
-    when(dbMock).view(anything()).then(function(arg) {
-        console.log(arg);
-    });
+    when(dbMock).view("achievement_instance", "byGameIdAndUserId" ).then(
+        function(design, view, key, callback) {
+            var startGameAchievement = FIXTURE.getStartGameAchievement();
+            var doc = {
+                "value" : startGameAchievement
+            };
+            var body = {
+                rows: {}
+            };
+            body.rows.forEach = function(forEachCallBack) {
+                forEachCallBack(doc);
+            };
+            callback(null, body, {});
+        });
 
+    // create achivement instance store
     var achvInstanceStoreConf = {
        "logger": "test",
         "db": dbMock
     };
-    var achvInstanceStore = mock(ACHV.achievementInstanceStore(achvInstanceStoreConf));
+    var achvInstanceStore = ACHV.achievementInstanceStore(achvInstanceStoreConf);
 
+    // create achievement store
     var achvStoreConf = {
         "logger": "test",
         "db": dbMock
     };
-    var achvStore = mock(ACHV.achievementStore(achvStoreConf));
+    var achvStore = ACHV.achievementStore(achvStoreConf);
 
-
+    // create achievement system
     var achvSystemConf = {
         "achievementEngine": achievementEngine,
         "achievementInstanceStore": achvInstanceStore,

@@ -1,8 +1,96 @@
 ACHV.AchievementSystem = function(conf) {
-    this.achievementStore = conf.achievementStore;
-    this.achievementInstanceStore = conf.achievementInstanceStore;
+    var self = {};
+
+    var achvStore = conf.achievementStore;
+    var achvInstanceStore = conf.achievementInstanceStore;
     this.achievementEngine = conf.achievementEngine;
-    this.achievementEngines = {};
+    var achvEngines = this.achievementEngines = {};
+
+    self.ee = this.ee = new EventEmitter(); // move in conf or global context.
+
+    var initAchievements = function() {
+        console.log("initAchievements() gameId: "  +  event.gameId);
+        achvStore.getAchievementsForGameId(event.gameId, function callback(error, body, header) {
+            if (error) {
+                console.log("Not able to get achievements for gameId: " + event.gameId + " Error: " + error);
+            } else {
+                console.log("getAchievementsForGameId:" + JSON.stringify(body));
+                body.rows.forEach(createAchievementInstance);
+            }
+        });
+        self.ee.emitEvent('achievements_initialized', [event]);
+
+        function createAchievementInstance(doc) {
+            console.log("createAchievementInstance doc: " +  JSON.stringify(doc));
+            var achievementInstance = doc.value;
+            achievementInstance.gameId = event.gameId;
+            achievementInstance.userId = event.userId;
+            console.log(achvInstanceStore);
+            achvInstanceStore.createAchievementInstance(achievementInstance, function(error, body) {
+                if (error) {
+                    console.log("Not able to create achievement instance for doc: " + doc + " Error:" + error);
+                }
+                else {
+                    console.log("Created achievement instance. body:" + JSON.stringify(body));
+                }
+            });
+        }
+    };
+
+    var initAchievementEngine = function(event) {
+        console.log("initAchievmentEngine()");
+        // load all achievements for user and game
+        achvInstanceStore.getAchievementsForGameIdAndUserId(event.gameId, event.userId, function callback(error, body, header) {
+            if (error) {
+                console.log("Not able to get achievements: " + error);
+            } else {
+               body.rows.forEach(registerAchievement);
+               self.ee.emitEvent('engine_initialized', [event]);
+            }
+        });
+
+
+        function registerAchievement(doc) {
+            var achvEngine = achvEngines[event.gameId + "_" + event.userId];
+            var achievementInstance = doc.value;
+            if(achvEngine) {
+                achvEngine.registerAchievement(achievementInstance);
+            } else {
+                achvEngine = new ACHV.AchievementEngine();
+                achvEngine.registerAchievement(achievementInstance);
+                achvEngines[event.gameId + "_" + event.userId] = achvEngine;
+            }
+        }
+    };
+
+    var eventProcesses = {
+        "InitGameEvent" : initAchievements,
+        "StartGameEvent" : initAchievementEngine
+    };
+
+    var dispatchEvent = function (event) {
+        console.log(JSON.stringify(eventProcesses));
+        if (typeof eventProcesses[event.name] == 'function') {
+            eventProcesses[event.name](event);
+        } else {
+            processEvent(event);
+        }
+    };
+
+    var processEvent = function(event) {
+        console.log("processEvent(" + JSON.stringify(event) + ")");
+        achvEngines[event.gameId + "_" + event.userId].processEvent(event, unlockCallback);
+    };
+
+    var unlockCallback = function(achievements) {
+        this.triggerEvent.callBack(achievements);
+    };
+
+    this.ee.addListeners({
+        event_triggered: dispatchEvent,
+        achievements_initialized: initAchievementEngine,
+        engine_initialized: processEvent
+    });
 };
 
 ACHV.AchievementSystem.prototype.setAchievementEngines = function(achievementEngines) {
@@ -27,70 +115,11 @@ ACHV.AchievementSystem.prototype.isRegistered = function(game) {
 };
 
 ACHV.AchievementSystem.prototype.triggerEvent = function(event, notifyUnlockCallback) {
-    var self = {};
-    self.achvInstanceStore = this.achievementInstanceStore;
+    console.log("triggerEvent() " + JSON.stringify(event));
+    this.triggerEvent.callBack = notifyUnlockCallback;
+    this.ee.emitEvent('event_triggered', [event]);
 
-    var eventProcesses = {
-        'InitGameEvent': initAchievements(this.achievementStore, createAchievementInstance),
-        'StartGameEvent': initAchievementEngine()
-    };
-    if (typeof eventProcesses[event.name] == 'function') {
-        eventProcesses[event.name]();
-    }
-    this.achievementEngine.processEvent(event, notifyUnlockCallback);
-
-    function initAchievements(achievementStore, createAchievementInstance) {
-        console.log("initAchievements - gameId: "  +  event.gameId);
-        achievementStore.getAchievementsForGameId(event.gameId, function callback(error, body, header) {
-            if (error) {
-                console.log("Not able to get achievements for gameId: " + event.gameId + " Error: " + error);
-            } else {
-                console.log("getAchievementsForGameId:" + JSON.stringify(body));
-                body.rows.forEach(createAchievementInstance);
-            }
-        });
-    }
-
-    function createAchievementInstance(doc) {
-        console.log("createAchievementInstance doc: " +  JSON.stringify(doc));
-        var achievementInstance = doc.value;
-        achievementInstance.gameId = event.gameId;
-        achievementInstance.userId = event.userId;
-        console.log(self.achvInstanceStore);
-        self.achvInstanceStore.createAchievementInstance(achievementInstance, function(error, body) {
-            if (error) {
-                console.log("Not able to create achievement instance for doc: " + doc + " Error:" + error);
-            }
-            else {
-                console.log("Created achievement instance. body:" + JSON.stringify(body));
-            }
-            initAchievementEngine();
-        });
-    }
-
-    function initAchievementEngine() {
-        // load all achievements for user and game
-        self.achvInstanceStore.getAchievementsForGameIdAndUserId(event.gameId, event.userId, function callback(error, body, header) {
-            if (error) {
-                console.log(error);
-            } else {
-                body.rows.forEach(registerAchievement);
-            }
-        });
-    }
-
-    function registerAchievement(doc) {
-        var achvEngine = this.achievementEngines[event.gameId + "_" + event.userId];
-        var achievementInstance = doc.value;
-        if(achvEngine) {
-            achvEngine.registerAchievement(achievementInstance);
-        } else {
-            achvEngine = new achvEngine.AchievementEngine();
-            achvEngine.registerAchievement(achievementInstance);
-            this.achievementEngines[event.gameId + "_" + event.userId] = achvEngine;
-        }
-    }
-
+    // this.achievementEngine.processEvent(event, notifyUnlockCallback);
 
         // register engines for achievements
 
