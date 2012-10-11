@@ -35,7 +35,7 @@ var achievementInstanceStore = achvInstanceStore.achievementInstanceStore(achvIn
 var achvSystemConfiguration = {
     "achievementStore":  achievementStore,
     "achievementInstanceStore": achievementInstanceStore,
-    "achievementEngine": achvEngineInstance
+    "achievementEngines": {}
 };
 
 // Start achievement system

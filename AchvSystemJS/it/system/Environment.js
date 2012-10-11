@@ -44,7 +44,7 @@ SYSTEM.Environment.prototype.init = function () {
 
     // create achievement system
     var achvSystemConf = {
-        "achievementEngine": achievementEngine,
+        "achievementEngines": {},
         "achievementInstanceStore": achvInstanceStore,
         "achievementStore": achvStore
     };

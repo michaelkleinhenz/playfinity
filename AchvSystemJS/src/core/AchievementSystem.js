@@ -3,8 +3,7 @@ ACHV.AchievementSystem = function(conf) {
 
     var achvStore = conf.achievementStore;
     var achvInstanceStore = conf.achievementInstanceStore;
-    this.achievementEngine = conf.achievementEngine;
-    var achvEngines = this.achievementEngines = {};
+    var achvEngines = this.achievementEngines = conf.achievementEngines;
 
     self.ee = this.ee = new EventEmitter(); // move in conf or global context.
 
@@ -37,7 +36,7 @@ ACHV.AchievementSystem = function(conf) {
     };
 
     var initAchievementEngine = function(event) {
-        console.log("initAchievmentEngine()");
+        // console.log("initAchievmentEngine()");
         // load all achievements for user and game
         achvInstanceStore.getAchievementsForGameIdAndUserId(event.gameId, event.userId, function callback(error, body, header) {
             if (error) {
@@ -79,21 +78,14 @@ ACHV.AchievementSystem = function(conf) {
 
     this.ee.addListeners({
         event_triggered: dispatchEvent,
-        achievements_initialized: initAchievementEngine,
+        achievements_initialized: initAchievementEngine
     });
 };
 
-ACHV.AchievementSystem.prototype.setAchievementEngines = function(achievementEngines) {
-    this.achievementEngines = achievementEngines;
-};
 
-
-ACHV.AchievementSystem.prototype.registerAchievement = function(achievement) {
-    this.achievementEngine.registerAchievement(achievement);
-};
-
-ACHV.AchievementSystem.prototype.getAchievements = function() {
-    return this.achievementEngine.getAchievements();
+ACHV.AchievementSystem.prototype.getAchievementsForGameAndUser = function(gameId, userId) {
+    // TODO make key function for gameId and userId
+    return this.achievementEngines[gameId+"_"+userId].getAchievements();
 };
 
 ACHV.AchievementSystem.prototype.registerGame = function(game) {
@@ -105,13 +97,13 @@ ACHV.AchievementSystem.prototype.isRegistered = function(game) {
 };
 
 ACHV.AchievementSystem.prototype.triggerEvent = function(event, notifyUnlockCallback) {
-    console.log("triggerEvent() " + JSON.stringify(event));
+    // console.log("triggerEvent() " + JSON.stringify(event));
     this.ee.emitEvent('event_triggered', [event, notifyUnlockCallback]);
 };
 
-ACHV.AchievementSystem.prototype.isAchievementUnlocked = function(achievement) {
+ACHV.AchievementSystem.prototype.isAchievementUnlocked = function(gameId, userId, achievement) {
     var isUnlocked = false;
-    var achievements = this.achievementEngine.getAchievements();
+    var achievements = this.achievementEngines[gameId+"_"+userId].getAchievements();
     var index = achievements.indexOf(achievement);
     if (index > -1) {
         var currentAchievement = achievements[index];

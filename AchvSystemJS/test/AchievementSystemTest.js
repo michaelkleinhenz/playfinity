@@ -5,22 +5,10 @@ TestCase("AchievementSystemTest", {
     setUp: function() {
         var conf = {
             "achievementStore" : mock(ACHV.achievementStore({})),
-            "achievementInstanceStore" : mock(ACHV.achievementInstanceStore({}))
+            "achievementInstanceStore" : mock(ACHV.achievementInstanceStore({})),
+            "achievementEngines": {}
         };
         self.defaultAchvSys = new ACHV.AchievementSystem(conf);
-    },
-
-    testRegisterAchievement : function() {
-        var achievementEngineMock = mock(ACHV.AchievementEngine);
-        var conf = {
-            "achievementEngine":achievementEngineMock
-        };
-        var achievementSystem = new ACHV.AchievementSystem(conf);
-        var achievement = FIXTURE.getStartGameAchievement();
-        achievementSystem.registerAchievement(achievement);
-        when(achievementEngineMock).getAchievements().thenReturn([achievement]);
-        var achievements = achievementSystem.getAchievements();
-        assertTrue(Utils.arrayContains(achievements, achievement));
     },
 
     testRegisterGame : function() {
@@ -32,15 +20,17 @@ TestCase("AchievementSystemTest", {
     },
 
     testIsAchivementUnlocked: function() {
-        var achievementEngineMock = mock(ACHV.AchievementEngine);
-        var conf = {
-            "achievementEngine" : achievementEngineMock
-        };
-        var achievementSystem = new ACHV.AchievementSystem(conf);
+        var achievementEngineMock = mock(new ACHV.AchievementEngine());
         var achievement = FIXTURE.getStartGameAchievement();
-        achievementSystem.registerAchievement(achievement);
         when(achievementEngineMock).getAchievements().thenReturn([achievement]);
-        var isUnlocked = achievementSystem.isAchievementUnlocked(achievement);
+
+        var achvSystemConf = {
+            achievementStore: mock(ACHV.achievementStore({})),
+            achievementInstanceStore: mock(ACHV.achievementInstanceStore({})),
+            achievementEngines: { "1_2": achievementEngineMock}
+        };
+        var achievementSystem = new ACHV.AchievementSystem(achvSystemConf);
+        var isUnlocked = achievementSystem.isAchievementUnlocked(1,2,achievement);
         assertFalse(isUnlocked);
     },
 
