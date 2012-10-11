@@ -3,6 +3,13 @@ ACHV = {};
 ACHV.AchievementEngine = function() {
     this.ruleEnginesMap = {};
     this.achievementsMap = {};
+    // TODO move engines in configuration
+    this.engines = {
+        "OneShotRule": new ACHV.OneShotEngine,
+        "CounterRule": new ACHV.CounterEngine,
+        "TimerRule": ACHV.timerEngine({"achievementType": "TimerRule"}),
+        "StopWatchRule": ACHV.stopWatchEngine({"achievementType": "StopWatchRule"})
+    };
 };
 
 ACHV.AchievementEngine.prototype.registerEngine = function(engine) {
@@ -14,12 +21,19 @@ ACHV.AchievementEngine.prototype.getEngineForAchievementType = function(achievem
 };
 
 ACHV.AchievementEngine.prototype.registerAchievement = function(achievement) {
+    var that = {};
+    that.ruleEnginesMap = this.ruleEnginesMap;
+    that.engines = this.engines;
+    that.registerEngine = this.registerEngine;
+
     for (var j = 0; j < achievement.process.length; j++) {
         registerProcessParts(achievement.process[j], this.achievementsMap);
     }
 
     function registerProcessParts(processParts, achievementsMap) {
         for (var i = 0; i < processParts.length; i++) {
+            registerEngineForRuleType(processParts[i].type);
+
             registerEvent(processParts[i].event, achievementsMap);
             if (processParts[i].hasOwnProperty("interruptEvent")) {
                 registerEvent(processParts[i].interruptEvent, achievementsMap);
@@ -29,6 +43,13 @@ ACHV.AchievementEngine.prototype.registerAchievement = function(achievement) {
                     registerEvent(processParts[i].events[k], achievementsMap);
                 }
             }
+        }
+    }
+
+    function registerEngineForRuleType(ruleType) {
+        if (!that.ruleEnginesMap[ruleType]) {
+            var engine = that.engines[ruleType];
+            that.registerEngine(engine);
         }
     }
 
@@ -74,7 +95,7 @@ ACHV.AchievementEngine.prototype.getAchievementsForEventType = function(eventTyp
 };
 
 ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCallback) {
-    console.log("processEvent(event) - " + JSON.stringify(event));
+    // console.log("processEvent(event) - " + JSON.stringify(event));
     var unlockedAchievements = [];
     var eventToAchievementsMap = this.achievementsMap;
     var fittingAchievements = this.getAchievementsForEventType(event.name);

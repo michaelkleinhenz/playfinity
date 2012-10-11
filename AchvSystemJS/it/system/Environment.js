@@ -13,7 +13,7 @@ SYSTEM.Environment.prototype.init = function () {
         view: function() {}
     };
     var dbMock = mock(db);
-    when(dbMock).view("achievement_instance", "byGameIdAndUserId" ).then(
+    when(dbMock).view("achievement_instance", "byGameIdAndUserId").then(
         function(design, view, key, callback) {
             var startGameAchievement = FIXTURE.getStartGameAchievement();
             var doc = {
