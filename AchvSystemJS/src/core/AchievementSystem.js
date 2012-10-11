@@ -88,6 +88,10 @@ ACHV.AchievementSystem.prototype.getAchievementsForGameAndUser = function(gameId
     return this.achievementEngines[gameId+"_"+userId].getAchievements();
 };
 
+ACHV.AchievementSystem.prototype.getAchievementEngineForGameAndUser = function(gameId, userId, callback) {
+    callback(this.achievementEngines[gameId+"_"+userId]);
+};
+
 ACHV.AchievementSystem.prototype.registerGame = function(game) {
     this.game = game;
 };
