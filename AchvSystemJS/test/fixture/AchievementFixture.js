@@ -68,5 +68,10 @@ FIXTURE = {
 
    getHeadKneeChestTenMinutesAchievement: function() {
        return FIXTURE.getFixtureObj("achievement/HeadKneeChestInTenMinutesAchievement.json");
+   },
+
+   getTwoHeadShotsAchievement: function() {
+       return FIXTURE.getFixtureObj("achievement/TwoHeadShotsAchievement.json");
    }
+
 };

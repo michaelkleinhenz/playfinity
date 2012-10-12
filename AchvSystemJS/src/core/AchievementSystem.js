@@ -1,13 +1,15 @@
-ACHV.AchievementSystem = function(conf) {
-    var self = {};
+/*global ACHV*/
 
-    var achvStore = conf.achievementStore;
-    var achvInstanceStore = conf.achievementInstanceStore;
-    var achvEngines = this.achievementEngines = conf.achievementEngines;
+ACHV.AchievementSystem = function (conf) {
+    "use strict";
+    var self = {},
+        achvStore = conf.achievementStore,
+        achvInstanceStore = conf.achievementInstanceStore,
+        achvEngines = this.achievementEngines = conf.achievementEngines;
 
-    self.ee = this.ee = new EventEmitter(); // move in conf or global context.
+    self.ee = this.ee = conf.eventBus;
 
-    var initAchievements = function() {
+    function initAchievements(event) {
         console.log("initAchievements() gameId: "  +  event.gameId);
         achvStore.getAchievementsForGameId(event.gameId, function callback(error, body, header) {
             if (error) {
@@ -27,13 +29,12 @@ ACHV.AchievementSystem = function(conf) {
             achvInstanceStore.createAchievementInstance(achievementInstance, function(error, body) {
                 if (error) {
                     console.log("Not able to create achievement instance for doc: " + doc + " Error:" + error);
-                }
-                else {
+                } else {
                     console.log("Created achievement instance. body:" + JSON.stringify(body));
                 }
             });
         }
-    };
+    }
 
     var initAchievementEngine = function(event) {
         // console.log("initAchievmentEngine()");
@@ -42,7 +43,7 @@ ACHV.AchievementSystem = function(conf) {
             if (error) {
                 console.log("Not able to get achievements: " + error);
             } else {
-               body.rows.forEach(registerAchievement);
+                body.rows.forEach(registerAchievement);
             }
         });
 
@@ -66,14 +67,20 @@ ACHV.AchievementSystem = function(conf) {
     };
 
     var dispatchEvent = function (event, callback) {
-        if (typeof eventProcesses[event.name] == 'function') {
+        if (typeof eventProcesses[event.name] === 'function') {
             eventProcesses[event.name](event);
         }
         processEvent(event, callback);
     };
 
     var processEvent = function(event, unlockCallback) {
-        achvEngines[event.gameId + "_" + event.userId].processEvent(event, unlockCallback);
+        var achvEngine = achvEngines[event.gameId + "_" + event.userId];
+        if (achvEngine) {
+            achvEngine.processEvent(event, unlockCallback);
+        } else {
+            initAchievementEngine(event);
+            processEvent(event,unlockCallback);
+        }
     };
 
     this.ee.addListeners({
