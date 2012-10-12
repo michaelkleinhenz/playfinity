@@ -22,7 +22,7 @@ ACHV.AchievementSystem = function (conf) {
         self.ee.emitEvent('achievements_initialized', [event]);
 
         function createAchievementInstance(doc) {
-            console.log("createAchievementInstance doc: " +  JSON.stringify(doc));
+            // console.log("createAchievementInstance doc: " +  JSON.stringify(doc));
             var achievementInstance = doc.value;
             achievementInstance.gameId = event.gameId;
             achievementInstance.userId = event.userId;
