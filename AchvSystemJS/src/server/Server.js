@@ -20,7 +20,7 @@ function start(achvSystem) {
     winston.debug("triggerEvent - event: " + JSON.stringify(event));
 	achvSystem.triggerEvent(event, function(achievement) {
 	    // TODO remove callback when notification mechanism is done.
-	    console.log(achievement);
+	    winston.debug(achievement);
 	});
 	res.status(204);
 	res.send();

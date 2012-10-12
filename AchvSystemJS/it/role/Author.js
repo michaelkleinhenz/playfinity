@@ -5,7 +5,5 @@ ROLE.Author = function Author(environment) {
 };
 
 ROLE.Author.prototype.createAchievement = function() {
-	var achievementSystem = this.environment.getAchievementSystem();
-	var achievement = FIXTURE.getStartGameAchievement();
-	achievementSystem.registerAchievement(achievement);
+    // TODO replace with test for AchievementStore
 };
