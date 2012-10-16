@@ -26,7 +26,7 @@ ACHV.AchievementSystem = function (conf) {
             var achievementInstance = doc.value;
             achievementInstance.gameId = event.gameId;
             achievementInstance.userId = event.userId;
-            achvInstanceStore.createAchievementInstance(achievementInstance, function(error, body) {
+            achvInstanceStore.createAchievementInstance(achievementInstance, function (error, body) {
                 if (error) {
                     console.log("Not able to create achievement instance for doc: " + doc + " Error:" + error);
                 } else {

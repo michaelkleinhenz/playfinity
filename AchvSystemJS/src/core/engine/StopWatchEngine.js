@@ -1,7 +1,7 @@
 ACHV.stopWatchEngine = function(spec) {
     var that = ACHV.timerEngine(spec);
 
-    that.process = function(event, achievement, rule) {
+    that.process = function(event, rule, valueChanged) {
         if (event.name === rule.startEvent) {
             that.processStartEvent(event, rule);
         }

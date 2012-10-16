@@ -1,12 +1,12 @@
 var Utils = {
     arrayContains : function(array, obj) {
-	var i = array.length;
-	while (i--) {
-	    if (array[i] === obj) {
-		return true;
-	    }
-	}
-	return false;
+        var i = array.length;
+        while (i--) {
+            if (array[i] === obj) {
+                return true;
+            }
+        }
+        return false;
     }
 };
 

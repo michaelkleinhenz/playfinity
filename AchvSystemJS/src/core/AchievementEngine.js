@@ -1,6 +1,6 @@
-ACHV = {};
+var ACHV = {};
 
-ACHV.AchievementEngine = function() {
+ACHV.AchievementEngine = function () {
     this.ruleEnginesMap = {};
     this.achievementsMap = {};
     // TODO move engines in configuration
@@ -95,6 +95,7 @@ ACHV.AchievementEngine.prototype.getAchievementsForEventType = function(eventTyp
 };
 
 ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCallback) {
+    "use strict";
     // console.log("processEvent(event) - " + JSON.stringify(event));
     var unlockedAchievements = [];
     var eventToAchievementsMap = this.achievementsMap;
@@ -134,7 +135,7 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
                         var currentParallelRules = achievement.process[i];
                         for(var j = 0; j < currentParallelRules.length; j++) {
                             activeRules.push(currentParallelRules[j]);
-                            if (currentParallelRules[j].state != 'satisfied') {
+                            if (currentParallelRules[j].state !== 'satisfied') {
                                 break;
                             }
                         }
@@ -146,7 +147,11 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
             function processAchievementRule(rule) {
                if (engines[rule.type]) {
                     var fittingRuleEvaluator = engines[rule.type];
-                    fittingRuleEvaluator.process(event, achievement, rule);
+                    fittingRuleEvaluator.process(event, rule, function achvValueChanged(isChanged) {
+                        if (isChanged) {
+                            // emit achievementinstance changed event.
+                        }
+                    });
                 }
             }
 
@@ -222,10 +227,10 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
                 var currentEvent = rules[i].event;
                 var achievementArray = achievementsMap[currentEvent];
                 var indexAchievement = achievementArray.indexOf(achievement);
-                if (indexAchievement != - 1) {
+                if (indexAchievement !== - 1) {
                     achievementArray.splice(indexAchievement, 1);
                 }
-	        }
+            }
         }
     }
 
