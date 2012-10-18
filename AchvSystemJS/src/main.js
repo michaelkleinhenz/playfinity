@@ -1,25 +1,16 @@
 // Import modules
+global.ACHV = require('./core/ACHV');
 global.Utils = require('./util/utils');
 
-var requireDir = require('require-dir');
 var logger = require('winston');
 var nano = require('nano')('http://127.0.0.1:5984/');
 
 var EventEmitter = require('../libs/EventEmitter-4.0.2.min').EventEmitter;
 
-var achvEngine = require('./core/AchievementEngine');
 var achvSystem = require('./core/AchievementSystem');
 var achvStore = require('./store/AchievementStore');
 var achvInstanceStore = require('./store/AchievementInstanceStore');
 var server = require('./server/Server');
-var engineDir = requireDir('./core/engine');
-
-// Init achievement engine
-var achvEngineInstance = new achvEngine.AchievementEngine();
-achvEngineInstance.registerEngine(new engineDir.OneShotEngine.OneShotEngine());
-achvEngineInstance.registerEngine(new engineDir.CounterEngine.CounterEngine());
-achvEngineInstance.registerEngine(engineDir.TimerEngine.timerEngine({"achievementType": "TimerRule"}));
-achvEngineInstance.registerEngine(engineDir.StopWatchEngine.stopWatchEngine({"achievementType": "StopWatchRule"}));
 
 // Setup achievement system configuration
 var achvStoreConf = {
@@ -40,7 +31,6 @@ var achvSystemConfiguration = {
     "achievementEngines": {},
     "eventBus": new EventEmitter()
 };
-
 // Start achievement system
 var achvSystemInstance = new achvSystem.AchievementSystem(achvSystemConfiguration);
 

@@ -1,19 +1,20 @@
-ACHV.achievementInstanceStore = function(conf) {
-    var logger = conf.logger;
-    var db = conf.db;
+/*global ACHV*/
+ACHV.achievementInstanceStore = function (conf) {
+    "use strict";
+    var logger = conf.logger,
+        db = conf.db,
+        self = {};
 
-    var self = {};
-
-    self.createAchievementInstance = function (doc, callback) {
-        db.insert(doc, doc.name, function(error, body, headers) {
-            if(error) {
-               logger.error("Not able to insert " + doc + " Reason:" + error);
+    self.createOrUpdateAchievementInstance = function (doc, callback) {
+        db.insert(doc, doc.name, function (error, body, headers) {
+            if (error) {
+                logger.error("Not able to insert " + doc + " Reason:" + error);
             }
             callback(error, body);
         });
     };
 
-    self.getAchievementsForGameIdAndUserId = function(gameId, userId, callback) {
+    self.getAchievementsForGameIdAndUserId = function (gameId, userId, callback) {
         db.view('achievement_instance', 'byGameIdAndUserId', {"key": [gameId, userId]}, callback);
     };
 

@@ -5,6 +5,7 @@ ACHV.OneShotEngine = function() {
 ACHV.OneShotEngine.prototype.process = function (event, rule, valueChanged) {
     if (rule.event === event.name) {
         rule.state = "satisfied";
+        valueChanged(true);
     }
 };
 
