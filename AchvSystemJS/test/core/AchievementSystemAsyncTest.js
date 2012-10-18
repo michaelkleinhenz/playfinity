@@ -1,7 +1,7 @@
-/*global ACHV, EventEmitter, FIXTURE*/
+/*
+AsyncTestCase('AchievementSystemAsynTest', {
 
-TestCase("AchievementSystemTest", {
-
+    // TODO reuse defaultAchvSystem from AchievementSystemTest
     setUp: function () {
         "use strict";
         var achvInstanceStoreMock = this.achvInstanceStoreMock =  mock(ACHV.achievementInstanceStore({})),
@@ -62,61 +62,42 @@ TestCase("AchievementSystemTest", {
         this.defaultAchvSys = new ACHV.AchievementSystem(achvSysConf);
     },
 
-    testRegisterGame : function() {
-        var conf = {
-                eventBus: new EventEmitter()
-            },
-            achievementSystem = new ACHV.AchievementSystem(conf);
-        achievementSystem.registerGame("MyGame");
-        var isRegistered = achievementSystem.isRegistered("MyGame");
-        assertTrue(isRegistered);
-    },
+    testUseAlreadyCreatedEngine: function (queue) {
 
-    testIsAchivementUnlocked: function () {
-        var eventBus = new EventEmitter(),
-            achvEngineConf = {
-                "eventBus": eventBus
-            },
-            achievementEngineMock = mock(new ACHV.AchievementEngine(achvEngineConf)),
-            achievement = FIXTURE.getStartGameAchievement(),
-            achvSystemConf = {
-                achievementStore: mock(ACHV.achievementStore({})),
-                achievementInstanceStore: mock(ACHV.achievementInstanceStore({})),
-                achievementEngines: { "1_2": achievementEngineMock},
-                eventBus: eventBus
-            },
-            achievementSystem = new ACHV.AchievementSystem(achvSystemConf);
-        when(achievementEngineMock).getAchievements().thenReturn([achievement]);
-        var isUnlocked = achievementSystem.isAchievementUnlocked(1, 2, achievement);
-        assertFalse(isUnlocked);
-    },
+        var headShotEvent = FIXTURE.getHeadShotEvent(),
+            gameId = headShotEvent.gameId = 1,
+            userId = headShotEvent.userId = 2;
 
-    testCreatingAchievementEngineForGameAndUser: function () {
-        var  achvSystem = this.defaultAchvSys;
-        var event = FIXTURE.getStartGameEvent();
-        var gameId = event.gameId;
-        var userId = event.userId;
-
-        achvSystem.getAchievementEngineForGameAndUser(gameId, userId, function (achievementEngine) {
-            assertUndefined(achievementEngine);
+        queue.call('Step 1: Init AchievementEngine via StartGameEvent', function (callbacks) {
+            var triggerEventCallback = callbacks.add(function (achievements) {
+                assertNotUndefined(achievements);
+            });
+            this.defaultAchvSys.triggerEvent(FIXTURE.getStartGameEvent(), triggerEventCallback);
         });
 
-
-        achvSystem.triggerEvent(event, function (achievements) {
-            achvSystem.getAchievementEngineForGameAndUser(gameId, userId, function(achievementEngine) {
+        queue.call('Step 2: Check achievement engine already exists.', function (callbacks) {
+            var achievementEngineCallback = callbacks.add(function (achievementEngine) {
                 assertNotUndefined(achievementEngine);
             });
+            this.defaultAchvSys.getAchievementEngineForGameAndUser(gameId, userId, achievementEngineCallback);
         });
 
-    },
-    /*
-    testCreateAchievementInstancesForGame: function () {
-        "use strict";
-        var initGameEvent = FIXTURE.getFixtureObj("event/InitGameEvent.json");
-        // trigger init game event
-        this.defaultAchvSys.triggerEvent(initGameEvent, function(achievements) {});
-        // check create method for achievement is called
-        verify(this.achvInstanceStoreMock, times(1)).createOrUpdateAchievementInstance();
+        queue.call('Step 3: Check TwoHeadShotsAchievement unlocked.', function (callbacks) {
+            var triggerEventCallBack = callbacks.add(function (achievements) {
+                var isUnlocked = false;
+                for (var i = 0; i < achievements.length; i++) {
+                    if (achievements[i].name === "TwoHeadShotsAchievement") {
+                        isUnlocked = true;
+                        assertEquals(1, achievements[i].gameId);
+                        assertEquals(2, achievements[i].userId);
+                    }
+                }
+                assertTrue(isUnlocked);
+            });
+            this.defaultAchvSys.triggerEvent(headShotEvent, function (achievements) {});
+            this.defaultAchvSys.triggerEvent(headShotEvent, triggerEventCallBack);
+        });
     }
-    */
 });
+*/
+

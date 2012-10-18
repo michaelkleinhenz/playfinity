@@ -1,3 +1,5 @@
+/*global SYSTEM, FIXTURE*/
+
 SYSTEM.Game = function Game(player, environment) {
 	this.player = player;
 	this.environment = environment;
@@ -9,9 +11,11 @@ SYSTEM.Game.prototype.startGame = function() {
 };
 
 SYSTEM.Game.prototype.doSomething = function() {
-	var player = this.player;
-	var event = FIXTURE.getStartGameEvent();
-	this.achievementSystem.triggerEvent(event, function unlockAchievement(achievementName) {
-		player.showAchievement(achievementName);
-	});
+    var player = this.player,
+        event = FIXTURE.getStartGameEvent();
+    this.achievementSystem.triggerEvent(event, function unlockAchievement(achievements) {
+        if (achievements.length > 0) {
+            player.showAchievement(achievements);
+        }
+    });
 };

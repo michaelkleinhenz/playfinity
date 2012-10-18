@@ -1,12 +1,12 @@
-var ACHV = {};
-
-ACHV.AchievementEngine = function () {
+/*global ACHV*/
+ACHV.AchievementEngine = function (conf) {
+    this.eventBus = conf.eventBus;
     this.ruleEnginesMap = {};
     this.achievementsMap = {};
     // TODO move engines in configuration
     this.engines = {
-        "OneShotRule": new ACHV.OneShotEngine,
-        "CounterRule": new ACHV.CounterEngine,
+        "OneShotRule": new ACHV.OneShotEngine(),
+        "CounterRule": new ACHV.CounterEngine(),
         "TimerRule": ACHV.timerEngine({"achievementType": "TimerRule"}),
         "StopWatchRule": ACHV.stopWatchEngine({"achievementType": "StopWatchRule"})
     };
@@ -97,6 +97,7 @@ ACHV.AchievementEngine.prototype.getAchievementsForEventType = function(eventTyp
 ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCallback) {
     "use strict";
     // console.log("processEvent(event) - " + JSON.stringify(event));
+    var eventBus = this.eventBus;
     var unlockedAchievements = [];
     var eventToAchievementsMap = this.achievementsMap;
     var fittingAchievements = this.getAchievementsForEventType(event.name);
@@ -109,11 +110,8 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
        hasToRetriggerEvent = false;
     }
 
-    // TODO remove when removing callback style
-    if (unlockedAchievements.length > 0) {
-        notifyUnlockCallback(unlockedAchievements);
-    }
-    
+    notifyUnlockCallback(unlockedAchievements);
+
     function processAchievements(engines, achievements) {
         for (var i = 0; i < achievements.length; i++) {
             processAchievement(engines, achievements[i]);
@@ -149,7 +147,7 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
                     var fittingRuleEvaluator = engines[rule.type];
                     fittingRuleEvaluator.process(event, rule, function achvValueChanged(isChanged) {
                         if (isChanged) {
-                            // emit achievementinstance changed event.
+                            eventBus.emitEvent('achv_value_changed', [achievement]);
                         }
                     });
                 }
