@@ -108,7 +108,7 @@ TestCase("AchievementSystemTest", {
             });
         });
 
-    },
+    }
     /*
     testCreateAchievementInstancesForGame: function () {
         "use strict";

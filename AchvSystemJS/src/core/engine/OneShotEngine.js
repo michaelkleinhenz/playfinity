@@ -1,4 +1,5 @@
-ACHV.OneShotEngine = function() {
+/*global ACHV*/
+ACHV.OneShotEngine = function () {
     this.achievementType = "OneShotRule";
 };
 
