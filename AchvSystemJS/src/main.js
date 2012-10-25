@@ -4,8 +4,12 @@ global.Utils = require('./util/utils');
 
 var logger = require('winston');
 var nano = require('nano')('http://127.0.0.1:5984/');
+var requireDir = require('require-dir');
 
 var EventEmitter = require('../libs/EventEmitter-4.0.2.min').EventEmitter;
+
+requireDir('./core/engine');
+require('./core/AchievementEngine');
 
 var achvSystem = require('./core/AchievementSystem');
 var achvStore = require('./store/AchievementStore');

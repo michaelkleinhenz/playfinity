@@ -1,13 +1,14 @@
 /*global ACHV*/
 ACHV.AchievementEngine = function (conf) {
     this.eventBus = conf.eventBus;
+    this.engines = conf.engines;
     this.ruleEnginesMap = {};
     this.achievementsMap = {};
     // TODO move engines in configuration
     this.engines = {
+        "TimerRule": ACHV.timerEngine({"achievementType": "TimerRule"}),
         "OneShotRule": new ACHV.OneShotEngine(),
         "CounterRule": new ACHV.CounterEngine(),
-        "TimerRule": ACHV.timerEngine({"achievementType": "TimerRule"}),
         "StopWatchRule": ACHV.stopWatchEngine({"achievementType": "StopWatchRule"})
     };
 };
