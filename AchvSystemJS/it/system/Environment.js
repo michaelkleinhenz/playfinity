@@ -19,25 +19,33 @@ SYSTEM.Environment.prototype.init = function () {
             insert: function () {}
         },
         dbMock = mock(db);
-    when(dbMock).view("achievement_instance", "byGameIdAndUserId").then(
-        function(design, view, key, callback) {
-            var startGameAchievement = FIXTURE.getStartGameAchievement();
-            var doc = {
+
+
+    function dbViewStartGameAchievement(design, view, key, callback) {
+        var startGameAchievement = FIXTURE.getStartGameAchievement(),
+            doc = {
                 "value" : startGameAchievement
-            };
-            var body = {
+            },
+            body = {
                 rows: {}
             };
-            body.rows.forEach = function(forEachCallBack) {
-                forEachCallBack(doc);
-            };
-            callback(null, body, {});
-        });
+
+        body.rows.length = 1;
+        body.rows.forEach = function(forEachCallBack) {
+            forEachCallBack(doc);
+        };
+
+        callback(null, body, {});
+    }
+
+    when(dbMock).view("achievement_instance", "byGameIdAndUserId").then(dbViewStartGameAchievement);
+    when(dbMock).view("achievement", "byGameId").then(dbViewStartGameAchievement);
 
     when(dbMock).insert(anything(), anything()).then(
         function (doc, docName, callback) {
             callback(null, {}, {});
-        });
+        }
+    );
 
     // create achivement instance store
     var achvInstanceStoreConf = {
