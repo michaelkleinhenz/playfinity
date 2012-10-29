@@ -15,7 +15,6 @@ TestCase("AchievementProcessorTest", {
             assertNull(error);
             assertTrue(result.isUnlocked);
             assertTrue(result.isValueChanged);
-            assertFalse(result.hasToRetriggerEvent);
         });
     }
 });
