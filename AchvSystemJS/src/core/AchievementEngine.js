@@ -101,7 +101,9 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
     var eventBus = this.eventBus;
     var unlockedAchievements = [];
     var eventToAchievementsMap = this.achievementsMap;
+
     var fittingAchievements = this.getAchievementsForEventType(event.name);
+
     var hasToRetriggerEvent = false;
 
     processAchievements(this.ruleEnginesMap, fittingAchievements);
@@ -119,8 +121,12 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
         }
 
         function processAchievement(engines, achievement) {
+            var valueChanged = false;
             processAchievementProcessParts();
             evaluateRuleResults(engines);
+            if (valueChanged) {
+                eventBus.emitEvent('achv_value_changed', [achievement]);
+            }
 
             function processAchievementProcessParts() {
                 var rules = getActiveRules(achievement);
@@ -148,7 +154,7 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
                     var fittingRuleEvaluator = engines[rule.type];
                     fittingRuleEvaluator.process(event, rule, function achvValueChanged(isChanged) {
                         if (isChanged) {
-                            eventBus.emitEvent('achv_value_changed', [achievement]);
+                            valueChanged = true;
                         }
                     });
                 }
