@@ -1,3 +1,4 @@
+/*global ACHV*/
 ACHV.CounterEngine = function() {
     this.achievementType = 'CounterRule';
 };

@@ -1,7 +1,8 @@
-/*global ACHV*/
+/*global ACHV, Utils, async*/
 ACHV.AchievementEngine = function (conf) {
     this.eventBus = conf.eventBus;
     this.engines = conf.engines;
+    this.achvProcessor = ACHV.achievementProcessor();
     this.ruleEnginesMap = {};
     this.achievementsMap = {};
     // TODO move engines in configuration
@@ -13,7 +14,7 @@ ACHV.AchievementEngine = function (conf) {
     };
 };
 
-ACHV.AchievementEngine.prototype.registerEngine = function(engine) {
+ACHV.AchievementEngine.prototype.registerEngine = function (engine) {
     this.ruleEnginesMap[engine.achievementType] = engine;
 };
 
@@ -98,94 +99,38 @@ ACHV.AchievementEngine.prototype.getAchievementsForEventType = function(eventTyp
 ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCallback) {
     "use strict";
     // console.log("processEvent(event) - " + JSON.stringify(event));
-    var eventBus = this.eventBus;
+    var eventBus = this.eventBus,
+        achvProcessor = this.achvProcessor,
+        engines = this.engines;
     var unlockedAchievements = [];
     var eventToAchievementsMap = this.achievementsMap;
     var fittingAchievements = this.getAchievementsForEventType(event.name);
-    var hasToRetriggerEvent = false;
 
-    processAchievements(this.ruleEnginesMap, fittingAchievements);
+    async.series(
+        {
+            one: function (callback) {
+                processAchievements(engines, fittingAchievements, callback);
+            }
+        },
+        function (error, result) {
+           notifyUnlockCallback(unlockedAchievements);
+        }
+    );
 
-    if (hasToRetriggerEvent) {
-       processAchievements(this.ruleEnginesMap, fittingAchievements);
-       hasToRetriggerEvent = false;
-    }
-
-    notifyUnlockCallback(unlockedAchievements);
-
-    function processAchievements(engines, achievements) {
+    function processAchievements(engines, achievements, callback) {
         for (var i = 0; i < achievements.length; i++) {
-            processAchievement(engines, achievements[i]);
+            achvProcessor.process(achievements[i], engines, event, processAchievementsCallback);
         }
+        callback(null, null);
 
-        function processAchievement(engines, achievement) {
-            processAchievementProcessParts();
-            evaluateRuleResults(engines);
-
-            function processAchievementProcessParts() {
-                var rules = getActiveRules(achievement);
-                for (var i = 0; i < rules.length; i++) {
-                    processAchievementRule(rules[i]);
-                }
-
-                function getActiveRules(achievement) {
-                    var activeRules = [];
-                    for (var i = 0; i < achievement.process.length; i++) {
-                        var currentParallelRules = achievement.process[i];
-                        for(var j = 0; j < currentParallelRules.length; j++) {
-                            activeRules.push(currentParallelRules[j]);
-                            if (currentParallelRules[j].state !== 'satisfied') {
-                                break;
-                            }
-                        }
-                    }
-                    return activeRules;
-                }
+        function processAchievementsCallback(error, result) {
+            if (result.isUnlocked) {
+                unlockAchievement(engines, result.achievement);
             }
-
-            function processAchievementRule(rule) {
-               if (engines[rule.type]) {
-                    var fittingRuleEvaluator = engines[rule.type];
-                    fittingRuleEvaluator.process(event, rule, function achvValueChanged(isChanged) {
-                        if (isChanged) {
-                            eventBus.emitEvent('achv_value_changed', [achievement]);
-                        }
-                    });
-                }
-            }
-
-            function evaluateRuleResults(engines) {
-                var ruleResults = [];
-                var rules = getRules(achievement);
-                for (var i=0; i < rules.length; i++) {
-                        ruleResults.push(evaluateRule(rules[i]));
-                }
-
-                if (!Utils.arrayContains(ruleResults, false)) {
-                    unlockAchievement(engines, achievement);
-                }
-
-                function evaluateRule(rule) {
-                    if (rule.state === "broken") {
-                        resetAchievement(achievement);
-                        hasToRetriggerEvent = true;
-                        return false;
-                    } else if (rule.state === "inProgress") {
-                        return false;
-                    }
-                    return true;
-                }
-            }
-
-            function resetAchievement(achievement) {
-                var rules = getRules(achievement);
-                for (var i = 0; i < rules.length; i++) {
-                    var engine = engines[rules[i].type];
-                    engine.reset(rules[i]);
-                }
+            if (result.isValueChanged) {
+                eventBus.emitEvent('achv_value_changed', [result.achievement]);
             }
         }
-
     }
 
     function unlockAchievement(engines, achievement) {
