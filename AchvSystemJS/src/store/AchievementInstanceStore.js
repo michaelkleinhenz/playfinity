@@ -18,6 +18,16 @@ ACHV.achievementInstanceStore = function (conf) {
         db.view('achievement_instance', 'byGameIdAndUserId', {"key": [gameId, userId]}, callback);
     };
 
+    self.deleteAchievement = function (documentName, revision, callback) {
+        db.destroy(documentName, revision, function (error, body) {
+            if (error) {
+                logger.error("Not able to delete: documentName=" + documentName + ", revision=" + revision +
+                    ", error=" + error);
+            }
+            callback(error, body);
+        });
+    };
+
     return self;
 };
 exports.achievementInstanceStore = ACHV.achievementInstanceStore;
