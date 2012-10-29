@@ -1,6 +1,7 @@
 // Import modules
 global.ACHV = require('./core/ACHV');
 global.Utils = require('./util/utils');
+global.async = require('../libs/async.min');
 
 var logger = require('winston');
 var nano = require('nano')('http://127.0.0.1:5984/');
@@ -9,6 +10,7 @@ var requireDir = require('require-dir');
 var EventEmitter = require('../libs/EventEmitter-4.0.2.min').EventEmitter;
 
 requireDir('./core/engine');
+require('./core/AchievementProcessor');
 require('./core/AchievementEngine');
 
 var achvSystem = require('./core/AchievementSystem');
