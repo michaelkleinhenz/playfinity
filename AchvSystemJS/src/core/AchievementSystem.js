@@ -98,7 +98,8 @@ ACHV.AchievementSystem = function (conf) {
         no_achv_engine: initAchievementEngine,
         achv_instances_initialized: initAchievementEngine,
         achv_engine_initialized: processEvent,
-        achv_value_changed: updateAchievement
+        achv_value_changed: updateAchievement,
+        achv_removed: achvInstanceStore.deleteAchievement
     });
 };
 

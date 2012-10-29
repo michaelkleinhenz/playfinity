@@ -123,25 +123,47 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
         }
         callback(null, null);
 
-        function processAchievementsCallback(error, result) {
-            if (result.isUnlocked) {
-                unlockAchievement(engines, result.achievement);
-            }
-            if (result.isValueChanged) {
-                eventBus.emitEvent('achv_value_changed', [result.achievement]);
-            }
+        function processAchievementsCallback(error, processAchievementsResult) {
+            async.series(
+                {
+                    isAchievementRemoved: function(callback) {
+                        if (processAchievementsResult.isUnlocked) {
+                            unlockAchievement(engines, processAchievementsResult.achievement, callback);
+                        } else {
+                            callback(null, false);
+                        }
+                    }
+
+                },
+                function(error, result) {
+                    if (result.isAchievementRemoved) {
+                        eventBus.emitEvent('achv_removed',
+                            [
+                                processAchievementsResult.achievement.name,
+                                processAchievementsResult.achievement._rev,
+                                function(error, result){}
+                            ]
+                        );
+                    } else if (processAchievementsResult.isValueChanged) {
+                        eventBus.emitEvent('achv_value_changed', [processAchievementsResult.achievement]);
+                    }
+                }
+            );
         }
     }
 
-    function unlockAchievement(engines, achievement) {
+    function unlockAchievement(engines, achievement, callback) {
+        var isRemoved = false;
         incFrequencyCounter(achievement);
         if (isFrequencyReached(achievement)) {
             removeAchievement(eventToAchievementsMap, achievement);
+            isRemoved = true;
         } else {
             resetAchievementState(achievement);
         }
         achievement.locked = false; // TODO remove this property
         unlockedAchievements.push(achievement);
+        callback(null, isRemoved);
 
         function incFrequencyCounter(achievement) {
             if(achievement.hasOwnProperty("frequencyCounter")) {
@@ -175,6 +197,7 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
                     achievementArray.splice(indexAchievement, 1);
                 }
             }
+
         }
     }
 

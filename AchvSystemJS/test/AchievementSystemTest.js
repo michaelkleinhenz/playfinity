@@ -62,13 +62,9 @@ TestCase("AchievementSystemTest", {
         this.defaultAchvSys = new ACHV.AchievementSystem(achvSysConf);
     },
 
-    testRegisterGame : function() {
-        var conf = {
-                eventBus: new EventEmitter()
-            },
-            achievementSystem = new ACHV.AchievementSystem(conf);
-        achievementSystem.registerGame("MyGame");
-        var isRegistered = achievementSystem.isRegistered("MyGame");
+    testRegisterGame : function () {
+        this.defaultAchvSys.registerGame("MyGame");
+        var isRegistered = this.defaultAchvSys.isRegistered("MyGame");
         assertTrue(isRegistered);
     },
 
