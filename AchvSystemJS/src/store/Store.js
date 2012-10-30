@@ -105,31 +105,46 @@ function createAchievement(req, res, next) {
     var doc = req.body;
     logger.info('createAchievement(' + JSON.stringify(doc) + ')' );
     db.insert(doc, doc.name, function(error, body, headers) {
-       if(error) {
-           res.send(404);
-           logger.error("Not able to insert " + doc + " Reason:" + error);
-       }
-       logger.debug(JSON.stringify(body));
-       res.send(204);
+        if(error) {
+            res.send(404);
+            logger.error("Not able to insert " + doc + " Reason:" + error);
+        }
+        logger.debug(JSON.stringify(body));
+        res.send(204);
     });
 }
 
 function getAchievementsForGameId(req, res, next) {
-   var gameId = parseInt(req.params.gameId);
-   achievementStore.achievementStore(achvStoreConf).getAchievementsForGameId(gameId, callback);
+    var gameId = parseInt(req.params.gameId);
+    achievementStore.achievementStore(achvStoreConf).getAchievementsForGameId(gameId, callback);
 
-   function callback(error, body, headers) {
-       if(error) {
-           logger.error("Not able to load documents: " + error);
-           res.send(404);
-       } else {
-           res.json(200, body);
-       }
-   }
+    function callback(error, body, headers) {
+        if(error) {
+            logger.error("Not able to load documents: " + error);
+            res.send(404);
+        } else {
+            res.json(200, body);
+        }
+    }
+}
+
+function deleteAchievement(req, res, next) {
+    var name = req.params.achievementName,
+        revision = req.params.revision;
+    achievementStore.achievementStore(achvStoreConf).deleteAchievement(name, revision, callback);
+
+    function callback(error, result) {
+        if (error) {
+            res.json(404, error);
+        } else {
+            res.json(200, result);
+        }
+    }
 }
 
 // Setup routes
 app.get('/', readAchievements);
 app.get('/:achievementName', readAchievement);
+app.del('/:achievementName/:revision', deleteAchievement);
 app.put('/', createAchievement);
 app.get('/achievements/:gameId', getAchievementsForGameId);
