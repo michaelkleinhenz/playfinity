@@ -11,6 +11,10 @@ ACHV.AchievementSystem = function (conf) {
 
     self.ee = this.ee = conf.eventBus;
 
+    self.initAchievements = function (id, callback) {
+        callback(null, "result");
+    };
+
     function initAchievements(event, unlockCallBack) {
         // console.log("initAchievements() gameId: "  +  event.gameId);
         achvStore.getAchievementsForGameId(event.gameId, function callback(error, body, header) {
@@ -101,6 +105,8 @@ ACHV.AchievementSystem = function (conf) {
         achv_value_changed: updateAchievement,
         achv_removed: achvInstanceStore.deleteAchievement
     });
+
+    return self;
 };
 
 
