@@ -19,6 +19,7 @@
                         {
                             "isValueChanged": results.one || results.two.isValueChanged,
                             "isUnlocked" : results.two.isUnlocked,
+                            "hasToRetriggerEvent": results.two.hasToRetriggerEvent,
                             "achievement": achievement
                         });
                 }
@@ -66,6 +67,7 @@
         function evaluateRuleResults(achievement, engines, callback) {
             var isAchievementUnlocked = false,
                 isValueChanged = false,
+                hasToRetriggerEvent = false,
                 ruleResults = [],
                 rules = getRules(achievement);
 
@@ -78,6 +80,7 @@
             }
             callback(null, {
                     "isUnlocked": isAchievementUnlocked,
+                    "hasToRetriggerEvent": hasToRetriggerEvent,
                     "isValueChanged": isValueChanged
                 }
             );
@@ -85,7 +88,7 @@
             function evaluateRule(rule) {
                 if (rule.state === "broken") {
                     resetAchievement(achievement);
-                    // TODO hasToRetriggerEvent = true;
+                    hasToRetriggerEvent = true;
                     isValueChanged = true;
                     return false;
                 } else if (rule.state === "inProgress") {

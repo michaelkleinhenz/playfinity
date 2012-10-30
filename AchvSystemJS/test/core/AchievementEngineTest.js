@@ -1,5 +1,5 @@
 TestCase("AchievementEngineTest", {
-    
+
     setUp: function() {
         // setup achievement engine
         var eventBus = new EventEmitter(),
@@ -227,9 +227,9 @@ TestCase("AchievementEngineTest", {
         achievement = ACHV.achievementWrapper(achievement);
         var rules = achievement.getRules();
         assertEquals("satisfied", rules[0].state);
-        //assertEquals(360, rules[0].timer); // TODO Fix with retrigger Event
+        assertEquals(360, rules[0].timer);
         assertEquals("inProgress", rules[1].state);
-        // assertEquals(4, rules[1].counter); // TODO Fix with retrigger Event
+        assertEquals(4, rules[1].counter);
 
         // check achievement not removed
         var achievements = achievementEngine.getAchievements();

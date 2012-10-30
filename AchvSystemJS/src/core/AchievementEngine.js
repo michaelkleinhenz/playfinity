@@ -101,7 +101,8 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
     // console.log("processEvent(event) - " + JSON.stringify(event));
     var eventBus = this.eventBus,
         achvProcessor = this.achvProcessor,
-        engines = this.engines;
+        engines = this.engines,
+        retryCounter = 0;
     var unlockedAchievements = [];
     var eventToAchievementsMap = this.achievementsMap;
     var fittingAchievements = this.getAchievementsForEventType(event.name);
@@ -124,31 +125,36 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
         callback(null, null);
 
         function processAchievementsCallback(error, processAchievementsResult) {
-            async.series(
-                {
-                    isAchievementRemoved: function(callback) {
-                        if (processAchievementsResult.isUnlocked) {
-                            unlockAchievement(engines, processAchievementsResult.achievement, callback);
-                        } else {
-                            callback(null, false);
+            if(processAchievementsResult.hasToRetriggerEvent && retryCounter < 1) {
+                retryCounter++;
+                eventBus.emitEvent('achv_value_changed', [processAchievementsResult.achievement]);
+                achvProcessor.process(processAchievementsResult.achievement, engines, event, processAchievementsCallback);
+            } else {
+                async.series(
+                    {
+                        isAchievementRemoved: function(callback) {
+                            if (processAchievementsResult.isUnlocked) {
+                                unlockAchievement(engines, processAchievementsResult.achievement, callback);
+                            } else {
+                                callback(null, false);
+                            }
+                        }
+                    },
+                    function(error, results) {
+                        if (results.isAchievementRemoved) {
+                            eventBus.emitEvent('achv_removed',
+                                [
+                                    processAchievementsResult.achievement.name,
+                                    processAchievementsResult.achievement._rev,
+                                    function(error, result){}
+                                ]
+                            );
+                        } else if (processAchievementsResult.isValueChanged) {
+                            eventBus.emitEvent('achv_value_changed', [processAchievementsResult.achievement]);
                         }
                     }
-
-                },
-                function(error, result) {
-                    if (result.isAchievementRemoved) {
-                        eventBus.emitEvent('achv_removed',
-                            [
-                                processAchievementsResult.achievement.name,
-                                processAchievementsResult.achievement._rev,
-                                function(error, result){}
-                            ]
-                        );
-                    } else if (processAchievementsResult.isValueChanged) {
-                        eventBus.emitEvent('achv_value_changed', [processAchievementsResult.achievement]);
-                    }
-                }
-            );
+                );
+            }
         }
     }
 
