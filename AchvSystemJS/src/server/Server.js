@@ -35,8 +35,8 @@ function start(achvSystem) {
      */
     function initAchievements(req, res, next) {
         var id = {
-            "userId": req.params.userId,
-            "gameId": req.params.gameId
+            "userId": parseInt(req.params.userId, 10),
+            "gameId": parseInt(req.params.gameId, 10)
         };
         achvSystem.initAchievements(id, function (error, result) {
             if (error) {
