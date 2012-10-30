@@ -11,27 +11,27 @@ ACHV.AchievementSystem = function (conf) {
 
     self.ee = this.ee = conf.eventBus;
 
-    function initAchievements(event, unlockCallBack) {
-        // console.log("initAchievements() gameId: "  +  event.gameId);
-        achvStore.getAchievementsForGameId(event.gameId, function callback(error, body, header) {
+    function initAchievements(id, callback) {
+        achvStore.getAchievementsForGameId(id.gameId, function getAchievementsForGameIdCallback(error, body, header) {
             if (error) {
-                console.log("Not able to get achievements for gameId: " + event.gameId + " Error: " + error);
+                console.log("Not able to get achievements for gameId: " + id.gameId + " Error: " + error);
+                callback(error, null);
             } else {
                 console.log("getAchievementsForGameId:" + JSON.stringify(body));
                 if (body.rows.length > 0) {
                     body.rows.forEach(createAchievementInstance);
-                    self.ee.emitEvent('achv_instances_initialized', [event, unlockCallBack]);
                 } else {
-                    console.log("initAchievements - No achievements for event:"  + JSON.stringify(event));
+                    console.log("initAchievements - No achievements for id:"  + JSON.stringify(id));
                 }
             }
         });
+        callback(null, "Achievement instances created.");
 
         function createAchievementInstance(doc) {
             console.log("createAchievementInstance doc: " +  JSON.stringify(doc));
             var achievementInstance = doc.value;
-            achievementInstance.gameId = event.gameId;
-            achievementInstance.userId = event.userId;
+            achievementInstance.gameId = id.gameId;
+            achievementInstance.userId = id.userId;
             achvInstanceStore.createOrUpdateAchievementInstance(achievementInstance, function (error, body) {
                 if (error) {
                     console.log("Not able to create achievement instance for doc: " + doc + " Error:" + error);
@@ -52,8 +52,6 @@ ACHV.AchievementSystem = function (conf) {
                     // console.log("initAchievementEngine: body=" + JSON.stringify(body));
                     body.rows.forEach(registerAchievement);
                     self.ee.emitEvent('achv_engine_initialized', [event, unlockCallback]);
-                } else {
-                    self.ee.emitEvent('no_achv_instances', [event, unlockCallback]);
                 }
             }
         });
@@ -94,7 +92,7 @@ ACHV.AchievementSystem = function (conf) {
 
     this.ee.addListeners({
         event_triggered: processEvent,
-        no_achv_instances: initAchievements,
+        init_achievements: initAchievements,
         no_achv_engine: initAchievementEngine,
         achv_instances_initialized: initAchievementEngine,
         achv_engine_initialized: processEvent,
@@ -124,6 +122,10 @@ ACHV.AchievementSystem.prototype.isRegistered = function(game) {
 ACHV.AchievementSystem.prototype.triggerEvent = function (event, notifyUnlockCallback) {
     // console.log("triggerEvent() " + JSON.stringify(event));
     this.ee.emitEvent('event_triggered', [event, notifyUnlockCallback]);
+};
+
+ACHV.AchievementSystem.prototype.initAchievements = function (id, callback) {
+    this.ee.emitEvent('init_achievements', [id, callback]);
 };
 
 ACHV.AchievementSystem.prototype.isAchievementUnlocked = function (gameId, userId, achievement) {
