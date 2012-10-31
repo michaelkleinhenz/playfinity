@@ -102,12 +102,6 @@ ACHV.AchievementSystem = function (conf) {
     });
 };
 
-
-ACHV.AchievementSystem.prototype.getAchievementsForGameAndUser = function (gameId, userId) {
-    // TODO make key function for gameId and userId
-    return this.achievementEngines[gameId + "_" + userId].getAchievements();
-};
-
 ACHV.AchievementSystem.prototype.getAchievementEngineForGameAndUser = function(gameId, userId, callback) {
     callback(this.achievementEngines[gameId + "_" +userId]);
 };
