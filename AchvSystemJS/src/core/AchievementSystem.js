@@ -43,10 +43,11 @@ ACHV.AchievementSystem = function (conf) {
     }
 
     function initAchievementEngine(event, unlockCallback) {
-        console.log("initAchievmentEngine()");
+        // console.log("initAchievmentEngine()");
         achvInstanceStore.getAchievementsForGameIdAndUserId(event.gameId, event.userId, function callback(error, body, header) {
             if (error) {
                 console.log("Not able to get achievements: " + error);
+                unlockCallback(error, null);
             } else {
                 if (body.rows.length > 0) {
                     // console.log("initAchievementEngine: body=" + JSON.stringify(body));
@@ -58,6 +59,7 @@ ACHV.AchievementSystem = function (conf) {
 
 
         function registerAchievement(doc) {
+            console.log("registerAchievement: doc=" + JSON.stringify(doc));
             var achvEngine = achvEngines[event.gameId + "_" + event.userId],
                 achievementInstance = doc.value;
             if (achvEngine) {

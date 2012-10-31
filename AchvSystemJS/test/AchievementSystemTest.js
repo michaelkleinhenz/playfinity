@@ -21,6 +21,8 @@ TestCase("AchievementSystemTest", {
                     startGameAchievementDoc = {
                         "value" : startGameAchievement
                     };
+                startGameAchievement.gameId = 1;
+                startGameAchievement.userId = 2;
                 var twoHeadShotsAchievement = FIXTURE.getTwoHeadShotsAchievement();
                 twoHeadShotsAchievement.gameId = 1;
                 twoHeadShotsAchievement.userId = 2;
@@ -31,7 +33,7 @@ TestCase("AchievementSystemTest", {
                 var body = {
                     rows: {}
                 };
-
+                body.rows.length = achievementDocs.length;
                 body.rows.forEach = function (forEachCallBack) {
                     var i = 0;
                     for (i; i < achievementDocs.length; i++) {
@@ -227,8 +229,22 @@ TestCase("AchievementSystemTest", {
         event.userId = 2;
         this.defaultAchvSys.triggerEvent(event, initAchievementEngineCallback);
 
-        function initAchievementEngineCallback(achievement) {
-            console.log(achievement);
+        function initAchievementEngineCallback(error, achievements) {
+            assertNotNull(error);
+            assertNull(achievements);
         }
+    },
+
+    testRegisterAchievement: function () {
+        "use strict";
+        var event = FIXTURE.getChestShotEvent();
+        event.gameId = 1;
+        event.userId = 2;
+        this.defaultAchvSys.triggerEvent(event, registerAchievementCallback);
+
+        function registerAchievementCallback(error, result) {
+
+        }
+
     }
 });
