@@ -242,9 +242,8 @@ TestCase("AchievementSystemTest", {
         event.userId = 2;
         this.defaultAchvSys.triggerEvent(event, registerAchievementCallback);
 
-        function registerAchievementCallback(error, result) {
-
+        function registerAchievementCallback(achievements) {
+            assertNotNull(achievements);
         }
-
     }
 });
