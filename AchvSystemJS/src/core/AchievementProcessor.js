@@ -86,6 +86,15 @@
             );
 
             function evaluateRule(rule) {
+
+                function resetAchievement(achievement) {
+                    var rules = getRules(achievement);
+                    for (var i = 0; i < rules.length; i++) {
+                        var engine = engines[rules[i].type];
+                        engine.reset(rules[i]);
+                    }
+                }
+
                 if (rule.state === "broken") {
                     resetAchievement(achievement);
                     hasToRetriggerEvent = true;
@@ -96,13 +105,7 @@
                 }
                 return true;
 
-                function resetAchievement(achievement) {
-                    var rules = getRules(achievement);
-                    for (var i = 0; i < rules.length; i++) {
-                        var engine = engines[rules[i].type];
-                        engine.reset(rules[i]);
-                    }
-                }
+
             }
 
             function getRules(achievement) {
