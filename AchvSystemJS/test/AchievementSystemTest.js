@@ -13,7 +13,9 @@ TestCase("AchievementSystemTest", {
                 "eventBus": new EventEmitter()
             };
 
-        when(achvInstanceStoreMock).getAchievementsForGameIdAndUserId(anything(), anything()).
+        // AchievementInstanceStore getAchievementsForGameIdAndUserId
+        // Valid
+        when(achvInstanceStoreMock).getAchievementsForGameIdAndUserId(not(3), anything()).
             then(function(gameId, user, callback) {
                 var startGameAchievement = FIXTURE.getStartGameAchievement(),
                     startGameAchievementDoc = {
@@ -37,6 +39,11 @@ TestCase("AchievementSystemTest", {
                     }
                 };
                 callback(null, body, {});
+            });
+        // Error
+        when(achvInstanceStoreMock).getAchievementsForGameIdAndUserId(equalTo(3), anything()).
+            then(function (gameId, userId, callback) {
+                callback("Error reading achievements.", null, null);
             });
 
         // AchievementInstanceStore createOrUpdateAchievementInstance
@@ -210,6 +217,18 @@ TestCase("AchievementSystemTest", {
         function initAchievementsCallback(error, result) {
             assertNull(error);
             assertEquals("Achievement instances created.", result);
+        }
+    },
+
+    testInitAchievementEngineError: function () {
+        "use strict";
+        var event = FIXTURE.getChestShotEvent();
+        event.gameId = 3;
+        event.userId = 2;
+        this.defaultAchvSys.triggerEvent(event, initAchievementEngineCallback);
+
+        function initAchievementEngineCallback(achievement) {
+            console.log(achievement);
         }
     }
 });

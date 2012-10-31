@@ -43,7 +43,7 @@ ACHV.AchievementSystem = function (conf) {
     }
 
     function initAchievementEngine(event, unlockCallback) {
-        // console.log("initAchievmentEngine()");
+        console.log("initAchievmentEngine()");
         achvInstanceStore.getAchievementsForGameIdAndUserId(event.gameId, event.userId, function callback(error, body, header) {
             if (error) {
                 console.log("Not able to get achievements: " + error);
@@ -94,7 +94,6 @@ ACHV.AchievementSystem = function (conf) {
         event_triggered: processEvent,
         init_achievements: initAchievements,
         no_achv_engine: initAchievementEngine,
-        achv_instances_initialized: initAchievementEngine,
         achv_engine_initialized: processEvent,
         achv_value_changed: updateAchievement,
         achv_removed: achvInstanceStore.deleteAchievement
