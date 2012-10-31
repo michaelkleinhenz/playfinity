@@ -39,10 +39,31 @@ TestCase("AchievementSystemTest", {
                 callback(null, body, {});
             });
 
-        when(achvInstanceStoreMock).createOrUpdateAchievementInstance(anything()).
-            then(function () {});
+        // AchievementInstanceStore createOrUpdateAchievementInstance
+        var errorAchievementInstance = {"name":"PlayForTenSecondsAchievement","process":[[{"type":"StopWatchRule","events":[{"name":"StartGameEvent"},{"name":"StopGameEvent"}],"state":"inProgress","startEvent":"StartGameEvent","stopEvent":"StopGameEvent","timer":0,"TIMER_MAX_SEC":10}]],"locked":true,"frequencyCounter":0,"FREQUENCY_COUNTER_MAX":1,"gameId":2,"userId":2};
 
-        when(achvStoreMock).getAchievementsForGameId(anything()).
+        when(achvInstanceStoreMock).createOrUpdateAchievementInstance(not(errorAchievementInstance)).
+            then(function (doc, callback) {
+                callback(null, "body");
+            });
+
+        when(achvInstanceStoreMock).createOrUpdateAchievementInstance(hasMember("name", equalTo("PlayForTenSecondsAchievement"))).
+            then(function (doc, callback) {
+                callback("Some Error", null);
+            });
+
+        // AchievementStore callback with no achievement, gameId=0.
+        when(achvStoreMock).getAchievementsForGameId(equalTo(0)).
+            then(function (gameId, callback) {
+                var body = {
+                    rows: {}
+                };
+                body.rows.length = 0;
+                callback(null, body, {});
+            });
+
+        // AchievementStore callback with one achievement, gameId=1.
+        when(achvStoreMock).getAchievementsForGameId(equalTo(1)).
             then(function (gameId, callback) {
                 var twoHeadShotsAchievement = FIXTURE.getTwoHeadShotsAchievement(),
                     doc = {
@@ -51,12 +72,42 @@ TestCase("AchievementSystemTest", {
                     body = {
                         rows: {}
                     };
-
+                body.rows.length = 1;
                 twoHeadShotsAchievement.gameId = 1;
                 body.rows.forEach = function (forEachCallBack) {
                     forEachCallBack(doc);
                 };
                 callback(null, body, {});
+            });
+
+        // AchievementStore callback with two achievements, gameId=2.
+        when(achvStoreMock).getAchievementsForGameId(equalTo(2)).
+            then(function (gameId, callback) {
+                var twoHeadShotsAchievement = FIXTURE.getTwoHeadShotsAchievement(),
+                    docOne = {
+                        value: twoHeadShotsAchievement
+                    },
+                    playForTenSecondsAchievement = FIXTURE.getPlayForTenSecondsAchievement(),
+                    docTwo = {
+                        value: playForTenSecondsAchievement
+                    },
+                    body = {
+                        rows: {}
+                    };
+                twoHeadShotsAchievement.gameId = 2;
+                playForTenSecondsAchievement.gameId = 2;
+                body.rows.length = 2;
+                body.rows.forEach = function (forEachCallBack) {
+                    forEachCallBack(docOne);
+                    forEachCallBack(docTwo);
+                };
+                callback(null, body, {});
+            });
+
+        // AchievementStore callback with error, gameId=3.
+        when(achvStoreMock).getAchievementsForGameId(equalTo(3)).
+            then(function (gameId, callback) {
+                callback("Some Error", null, null);
             });
 
         this.defaultAchvSys = new ACHV.AchievementSystem(achvSysConf);
@@ -104,15 +155,61 @@ TestCase("AchievementSystemTest", {
             });
         });
 
-    }
-    /*
-    testCreateAchievementInstancesForGame: function () {
+    },
+
+    testInitAchievementsOneAchievement: function () {
         "use strict";
-        var initGameEvent = FIXTURE.getFixtureObj("event/InitGameEvent.json");
-        // trigger init game event
-        this.defaultAchvSys.triggerEvent(initGameEvent, function(achievements) {});
-        // check create method for achievement is called
-        verify(this.achvInstanceStoreMock, times(1)).createOrUpdateAchievementInstance();
+        var id = {
+            "gameId": 1,
+            "userId": 2
+        };
+        this.defaultAchvSys.initAchievements(id, initAchievementCallback);
+
+        function initAchievementCallback(error, result) {
+            assertNull(error);
+            assertEquals("Achievement instances created.", result);
+        }
+    },
+
+    testInitAchievementsTwoAchievements: function () {
+        "use strict";
+        var id = {
+            "gameId": 2,
+            "userId": 2
+        };
+        this.defaultAchvSys.initAchievements(id, initAchievementsCallback);
+
+        function initAchievementsCallback(error, result) {
+            assertNull(error);
+            assertEquals("Achievement instances created.", result);
+        }
+    },
+
+    testInitAchievementsError: function () {
+        "use strict";
+        var id = {
+            "gameId": 3,
+            "userId": 2
+        };
+        this.defaultAchvSys.initAchievements(id, initAchievementsCallback);
+
+        function initAchievementsCallback(error, result) {
+            assertNotNull(error);
+            assertNull(result);
+        }
+    },
+
+    testInitAchievementsNoAchievements: function () {
+        "use strict";
+        var id = {
+            "gameId": 0,
+            "userId": 2
+        };
+        this.defaultAchvSys.initAchievements(id, initAchievementsCallback);
+
+        function initAchievementsCallback(error, result) {
+            assertNull(error);
+            assertEquals("Achievement instances created.", result);
+        }
     }
-    */
 });

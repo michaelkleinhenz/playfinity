@@ -23,18 +23,18 @@ ACHV.AchievementSystem = function (conf) {
                 } else {
                     console.log("initAchievements - No achievements for id:"  + JSON.stringify(id));
                 }
+                callback(null, "Achievement instances created.");
             }
         });
-        callback(null, "Achievement instances created.");
 
         function createAchievementInstance(doc) {
-            console.log("createAchievementInstance doc: " +  JSON.stringify(doc));
+            // console.log("createAchievementInstance doc: " +  JSON.stringify(doc));
             var achievementInstance = doc.value;
             achievementInstance.gameId = id.gameId;
             achievementInstance.userId = id.userId;
             achvInstanceStore.createOrUpdateAchievementInstance(achievementInstance, function (error, body) {
                 if (error) {
-                    console.log("Not able to create achievement instance for doc: " + doc + " Error:" + error);
+                    console.log("Not able to create achievement instance for doc: " + JSON.stringify(doc) + " Error:" + error);
                 } else {
                     console.log("Created achievement instance. body:" + JSON.stringify(body));
                 }
