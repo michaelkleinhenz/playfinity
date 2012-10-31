@@ -4,13 +4,14 @@ TestCase("AchievementSystemTest", {
 
     setUp: function () {
         "use strict";
+        this.eventBus = new EventEmitter();
         var achvInstanceStoreMock = this.achvInstanceStoreMock =  mock(ACHV.achievementInstanceStore({})),
             achvStoreMock = mock(ACHV.achievementStore({})),
             achvSysConf = {
                 "achievementStore" : achvStoreMock,
                 "achievementInstanceStore" : achvInstanceStoreMock,
                 "achievementEngines": {},
-                "eventBus": new EventEmitter()
+                "eventBus": this.eventBus
             };
 
         // AchievementInstanceStore getAchievementsForGameIdAndUserId
@@ -245,5 +246,12 @@ TestCase("AchievementSystemTest", {
         function registerAchievementCallback(achievements) {
             assertNotNull(achievements);
         }
+    },
+
+    testUpdateAchievementError: function () {
+        "use strict";
+        var achievement = FIXTURE.getPlayForTenSecondsAchievement();
+        this.eventBus.emitEvent('achv_value_changed', [achievement]);
+        verify(this.achvInstanceStoreMock).createOrUpdateAchievementInstance(achievement, anything());
     }
 });

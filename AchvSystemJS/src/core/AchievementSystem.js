@@ -82,10 +82,10 @@ ACHV.AchievementSystem = function (conf) {
     }
 
     function updateAchievement(achievement) {
-        console.log("updateAchievement(" + JSON.stringify(achievement) + ")");
+        // console.log("updateAchievement(" + JSON.stringify(achievement) + ")");
         achvInstanceStore.createOrUpdateAchievementInstance(achievement, function (error, body) {
             if (error) {
-                console.log("Not able to update achievement instance: " + achievement + " Error:" + error);
+                console.log("Not able to update achievement instance: " + JSON.stringify(achievement) + " Error:" + error);
             } else {
                 console.log("Updated achievement instance. body:" + JSON.stringify(body));
             }
