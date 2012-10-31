@@ -1,0 +1,9 @@
+{
+    "name": "oauthsample-questorserver",
+    "version": "0.1.0",
+    "main": "./src/main",
+    "private": true,
+    "dependencies": {
+        "restify": "1.4.4"
+    }
+}

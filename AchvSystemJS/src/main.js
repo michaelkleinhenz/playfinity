@@ -1,22 +1,43 @@
+// Import modules
+global.ACHV = require('./core/ACHV');
 global.Utils = require('./util/utils');
-var hashMap = require('./../libs/hashmap');
-var achvEngine = require('./core/AchievementEngine');
+global.async = require('../libs/async.min');
+
+var logger = require('winston');
+var nano = require('nano')('http://127.0.0.1:5984/');
+var requireDir = require('require-dir');
+
+var EventEmitter = require('../libs/EventEmitter-4.0.2.min').EventEmitter;
+
+requireDir('./core/engine');
+require('./core/AchievementProcessor');
+require('./core/AchievementEngine');
+
 var achvSystem = require('./core/AchievementSystem');
+var achvStore = require('./store/AchievementStore');
+var achvInstanceStore = require('./store/AchievementInstanceStore');
 var server = require('./server/Server');
 
-var requireDir = require('require-dir');
-var engineDir = requireDir('./core/engine');
+// Setup achievement system configuration
+var achvStoreConf = {
+    "logger": logger,
+    "db": nano.use('achievement')
+};
+var achievementStore = achvStore.achievementStore(achvStoreConf);
 
-var engines = new hashMap.HashMap();
-var achievements = new hashMap.HashMap();
+var achvInstanceStoreConf = {
+    "logger": logger,
+    "db": nano.use('achievements_instances')
+};
+var achievementInstanceStore = achvInstanceStore.achievementInstanceStore(achvInstanceStoreConf);
 
-var achvEngineInstance = new achvEngine.AchievementEngine(engines, achievements);
-
-achvEngineInstance.registerEngine(new engineDir.OneShotEngine.OneShotEngine());
-achvEngineInstance.registerEngine(new engineDir.CounterEngine.CounterEngine());
-achvEngineInstance.registerEngine(engineDir.TimerEngine.timerEngine({"achievementType": "TimerRule"}));
-achvEngineInstance.registerEngine(engineDir.StopWatchEngine.stopWatchEngine({"achievementType": "StopWatchRule"}));
-
-var achvSystemInstance = new achvSystem.AchievementSystem(achvEngineInstance);
+var achvSystemConfiguration = {
+    "achievementStore":  achievementStore,
+    "achievementInstanceStore": achievementInstanceStore,
+    "achievementEngines": {},
+    "eventBus": new EventEmitter()
+};
+// Start achievement system
+var achvSystemInstance = new achvSystem.AchievementSystem(achvSystemConfiguration);
 
 server.start(achvSystemInstance);

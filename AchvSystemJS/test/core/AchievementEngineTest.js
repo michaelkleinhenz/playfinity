@@ -1,10 +1,12 @@
 TestCase("AchievementEngineTest", {
-    
+
     setUp: function() {
-        var engines = new HashMap();
-        var achievements = new HashMap();
         // setup achievement engine
-        achievementEngine = new ACHV.AchievementEngine(engines, achievements);
+        var eventBus = new EventEmitter(),
+            achvEngineConf = {
+                "eventBus": eventBus
+            };
+        achievementEngine = new ACHV.AchievementEngine(achvEngineConf);
         var counterEnginge = new ACHV.CounterEngine();
         achievementEngine.registerEngine(counterEnginge);
         var timerEngine = ACHV.timerEngine({"achievementType": "TimerRule"});
@@ -99,31 +101,32 @@ TestCase("AchievementEngineTest", {
     },
 
     testRemoveOnceAchievementForTwoEvents: function() {
-	    // set achievement
-    	var achievement = FIXTURE.getTenHeadAndKneeShotsAchievement();
-    	achievementEngine.registerAchievement(achievement);
-	
-	    // check achievement registered
-    	var achievements = achievementEngine.getAchievements();
-    	assertTrue(Utils.arrayContains(achievements, achievement));
-	
-	    // trigger unlock event
-    	var headShotEvent = FIXTURE.getHeadShotEvent();
-	    var kneeShotEvent = FIXTURE.getKneeShotEvent();
-    	for (var i = 0; i < 10; i++) {
-	        achievementEngine.processEvent(headShotEvent, notifyUnlock);
-	    }
-	    for (var j = 0; j < 10; j++) {
+        // set achievement
+        var achievement = FIXTURE.getTenHeadAndKneeShotsAchievement();
+        achievementEngine.registerAchievement(achievement);
+
+        // check achievement registered
+        var achievements = achievementEngine.getAchievements();
+        assertTrue(Utils.arrayContains(achievements, achievement));
+
+        // trigger unlock event
+        var headShotEvent = FIXTURE.getHeadShotEvent();
+        var kneeShotEvent = FIXTURE.getKneeShotEvent();
+        for (var i = 0; i < 10; i++) {
+            achievementEngine.processEvent(headShotEvent, notifyUnlock);
+        }
+        for (var j = 0; j < 10; j++) {
             achievementEngine.processEvent(kneeShotEvent, notifyUnlock);
         }
 
-    	// check achievement removed
-	    achievements = achievementEngine.getAchievements();
-    	assertFalse(Utils.arrayContains(achievements, achievement));
-	
-	    function notifyUnlock(unlockedAchievements) {
-	        assertTrue(Utils.arrayContains(unlockedAchievements, achievement));
-    	}
+        // check achievement removed
+        achievements = achievementEngine.getAchievements();
+        assertFalse(Utils.arrayContains(achievements, achievement));
+        var currentUnlockedAchievements;
+        function notifyUnlock(unlockedAchievements) {
+            currentUnlockedAchievements = unlockedAchievements;
+        }
+        assertTrue(Utils.arrayContains(currentUnlockedAchievements, achievement));
     },
     
     testAchievementTypeMultiInfinite: function() {
@@ -150,45 +153,49 @@ TestCase("AchievementEngineTest", {
     },
 
     testAchievementTypeMultiTwoTimes: function() {
-    	// set achievement with frequency property
-    	var achievement = FIXTURE.getTenHeadShotsAchievement();
-    	achievementEngine.registerAchievement(achievement);
+        var currentUnlockedAchievements = [];
 
-		// check achievement registered
-    	var achievements = achievementEngine.getAchievements();
-	    assertTrue(Utils.arrayContains(achievements, achievement));
+        // set achievement with frequency property
+        var achievement = FIXTURE.getTenHeadShotsAchievement();
+        achievementEngine.registerAchievement(achievement);
 
-    	// trigger event to unlock first time
-    	var event = FIXTURE.getHeadShotEvent();
+        // check achievement registered
+        var achievements = achievementEngine.getAchievements();
+        assertTrue(Utils.arrayContains(achievements, achievement));
+
+        // trigger event to unlock first time
+        var event = FIXTURE.getHeadShotEvent();
         for (var i = 0; i < 10; i++) {
-         achievementEngine.processEvent(event, notifyUnlock);
+            achievementEngine.processEvent(event, notifyUnlock);
         }
 
-	    // check achievement still there
-    	achievements = achievementEngine.getAchievements();
-	    assertTrue(Utils.arrayContains(achievements, achievement));
+        // check achievement still there
+        achievements = achievementEngine.getAchievements();
+        assertTrue(Utils.arrayContains(achievements, achievement));
 
         // trigger event to unlock second time
         for (var i = 0; i < 10; i++) {
-         achievementEngine.processEvent(event, notifyUnlock);
+            achievementEngine.processEvent(event, notifyUnlock);
         }
 
         // check achievement removed
         achievements = achievementEngine.getAchievements();
         assertFalse(Utils.arrayContains(achievements, achievement));
 
-    	function notifyUnlock(unlockedAchievements) {
-	        assertTrue(Utils.arrayContains(unlockedAchievements, achievement));
-    	}
+        function notifyUnlock(unlockedAchievements) {
+            currentUnlockedAchievements = currentUnlockedAchievements.concat(unlockedAchievements);
+        }
+        assertTrue(Utils.arrayContains(currentUnlockedAchievements,achievement));
     },
 
     testTenHeadShotsInTenMinutesAchievementUnlocked: function() {
-    	// set achievement
-    	var achievement = FIXTURE.getTenHeadShotsInTenMinutesAchievement();
-    	achievementEngine.registerAchievement(achievement);
+        var allUnlockedAchievements = [];
+        // set achievement
+        var achievement = FIXTURE.getTenHeadShotsInTenMinutesAchievement();
+        achievementEngine.registerAchievement(achievement);
 
         // trigger event to unlock
-    	var event = FIXTURE.getHeadShotEvent();
+        var event = FIXTURE.getHeadShotEvent();
         var initDate = Date.now() / 1000;
         for (var i = 0; i < 10; i++) {
             event.tsInit = initDate + (i); // add i x one seconds.
@@ -200,8 +207,9 @@ TestCase("AchievementEngineTest", {
         assertFalse(Utils.arrayContains(achievements, achievement));
 
         function notifyUnlock(unlockedAchievements) {
-            assertTrue(Utils.arrayContains(unlockedAchievements, achievement));
-       }
+            allUnlockedAchievements = allUnlockedAchievements.concat(unlockedAchievements);
+        }
+        assertTrue(Utils.arrayContains(allUnlockedAchievements, achievement));
     },
 
     testTenHeadShotsInTenMinutesAchievementLocked: function() {
