@@ -142,9 +142,25 @@ function deleteAchievement(req, res, next) {
     }
 }
 
+function getAchievementByGameIdAndName(req, res, next) {
+    "use strict";
+    var gameId = parseInt(req.params.gameId, 10),
+        name = req.params.achievementName;
+    achievementStore.achievementStore(achvStoreConf).getAchievementByGameIdAndName(gameId, name, callback);
+
+    function callback(error, result) {
+        if (error) {
+            res.json(404, error);
+        } else {
+            res.json(200, result);
+        }
+    }
+}
+
 // Setup routes
 app.get('/', readAchievements);
 app.get('/:achievementName', readAchievement);
 app.del('/:achievementName/:revision', deleteAchievement);
 app.put('/', createAchievement);
 app.get('/achievements/:gameId', getAchievementsForGameId);
+app.get('/achievement/:gameId/:achievementName', getAchievementByGameIdAndName);

@@ -22,6 +22,19 @@ ACHV.achievementStore = function (conf) {
         }
     };
 
+    self.getAchievementByGameIdAndName = function (gameId, name, callback) {
+        db.view('achievement', 'byGameIdAndName', {"key": [gameId, name]}, getAchievementCallback);
+
+        function getAchievementCallback(error, body) {
+            if (error) {
+                logger.error("Not able to get achievement: gameId=" + gameId +
+                    ", name=" + name +
+                    ", error=" + JSON.stringify(error));
+            }
+            callback(error, body);
+        }
+    };
+
     return self;
 };
 
