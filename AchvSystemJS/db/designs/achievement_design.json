@@ -3,6 +3,9 @@
   "views" : {
     "byGameId" : {
       "map" : "function(doc){ emit(doc.gameId, doc)}"
+    },
+    "byGameIdAndName" : {
+        "map" : "function(doc) { emit([doc.gameId, doc.name], doc)}"
     }
   }
 }

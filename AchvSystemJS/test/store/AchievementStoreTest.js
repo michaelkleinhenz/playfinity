@@ -4,7 +4,7 @@ TestCase("AchievemenStoreTest", {
         "use strict";
         var db = {
                 view: function () {},
-                destroy: function() {}
+                destroy: function () {}
             },
             dbMock = mock(db),
             logger = {
@@ -17,7 +17,15 @@ TestCase("AchievemenStoreTest", {
 
         when(dbMock).view(anything()).
             then(function (table, design, key, callback) {
-                callback("error", "result");
+                if (key.key === 1) {
+                    callback("error", "result");
+                } else {
+                    if (key.key[1] === "ErrorAchievement") {
+                        callback("error", null);
+                    } else {
+                        callback(null, "result");
+                    }
+                }
             });
 
         when(dbMock).destroy(anything()).
@@ -60,6 +68,32 @@ TestCase("AchievemenStoreTest", {
             assertNotNull(error);
             assertNull(result);
         }
+    },
+
+    testGetAchievementByGameIdAndName: function () {
+        "use strict";
+        var gameId = 2,
+            achievementName = "FirstStartAchievement";
+        this.store.getAchievementByGameIdAndName(gameId, achievementName, getAchievementCallback);
+
+        function getAchievementCallback(error, result) {
+            assertNull(error);
+            assertNotNull(result);
+        }
+    },
+
+    testGetAchievementByGameIdAndNameError: function () {
+        "use strict";
+        var gameId = 2,
+            achievementName = "ErrorAchievement";
+        this.store.getAchievementByGameIdAndName(gameId, achievementName, getAchievementCallback);
+
+        function getAchievementCallback(error, result) {
+            assertNotNull(error);
+            assertNull(result);
+        }
     }
+
+
 
 });
