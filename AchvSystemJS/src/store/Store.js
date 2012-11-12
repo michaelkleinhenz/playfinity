@@ -16,10 +16,16 @@ var achvStoreConf = {
 var app = module.exports = express();
 
 function readAchievements(req, res, next) {
+    "use strict";
     logger.info('readAchievements()');
-    db.list(function(error, body) {
+    logger.debug("jsonp callback: " + req.query.callback);
+    db.list(function (error, body) {
         if (!error) {
-            res.json(200, body.rows);
+            if (req.query.callback) {
+                res.send(200, req.query.callback + '({ "rows": ' + JSON.stringify(body.rows) + '});');
+            } else {
+                res.json(200, body.rows);
+            }
         } else {
             res.send(404);
         }
@@ -156,6 +162,8 @@ function getAchievementByGameIdAndName(req, res, next) {
         }
     }
 }
+// Configuration
+app.enable("jsonp callback");
 
 // Setup routes
 app.get('/', readAchievements);
