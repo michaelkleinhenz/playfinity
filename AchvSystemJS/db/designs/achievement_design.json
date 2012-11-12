@@ -6,6 +6,9 @@
     },
     "byGameIdAndName" : {
         "map" : "function(doc) { emit([doc.gameId, doc.name], doc)}"
+    },
+    "nameByOwnerIdAndGameId": {
+        "map" : "function(doc) { emit([doc.ownerId, doc.gameId], doc.name)}"
     }
   }
 }

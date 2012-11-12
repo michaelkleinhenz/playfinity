@@ -35,6 +35,19 @@ ACHV.achievementStore = function (conf) {
         }
     };
 
+    self.getAchievementNamesByOwnerIdAndGameId = function (ownerId, gameId, callback) {
+        db.view('achievement', 'nameByOwnerIdAndGameId', {"key": [ownerId, gameId]}, getAchievementCallback);
+
+        function getAchievementCallback(error, body) {
+            if (error) {
+                logger.error("Not able to get achievement names: ownerId=" + ownerId +
+                    ", gameId=" + gameId +
+                    ", error=" + JSON.stringify(error));
+            }
+            callback(error, body.rows);
+        }
+    };
+
     return self;
 };
 
