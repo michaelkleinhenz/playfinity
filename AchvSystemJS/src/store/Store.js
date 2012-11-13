@@ -182,6 +182,26 @@ function getAchievementNamesByOwnerIdAndGameId(req, res, next) {
     }
 }
 
+function getAchievement(req, res, next) {
+    "use strict";
+    var gameId = parseInt(req.params.gameId, 10),
+        ownerId = parseInt(req.params.ownerId, 10),
+        name = req.params.achievementName;
+
+    achievementStore.achievementStore(achvStoreConf).getAchievement(ownerId, gameId, name, callback);
+
+    function callback(error, result) {
+        if (error) {
+            res.json(404, error);
+        } else {
+            if (req.query.callback) {
+                res.send(200, req.query.callback + '({ "result": ' + JSON.stringify(result) + '});');
+            } else {
+                res.json(200, result);
+            }
+        }
+    }
+}
 // Configuration
 app.enable("jsonp callback");
 
@@ -192,4 +212,5 @@ app.del('/:achievementName/:revision', deleteAchievement);
 app.put('/', createAchievement);
 app.get('/achievements/:gameId', getAchievementsForGameId);
 app.get('/achievements/:ownerId/:gameId/name', getAchievementNamesByOwnerIdAndGameId);
+app.get('/achievements/:ownerId/:gameId/:achievementName', getAchievement);
 app.get('/achievements/:gameId/:achievementName', getAchievementByGameIdAndName);
