@@ -108,15 +108,17 @@ function readAchievement(req, res, next) {
 }
 
 function createAchievement(req, res, next) {
+    "use strict";
     var doc = req.body;
     logger.info('createAchievement(' + JSON.stringify(doc) + ')' );
-    db.insert(doc, doc.name, function(error, body, headers) {
-        if(error) {
+    db.insert(doc, doc.name, function (error, body, headers) {
+        if (error) {
             res.send(404);
             logger.error("Not able to insert " + doc + " Reason:" + error);
         }
         logger.debug(JSON.stringify(body));
-        res.send(204);
+        res.json(200, body);
+
     });
 }
 
@@ -174,7 +176,8 @@ function getAchievementNamesByOwnerIdAndGameId(req, res, next) {
             res.json(404, error);
         } else {
             if (req.query.callback) {
-                res.send(200, req.query.callback + '({ "result": ' + JSON.stringify(result) + '});');
+//                res.send(200, req.query.callback + '({ "result": ' + JSON.stringify(result) + '});');
+                res.send(200, req.query.callback + '(' + JSON.stringify(result) + ');');
             } else {
                 res.json(200, result);
             }
@@ -195,7 +198,7 @@ function getAchievement(req, res, next) {
             res.json(404, error);
         } else {
             if (req.query.callback) {
-                res.send(200, req.query.callback + '({ "result": ' + JSON.stringify(result) + '});');
+                res.send(200, req.query.callback + '(' + JSON.stringify(result) + ');');
             } else {
                 res.json(200, result);
             }
@@ -209,6 +212,7 @@ app.enable("jsonp callback");
 app.get('/', readAchievements);
 app.get('/:achievementName', readAchievement);
 app.del('/:achievementName/:revision', deleteAchievement);
+app.post('/achievements', createAchievement);
 app.put('/', createAchievement);
 app.get('/achievements/:gameId', getAchievementsForGameId);
 app.get('/achievements/:ownerId/:gameId/name', getAchievementNamesByOwnerIdAndGameId);

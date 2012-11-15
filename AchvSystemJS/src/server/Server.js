@@ -57,9 +57,45 @@ function start(achvSystem) {
         res.json(200, achvSystem.getAchievements());
     }
 
+    function cors(req, res, next) {
+        console.log("cors headers" + JSON.stringify(req.headers));
+        console.log("req.method=" + req.method);
+        console.log("cors body" + JSON.stringify(req.body));
+        var oneof = false;
+        if (req.headers.origin) {
+            console.log("req.headers.origin=" + req.headers.origin);
+            res.set('Access-Control-Allow-Origin', req.headers.origin);
+            res.set('Access-Control-Allow-Methods', 'POST, GET, OPTIONS, PUT, DELETE, HEAD');
+            res.set('Access-Control-Allow-Headers', 'Content-Type, *');
+            oneof = true;
+        }
+        if (req.headers['access-control-request-method']) {
+            res.header('Access-Control-Allow-Methods', req.headers['access-control-request-method']);
+            oneof = true;
+        }
+        if (req.headers['access-control-request-headers']) {
+            res.header('Access-Control-Allow-Headers', req.headers['access-control-request-headers']);
+            oneof = true;
+        }
+        if (oneof) {
+            res.header('Access-Control-Max-Age', 60 * 60 * 24 * 365);
+        }
+
+        // intercept OPTIONS method
+        if (oneof && req.method == 'OPTIONS') {
+            console.log("cors intercept OPTIONS");
+            res.send(200);
+        } else {
+            next();
+        }
+    }
+
     // Setup server
     var app = express();
+
     app.use(express.bodyParser());
+    app.use(cors); // enable cors
+
     app.set('name', 'Achievement-System');
     app.use('/oauth', require('./../oauth/Oauth'));
     app.use('/store', require('./../store/Store'));
