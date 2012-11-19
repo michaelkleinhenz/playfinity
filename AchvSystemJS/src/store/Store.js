@@ -111,7 +111,7 @@ function createAchievement(req, res, next) {
     "use strict";
     var doc = req.body;
     logger.info('createAchievement(' + JSON.stringify(doc) + ')' );
-    db.insert(doc, doc.name, function (error, body, headers) {
+    db.insert(doc, function (error, body, headers) {
         if (error) {
             res.send(404);
             logger.error("Not able to insert " + doc + " Reason:" + error);
