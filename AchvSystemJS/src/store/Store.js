@@ -211,9 +211,9 @@ app.enable("jsonp callback");
 // Setup routes
 app.get('/', readAchievements);
 app.get('/:achievementName', readAchievement);
-app.del('/:achievementName/:revision', deleteAchievement);
+app.del('/achievements/:achievementName/:revision', deleteAchievement);
 app.post('/achievements', createAchievement);
-app.put('/', createAchievement);
+app.put('/achievements', createAchievement);
 app.get('/achievements/:gameId', getAchievementsForGameId);
 app.get('/achievements/:ownerId/:gameId/name', getAchievementNamesByOwnerIdAndGameId);
 app.get('/achievements/:ownerId/:gameId/:achievementName', getAchievement);
