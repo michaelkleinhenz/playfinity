@@ -57,7 +57,11 @@ ACHV.achievementStore = function (conf) {
                     ", gameId=" + gameId +
                     ", error=" + JSON.stringify(error));
             }
-            callback(error, body.rows[0].value);
+            var result = {};
+            if (body.rows.length > 0) {
+                result = body.rows[0].value;
+            }
+            callback(error, result);
         }
     };
     return self;
