@@ -123,7 +123,7 @@ function createAchievement(req, res, next) {
 }
 
 function getAchievementsForGameId(req, res, next) {
-    var gameId = parseInt(req.params.gameId);
+    var gameId = req.params.gameId;
     achievementStore.achievementStore(achvStoreConf).getAchievementsForGameId(gameId, callback);
 
     function callback(error, body, headers) {
@@ -152,7 +152,7 @@ function deleteAchievement(req, res, next) {
 
 function getAchievementByGameIdAndName(req, res, next) {
     "use strict";
-    var gameId = parseInt(req.params.gameId, 10),
+    var gameId = req.params.gameId,
         name = req.params.achievementName;
     achievementStore.achievementStore(achvStoreConf).getAchievementByGameIdAndName(gameId, name, callback);
 
@@ -167,8 +167,8 @@ function getAchievementByGameIdAndName(req, res, next) {
 
 function getAchievementNamesByOwnerIdAndGameId(req, res, next) {
     "use strict";
-    var gameId = parseInt(req.params.gameId, 10),
-        ownerId = parseInt(req.params.ownerId, 10);
+    var gameId = req.params.gameId,
+        ownerId = req.params.ownerId;
     achievementStore.achievementStore(achvStoreConf).getAchievementNamesByOwnerIdAndGameId(ownerId, gameId, callback);
 
     function callback(error, result) {
@@ -187,8 +187,8 @@ function getAchievementNamesByOwnerIdAndGameId(req, res, next) {
 
 function getAchievement(req, res, next) {
     "use strict";
-    var gameId = parseInt(req.params.gameId, 10),
-        ownerId = parseInt(req.params.ownerId, 10),
+    var gameId = req.params.gameId,
+        ownerId = req.params.ownerId,
         name = req.params.achievementName;
 
     achievementStore.achievementStore(achvStoreConf).getAchievement(ownerId, gameId, name, callback);
