@@ -18,9 +18,10 @@ var achievementStore = require('./AchievementStore'),
         "db": achvInstanceDB,
         "logger": logger
     },
+    achvInstanceStore = achievementInstanceStore.achievementInstanceStore(achvInstanceStoreConf),
     achvInitConf = {
         "achvModelStore": achievementStore.achievementStore(achvStoreConf),
-        "achvInstanceStore": achievementInstanceStore.achievementInstanceStore(achvInstanceStoreConf)
+        "achvInstanceStore": achvInstanceStore
     };
 
 var app = module.exports = express();
@@ -205,10 +206,28 @@ function getAchievementNamesByOwnerIdAndGameId(req, res, next) {
             res.json(404, error);
         } else {
             if (req.query.callback) {
-//                res.send(200, req.query.callback + '({ "result": ' + JSON.stringify(result) + '});');
                 res.send(200, req.query.callback + '(' + JSON.stringify(result) + ');');
             } else {
                 res.json(200, result);
+            }
+        }
+    }
+}
+
+function getAchievementInstancesByGameIdAndUserId(req, res, next) {
+    "use strict";
+    var userId = req.params.userId,
+        gameId = req.params.gameId;
+    achvInstanceStore.getAchievementsForGameIdAndUserId(gameId, userId, callback);
+
+    function callback(error, result) {
+        if (error) {
+            res.json(404, error);
+        } else {
+            if (req.query.callback) {
+                res.send(200, req.query.callback + '(' + JSON.stringify(result.rows) + ');');
+            } else {
+                res.json(200, result.rows);
             }
         }
     }
@@ -267,8 +286,12 @@ app.enable("jsonp callback");
 // Setup routes
 app.get('/', readAchievements);
 app.get('/:achievementName', readAchievement);
+
 app.get('/model/:ownerId/:gameId', getAchievementsByOwnerIdAndGameId);
 app.post('/model/init/:ownerId/:gameId/:userId', initAchievementInstances);
+
+app.get('/instance/:gameId/:userId', getAchievementInstancesByGameIdAndUserId);
+
 app.del('/achievements/:achievementName/:revision', deleteAchievement);
 app.post('/achievements', createAchievement);
 app.put('/achievements', createAchievement);
