@@ -27,7 +27,7 @@ var achievementStore = achvStore.achievementStore(achvStoreConf);
 
 var achvInstanceStoreConf = {
     "logger": logger,
-    "db": nano.use('achievements_instances')
+    "db": nano.use('achievement_instance')
 };
 var achievementInstanceStore = achvInstanceStore.achievementInstanceStore(achvInstanceStoreConf);
 

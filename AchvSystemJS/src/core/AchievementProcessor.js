@@ -5,6 +5,7 @@
         var self = {};
 
         self.process = function (achievement, engines, event, next) {
+            //console.log("AchievementProcessor.process()");
             async.series(
                 {
                     one: function (callback) {
@@ -29,7 +30,7 @@
         function processAchievementProcessParts(achievement, engines, event, callback) {
             var valueChanged = [],
                 rules = getActiveRules(achievement);
-
+                // console.log("AchievementProcessor.processAchievementProcesssParts()");
             for (var i = 0; i < rules.length; i++) {
                 valueChanged.push(processAchievementRule(engines, event, rules[i]));
             }
@@ -95,6 +96,10 @@
                     }
                 }
 
+                if(!rule.state) {
+                    rule.state = "inProgress";
+                }
+
                 if (rule.state === "broken") {
                     resetAchievement(achievement);
                     hasToRetriggerEvent = true;
@@ -103,6 +108,8 @@
                 } else if (rule.state === "inProgress") {
                     return false;
                 }
+
+
                 return true;
 
 
