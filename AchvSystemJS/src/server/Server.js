@@ -20,14 +20,10 @@ function start(achvSystem) {
         }
         winston.debug("triggerEvent - event: " + JSON.stringify(event));
         achvSystem.triggerEvent(event, function (achievement) {
-            winston.debug(achievement);
+            winston.debug(JSON.stringify(achievement));
         });
         res.status(204);
         res.send();
-    }
-
-    function getAchievements(req, res, next) {
-        res.json(200, achvSystem.getAchievements());
     }
 
     function cors(req, res, next) {
@@ -76,7 +72,6 @@ function start(achvSystem) {
     // Setup routes
     app.get('/', getIndexHtml);
     app.put('/achv/event', triggerEvent);
-    app.get('/achv', getAchievements);
 
     // Run Server
     app.listen(8080, function () {

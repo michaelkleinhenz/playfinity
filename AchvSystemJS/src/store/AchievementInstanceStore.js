@@ -15,7 +15,24 @@ ACHV.achievementInstanceStore = function (conf) {
     };
 
     self.getAchievementsForGameIdAndUserId = function (gameId, userId, callback) {
-        db.view('achievement_instance', 'byGameIdAndUserId', {"key": [gameId, userId]}, callback);
+        db.view('achievement_instance', 'byGameIdAndUserId', {"key": [gameId, userId]}, function (error, body) {
+            if (error) {
+                logger.error("Not able to get achievements: gameId=" + gameId + ", userId=" + userId +
+                    " error=" + error);
+            }
+            callback(error, body);
+        });
+    };
+
+    self.getUnlockedAchievementsForGameIdAndUserId = function (gameId, userId, callback) {
+        db.view('achievement_instance', 'byLockedAndGameIdAndUserId', {"key": [false, gameId, userId]},
+                function (error, body) {
+                    if (error) {
+                        logger.error("Not able to get unlocked achievements: gameId=" + gameId + ", userId=" + userId +
+                            " error=" + error);
+                    }
+                    callback(error, body);
+                });
     };
 
     self.deleteAchievement = function (documentName, revision, callback) {

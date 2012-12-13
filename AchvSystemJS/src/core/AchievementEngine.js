@@ -1,11 +1,12 @@
 /*global ACHV, Utils, async*/
 ACHV.AchievementEngine = function (conf) {
+    "use strict";
     this.eventBus = conf.eventBus;
     this.engines = conf.engines;
     this.achvProcessor = ACHV.achievementProcessor();
     this.ruleEnginesMap = {};
     this.achievementsMap = {};
-    // TODO move engines in configuration
+    //TODO move engines in configuration
     this.engines = {
         "TimerRule": ACHV.timerEngine({"achievementType": "TimerRule"}),
         "OneShotRule": new ACHV.OneShotEngine(),
@@ -18,11 +19,11 @@ ACHV.AchievementEngine.prototype.registerEngine = function (engine) {
     this.ruleEnginesMap[engine.achievementType] = engine;
 };
 
-ACHV.AchievementEngine.prototype.getEngineForAchievementType = function(achievementType) {
+ACHV.AchievementEngine.prototype.getEngineForAchievementType = function (achievementType) {
     return this.ruleEnginesMap[achievementType];
 };
 
-ACHV.AchievementEngine.prototype.registerAchievement = function(achievement) {
+ACHV.AchievementEngine.prototype.registerAchievement = function (achievement) {
     var that = {};
     that.ruleEnginesMap = this.ruleEnginesMap;
     that.engines = this.engines;

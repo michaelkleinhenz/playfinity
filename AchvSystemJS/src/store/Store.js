@@ -233,6 +233,25 @@ function getAchievementInstancesByGameIdAndUserId(req, res, next) {
     }
 }
 
+function getUnlockedAchievementsByGameIdAndUserId(req, res, next) {
+    "use strict";
+    var userId = req.params.userId,
+        gameId = req.params.gameId;
+    achvInstanceStore.getUnlockedAchievementsForGameIdAndUserId(gameId, userId, callback);
+
+    function callback(error, result) {
+        if (error) {
+            res.json(404, error);
+        } else {
+            if (req.query.callback) {
+                res.send(200, req.query.callback + '(' + JSON.stringify(result.rows) + ');');
+            } else {
+                res.json(200, result.rows);
+            }
+        }
+    }
+}
+
 function getAchievement(req, res, next) {
     "use strict";
     var gameId = req.params.gameId,
@@ -291,6 +310,8 @@ app.get('/model/:ownerId/:gameId', getAchievementsByOwnerIdAndGameId);
 app.post('/model/init/:ownerId/:gameId/:userId', initAchievementInstances);
 
 app.get('/instance/:gameId/:userId', getAchievementInstancesByGameIdAndUserId);
+
+app.get('/cabinet/:gameId/:userId', getUnlockedAchievementsByGameIdAndUserId);
 
 app.del('/achievements/:achievementName/:revision', deleteAchievement);
 app.post('/achievements', createAchievement);

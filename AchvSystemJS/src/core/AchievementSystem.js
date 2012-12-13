@@ -16,7 +16,6 @@ ACHV.AchievementSystem = function (conf) {
         // console.log("initAchievmentEngine()");
         achvInstanceStore.getAchievementsForGameIdAndUserId(event.gameId, event.userId, function callback(error, body, header) {
             if (error) {
-                console.log("Not able to get achievements: " + error);
                 unlockCallback(error, null);
             } else {
                 if (body.rows.length > 0) {
@@ -72,7 +71,7 @@ ACHV.AchievementSystem = function (conf) {
 };
 
 ACHV.AchievementSystem.prototype.getAchievementEngineForGameAndUser = function(gameId, userId, callback) {
-    callback(this.achievementEngines[gameId + "_" +userId]);
+    callback(this.achievementEngines[gameId + "_" + userId]);
 };
 
 ACHV.AchievementSystem.prototype.registerGame = function(game) {
