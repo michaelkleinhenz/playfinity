@@ -31,6 +31,7 @@
                         delete achievementInstance._rev;
                         delete achievementInstance.active;
                         achievementInstance.userId = id.userId;
+                        achievementInstance.frequencyCounter = 0;
                         achievementInstance.locked = true; // TODO only temporarly until cabinet exists.
                         achvInstanceStore.createOrUpdateAchievementInstance(achievementInstance, function (error, body) {
                             if (error) {

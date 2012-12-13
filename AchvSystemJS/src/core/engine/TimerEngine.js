@@ -16,6 +16,7 @@ ACHV.timerEngine = function (spec) {
     }();
 
     that.process = function (event, rule, valueChanged) {
+        console.log("timerEngine - process");
         that.processStartEvent(event, rule);
         that.processCurrentEvent(event, rule);
         valueChanged(that.stateChanged.getValue());
@@ -25,7 +26,7 @@ ACHV.timerEngine = function (spec) {
         function setTimeProperties() {
             if (event.hasOwnProperty("tsInit") && !rule.hasOwnProperty("startTime")) {
                 rule.startTime = event.tsInit;
-                rule.state = "satisfied";
+                rule.state = "inProgress";
                 that.stateChanged.setChanged(true);
             }
         }

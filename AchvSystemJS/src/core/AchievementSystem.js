@@ -28,15 +28,17 @@ ACHV.AchievementSystem = function (conf) {
 
 
         function registerAchievement(doc) {
-            console.log("registerAchievement: doc=" + JSON.stringify(doc));
             var achvEngine = achvEngines[event.gameId + "_" + event.userId],
                 achievementInstance = doc.value;
-            if (achvEngine) {
-                achvEngine.registerAchievement(achievementInstance);
-            } else {
-                achvEngine = new ACHV.AchievementEngine(achvEngineConf);
-                achvEngine.registerAchievement(achievementInstance);
-                achvEngines[event.gameId + "_" + event.userId] = achvEngine;
+            if (achievementInstance.locked) {
+                if (achvEngine) {
+                    console.log("registerAchievement: doc=" + JSON.stringify(doc));
+                    achvEngine.registerAchievement(achievementInstance);
+                } else {
+                    achvEngine = new ACHV.AchievementEngine(achvEngineConf);
+                    achvEngine.registerAchievement(achievementInstance);
+                    achvEngines[event.gameId + "_" + event.userId] = achvEngine;
+                }
             }
         }
     }
@@ -51,12 +53,13 @@ ACHV.AchievementSystem = function (conf) {
     }
 
     function updateAchievement(achievement) {
-        // console.log("updateAchievement(" + JSON.stringify(achievement) + ")");
+        console.log("AchievementSystem.updateAchievement(" + JSON.stringify(achievement) + ")");
         achvInstanceStore.createOrUpdateAchievementInstance(achievement, function (error, body) {
             if (error) {
                 console.log("Not able to update achievement instance: " + JSON.stringify(achievement) + " Error:" + error);
             } else {
                 console.log("Updated achievement instance. body:" + JSON.stringify(body));
+                achievement._rev = body.rev;
             }
         });
     }

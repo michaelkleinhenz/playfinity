@@ -8,7 +8,8 @@ ACHV.achievementInstanceStore = function (conf) {
     self.createOrUpdateAchievementInstance = function (doc, callback) {
         db.insert(doc, function (error, body, headers) {
             if (error) {
-                logger.error("Not able to insert " + doc + " Reason:" + error);
+                logger.error("AchievementInstanceStore.createOrUpdateAchievementInstance() - Not able to insert " +
+                    JSON.stringify(doc) + " Reason:" + error);
             }
             callback(error, body);
         });

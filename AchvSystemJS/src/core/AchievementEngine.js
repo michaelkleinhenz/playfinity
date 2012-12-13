@@ -37,7 +37,15 @@ ACHV.AchievementEngine.prototype.registerAchievement = function (achievement) {
         for (var i = 0; i < processParts.length; i++) {
             registerEngineForRuleType(processParts[i].type);
 
-            registerEvent(processParts[i].event, achievementsMap);
+            if (processParts[i].hasOwnProperty("event")) {
+                registerEvent(processParts[i].event, achievementsMap);
+            }
+            if (processParts[i].hasOwnProperty("startEvent")) {
+                registerEvent(processParts[i].startEvent, achievementsMap);
+            }
+            if (processParts[i].hasOwnProperty("stopEvent")) {
+                 registerEvent(processParts[i].stopEvent, achievementsMap);
+            }
             if (processParts[i].hasOwnProperty("interruptEvent")) {
                 registerEvent(processParts[i].interruptEvent, achievementsMap);
             }
@@ -90,6 +98,7 @@ ACHV.AchievementEngine.prototype.getAchievements = function() {
 };
 
 ACHV.AchievementEngine.prototype.getAchievementsForEventType = function(eventType) {
+    // console.log("AchievementEngine.getAchievementsForEventType() achievementsMap=" + JSON.stringify(this.achievementsMap));
     var achievements = [];
     if(this.achievementsMap[eventType]) {
         achievements = this.achievementsMap[eventType];
@@ -107,7 +116,7 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
     var unlockedAchievements = [];
     var eventToAchievementsMap = this.achievementsMap;
     var fittingAchievements = this.getAchievementsForEventType(event.name);
-
+    console.log("AchievementEngine.processEvent() - event.name=" + event.name +  ", fittingAchievements=" + JSON.stringify(fittingAchievements) );
     async.series(
         {
             one: function (callback) {
@@ -126,6 +135,7 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
         callback(null, null);
 
         function processAchievementsCallback(error, processAchievementsResult) {
+            console.log("AchievementEngine.processAchievementsCallback() - processAchievementsResult=" + JSON.stringify(processAchievementsResult));
             if(processAchievementsResult.hasToRetriggerEvent && retryCounter < 1) {
                 retryCounter++;
                 eventBus.emitEvent('achv_value_changed', [processAchievementsResult.achievement]);
@@ -143,15 +153,21 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
                     },
                     function(error, results) {
                         if (results.isAchievementRemoved) {
+                            /* TODO Temporaly until unlock achievements will be moved cabinet db.
                             eventBus.emitEvent('achv_removed',
                                 [
-                                    processAchievementsResult.achievement.name,
+                                    processAchievementsResult.achievement._id,
                                     processAchievementsResult.achievement._rev,
                                     function(error, result){}
                                 ]
                             );
                         } else if (processAchievementsResult.isValueChanged) {
                             eventBus.emitEvent('achv_value_changed', [processAchievementsResult.achievement]);
+                        }
+                         */
+                            if (processAchievementsResult.isValueChanged) {
+                                eventBus.emitEvent('achv_value_changed', [processAchievementsResult.achievement]);
+                            }
                         }
                     }
                 );
@@ -197,11 +213,28 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
         function removeAchievement(achievementsMap, achievement) {
             var rules = getRules(achievement);
             for (var i = 0; i < rules.length; i++) {
-                var currentEvent = rules[i].event;
-                var achievementArray = achievementsMap[currentEvent];
-                var indexAchievement = achievementArray.indexOf(achievement);
-                if (indexAchievement !== - 1) {
-                    achievementArray.splice(indexAchievement, 1);
+                if(rules[i].hasOwnProperty("startEvent") && rules[i].hasOwnProperty("stopEvent")) {
+                    var startEvent = rules[i].startEvent;
+                    var stopEvent = rules[i].stopEvent;
+                    var startAchvArray = achievementsMap[startEvent];
+                    var indexStart = startAchvArray.indexOf(achievement);
+                    if (indexStart !== -1) {
+                        startAchvArray.splice(indexStart, 1);
+                    }
+
+                    var stopAchvArray = achievementsMap[stopEvent];
+                    var indexStop = stopAchvArray.indexOf(achievement);
+                    if (indexStop !== -1) {
+                        stopAchvArray.splice(indexStop, 1);
+                    }
+
+                } else {
+                    var currentEvent = rules[i].event;
+                    var achievementArray = achievementsMap[currentEvent];
+                    var indexAchievement = achievementArray.indexOf(achievement);
+                    if (indexAchievement !== - 1) {
+                        achievementArray.splice(indexAchievement, 1);
+                    }
                 }
             }
 
