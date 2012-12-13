@@ -3,23 +3,40 @@ var express = require('express');
 var logger = require('winston');
 var nano = require('nano')('http://localhost:5984');
 var serializer = require('serializer');
-var achievementStore = require('./AchievementStore');
-
-var db_name = "achievement";
-var db = nano.use(db_name);
-
-var achvStoreConf = {
-    "db": db,
-    "logger": logger
-};
+var achievementStore = require('./AchievementStore'),
+    achievementInstanceStore = require('./AchievementInstanceStore'),
+    achievementInstanceInitializer = require('./AchievementInstanceInitializer'),
+    achvModelDBName = "achievement",
+    achvModelDB = nano.use(achvModelDBName),
+    achvStoreConf = {
+        "db": achvModelDB,
+        "logger": logger
+    },
+    achvInstanceDBName = "achievement_instance",
+    achvInstanceDB = nano.use(achvInstanceDBName),
+    achvInstanceStoreConf = {
+        "db": achvInstanceDB,
+        "logger": logger
+    },
+    achvInstanceStore = achievementInstanceStore.achievementInstanceStore(achvInstanceStoreConf),
+    achvInitConf = {
+        "achvModelStore": achievementStore.achievementStore(achvStoreConf),
+        "achvInstanceStore": achvInstanceStore
+    };
 
 var app = module.exports = express();
 
 function readAchievements(req, res, next) {
+    "use strict";
     logger.info('readAchievements()');
-    db.list(function(error, body) {
+    logger.debug("jsonp callback: " + req.query.callback);
+    achvModelDB.list(function (error, body) {
         if (!error) {
-            res.json(200, body.rows);
+            if (req.query.callback) {
+                res.send(200, req.query.callback + '({ "rows": ' + JSON.stringify(body.rows) + '});');
+            } else {
+                res.json(200, body.rows);
+            }
         } else {
             res.send(404);
         }
@@ -35,7 +52,7 @@ function readAchievement(req, res, next) {
         function sendResponse(error) {
             var achievementName = req.params.achievementName;
             logger.info('readAchievement(' + achievementName + ')' );
-            db.get(achievementName, function(err, body) {
+            achvModelDB.get(achievementName, function(err, body) {
                 if(!err) {
                     logger.debug("response:" + JSON.stringify(body));
                     res.json(200, body);
@@ -102,20 +119,22 @@ function readAchievement(req, res, next) {
 }
 
 function createAchievement(req, res, next) {
+    "use strict";
     var doc = req.body;
     logger.info('createAchievement(' + JSON.stringify(doc) + ')' );
-    db.insert(doc, doc.name, function(error, body, headers) {
-        if(error) {
+    achvModelDB.insert(doc, function (error, body, headers) {
+        if (error) {
             res.send(404);
             logger.error("Not able to insert " + doc + " Reason:" + error);
         }
         logger.debug(JSON.stringify(body));
-        res.send(204);
+        res.json(200, body);
+
     });
 }
 
 function getAchievementsForGameId(req, res, next) {
-    var gameId = parseInt(req.params.gameId);
+    var gameId = req.params.gameId;
     achievementStore.achievementStore(achvStoreConf).getAchievementsForGameId(gameId, callback);
 
     function callback(error, body, headers) {
@@ -142,9 +161,162 @@ function deleteAchievement(req, res, next) {
     }
 }
 
+function getAchievementByGameIdAndName(req, res, next) {
+    "use strict";
+    var gameId = req.params.gameId,
+        name = req.params.achievementName;
+    achievementStore.achievementStore(achvStoreConf).getAchievementByGameIdAndName(gameId, name, callback);
+
+    function callback(error, result) {
+        if (error) {
+            res.json(404, error);
+        } else {
+            res.json(200, result);
+        }
+    }
+}
+
+function getAchievementsByOwnerIdAndGameId(req, res, next) {
+    "use strict";
+    var gameId = req.params.gameId,
+        ownerId = req.params.ownerId;
+    achievementStore.achievementStore(achvStoreConf).getAchievementsByOwnerIdAndGameId(ownerId, gameId, callback);
+
+    function callback(error, result) {
+        if (error) {
+            res.json(404, error);
+        } else {
+            if (req.query.callback) {
+                res.send(200, req.query.callback + '(' + JSON.stringify(result) + ');');
+            } else {
+                res.json(200, result);
+            }
+        }
+    }
+}
+
+function getAchievementNamesByOwnerIdAndGameId(req, res, next) {
+    "use strict";
+    var gameId = req.params.gameId,
+        ownerId = req.params.ownerId;
+    achievementStore.achievementStore(achvStoreConf).getAchievementNamesByOwnerIdAndGameId(ownerId, gameId, callback);
+
+    function callback(error, result) {
+        if (error) {
+            res.json(404, error);
+        } else {
+            if (req.query.callback) {
+                res.send(200, req.query.callback + '(' + JSON.stringify(result) + ');');
+            } else {
+                res.json(200, result);
+            }
+        }
+    }
+}
+
+function getAchievementInstancesByGameIdAndUserId(req, res, next) {
+    "use strict";
+    var userId = req.params.userId,
+        gameId = req.params.gameId;
+    achvInstanceStore.getAchievementsForGameIdAndUserId(gameId, userId, callback);
+
+    function callback(error, result) {
+        if (error) {
+            res.json(404, error);
+        } else {
+            if (req.query.callback) {
+                res.send(200, req.query.callback + '(' + JSON.stringify(result.rows) + ');');
+            } else {
+                res.json(200, result.rows);
+            }
+        }
+    }
+}
+
+function getUnlockedAchievementsByGameIdAndUserId(req, res, next) {
+    "use strict";
+    var userId = req.params.userId,
+        gameId = req.params.gameId;
+    achvInstanceStore.getUnlockedAchievementsForGameIdAndUserId(gameId, userId, callback);
+
+    function callback(error, result) {
+        if (error) {
+            res.json(404, error);
+        } else {
+            if (req.query.callback) {
+                res.send(200, req.query.callback + '(' + JSON.stringify(result.rows) + ');');
+            } else {
+                res.json(200, result.rows);
+            }
+        }
+    }
+}
+
+function getAchievement(req, res, next) {
+    "use strict";
+    var gameId = req.params.gameId,
+        ownerId = req.params.ownerId,
+        name = req.params.achievementName;
+
+    achievementStore.achievementStore(achvStoreConf).getAchievement(ownerId, gameId, name, callback);
+
+    function callback(error, result) {
+        if (error) {
+            res.json(404, error);
+        } else {
+            if (req.query.callback) {
+                res.send(200, req.query.callback + '(' + JSON.stringify(result) + ');');
+            } else {
+                res.json(200, result);
+            }
+        }
+    }
+}
+
+/**
+ * Creates achievement instances from the achievement models for the requested owner, game and user.
+ * Therefore this method must be called before the game starts to trigger events.
+ *
+ * @param req.params.ownerId - The identification of the owner
+ * @param req.params.gameId - The identification of the game
+ * @param req.params.userId - The idendification of the user
+ */
+function initAchievementInstances(req, res, next) {
+    "use strict";
+    var id = {
+        "ownerId": req.params.ownerId,
+        "gameId": req.params.gameId,
+        "userId": req.params.userId
+    };
+    achievementInstanceInitializer.achievementInstanceInitializer(achvInitConf).initAchievementInstances(id, callback);
+
+    function callback(error, result) {
+        if (error) {
+            res.json(500, error);
+        } else {
+            res.json(200, result);
+        }
+    }
+}
+
+// Configuration
+app.enable("jsonp callback");
+
 // Setup routes
 app.get('/', readAchievements);
 app.get('/:achievementName', readAchievement);
-app.del('/:achievementName/:revision', deleteAchievement);
-app.put('/', createAchievement);
+
+app.get('/model/:ownerId/:gameId', getAchievementsByOwnerIdAndGameId);
+app.post('/model/init/:ownerId/:gameId/:userId', initAchievementInstances);
+
+app.get('/instance/:gameId/:userId', getAchievementInstancesByGameIdAndUserId);
+
+app.get('/cabinet/:gameId/:userId', getUnlockedAchievementsByGameIdAndUserId);
+
+app.del('/achievements/:achievementName/:revision', deleteAchievement);
+app.post('/achievements', createAchievement);
+app.put('/achievements', createAchievement);
 app.get('/achievements/:gameId', getAchievementsForGameId);
+app.get('/achievements/:ownerId/:gameId/name', getAchievementNamesByOwnerIdAndGameId);
+app.get('/achievements/:ownerId/:gameId/:achievementName', getAchievement);
+app.get('/achievements/:gameId/:achievementName', getAchievementByGameIdAndName);

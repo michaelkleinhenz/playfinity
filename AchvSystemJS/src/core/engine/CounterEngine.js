@@ -10,6 +10,9 @@ ACHV.CounterEngine.prototype.process = function (event, rule, valueChanged) {
         rule.state = "inProgress";
         isChanged = true;
     } else if (rule.event === event.name) {
+        if (!rule.counter) {
+            rule.counter = 0;
+        }
         rule.counter++;
         if (rule.counter >= rule.COUNTER_MAX) {
             rule.state = "satisfied";
