@@ -5,13 +5,16 @@
       "map" : "function(doc){ emit(doc.gameId, doc)}"
     },
     "byGameIdAndName" : {
-        "map" : "function(doc) { emit([doc.gameId, doc.name], doc)}"
+        "map" : "function(doc) { emit([doc.gameId, doc.name], doc) }"
     },
     "nameByOwnerIdAndGameId": {
-        "map" : "function(doc) { emit([doc.ownerId, doc.gameId], doc.name)}"
+        "map" : "function(doc) { emit([doc.ownerId, doc.gameId], doc.name) }"
     },
     "byOwnerIdAndGameIdAndName": {
-        "map" : "function(doc) {emit([doc.ownerId, doc.gameId, doc.name], doc)}"
+        "map" : "function(doc) { emit([doc.ownerId, doc.gameId, doc.name], doc) }"
+    },
+    "byOwnerIdAndGameId": {
+        "map" : "function(doc) { emit([doc.ownerId, doc.gameId], doc) }"
     }
   }
 }

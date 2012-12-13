@@ -9,6 +9,19 @@ ACHV.achievementStore = function (conf) {
         db.view('achievement', 'byGameId', {"key": gameId}, callback);
     };
 
+    self.getAchievementsByOwnerIdAndGameId = function (ownerId, gameId, callback) {
+        db.view('achievement', 'byOwnerIdAndGameId', {"key": [ownerId, gameId]}, getAchievementCallback);
+
+        function getAchievementCallback(error, body) {
+            if (error) {
+                logger.error("Not able to get achievement: ownerId=" + ownerId +
+                    ", gameId=" + gameId +
+                    ", error=" + JSON().stringify(error));
+            }
+            callback(error, body.rows);
+        }
+    };
+
     self.deleteAchievement = function (name, revision, callback) {
         db.destroy(name, revision, deleteAchievementCallback);
 
