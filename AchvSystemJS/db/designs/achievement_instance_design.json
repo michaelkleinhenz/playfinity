@@ -6,6 +6,10 @@
         },
         "byLockedAndGameIdAndUserId" : {
             "map" : "function(doc) { emit( [doc.locked, doc.gameId, doc.userId], doc)}"
+        },
+        "byInstanceOwnerIdAndAchievementId": {
+            "map": "function(doc) { emit( [doc.instanceOwnerId, doc.achievementId], doc)}"
+
         }
     }
 }
