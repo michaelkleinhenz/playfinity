@@ -1,0 +1,24 @@
+{
+    "name": "PlayForTenSecondsAchievement",
+    "process":  [
+            [
+                {
+                    "type": "StopWatchRule",
+                    "events": [
+                        {"name": "StartGameEvent"},
+                        {"name": "StopGameEvent"}
+                    ],
+                    "state": "inProgress",
+                    "startEvent": "StartGameEvent",
+                    "stopEvent": "StopGameEvent",
+                    "timer": 0,
+                    "TIMER_MAX_SEC": 10
+                }
+
+           ]
+    ],
+
+    "locked": true,
+    "frequencyCounter": 0,
+    "FREQUENCY_COUNTER_MAX": 1
+}

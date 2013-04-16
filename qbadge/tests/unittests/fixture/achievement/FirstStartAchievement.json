@@ -1,0 +1,15 @@
+{
+    "name": "FirstStartAchievement",
+    "process":  [
+        [
+            {
+                "type": "OneShotRule",
+                "state": "inProgress",
+                "event": "StartGameEvent"
+            }
+        ]
+    ],
+    "frequencyCounter": 0,
+    "FREQUENCY_COUNTER_MAX": 1,
+    "locked": true
+}

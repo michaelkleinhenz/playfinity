@@ -1,0 +1,28 @@
+@startuml img/OAuth2.png
+skin BlueModern
+title OAuth2 - Questor Achievement-System
+actor EndUser
+
+== Get Authorization ==
+Client -> AuthorizationServer: requestAuthorizationFromEndUser
+note left
+	GET
+	/oauth2/authorize?response_type=token&client_id=abcdefg&state=xyz&scope=write
+	HTTP/1.1
+	Host: example.customer.com
+end note
+AuthorizationServer -> EndUser: requestAuthorization
+EndUser --> AuthorizationServer: responseCredentials
+AuthorizationServer --> Client: responseAuthorizationGrant
+
+== Get Access Token ==
+Client -> AuthorizationServer: requestAccessToken(AuthorizationGrant)
+AuthorizationServer -> AuthorizationServer: authenticateClient
+AuthorizationServer -> AuthorizationServer: validate(AuthorizationGrant)
+AuthorizationServer --> Client: responseAccessToken
+
+== Get Protected Resource ==
+Client -> ResourceServer: requestProtectedResource(AccessToken)
+ResourceServer -> AuthorizationServer: validate(AccessToken)
+ResourceServer --> Client: ProtectedResource
+@enduml

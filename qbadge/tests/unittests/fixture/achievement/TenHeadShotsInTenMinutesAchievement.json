@@ -1,0 +1,26 @@
+{
+    "name": "TenHeadShotsInTenMinutesAchievement",
+    "process":  [
+        [
+            {
+                "type": "TimerRule",
+                "event": "HeadShotEvent",
+                "state": "inProgress",
+                "timer": 0,
+                "TIMER_MAX_SEC": 600
+            }
+        ],
+        [
+            {
+                "type": "CounterRule",
+                "event": "HeadShotEvent",
+                "state": "inProgress",
+                "counter": 0,
+                "COUNTER_MAX": 10
+            }
+        ]
+    ],
+    "locked": true,
+    "frequencyCounter": 0,
+    "FREQUENCY_COUNTER_MAX": 1
+}

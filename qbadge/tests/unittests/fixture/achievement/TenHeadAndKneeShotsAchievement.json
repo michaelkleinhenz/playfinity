@@ -1,0 +1,24 @@
+{
+    "name": "TenHeadAndKneeShotsAchievement",
+    "process":  [
+            [
+                {
+                    "type": "CounterRule",
+                    "state": "inProgress",
+                    "event": "HeadShotEvent",
+                    "counter": 0,
+                    "COUNTER_MAX": 10
+                },
+                {
+                    "type": "CounterRule",
+                    "state": "inProgress",
+                    "event": "KneeShotEvent",
+                    "counter": 0,
+                    "COUNTER_MAX": 10
+                }
+            ]
+    ],
+    "frequencyCounter": 0,
+    "FREQUENCY_COUNTER_MAX": 1,
+    "locked": true
+}
