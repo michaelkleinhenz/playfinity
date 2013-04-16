@@ -77,10 +77,10 @@
 </div>
 <strong>Create achievement models</strong><br>
 <div style='padding-left: 30pt'>
-    cd AchvSystemJS/it/server<br>
-    ./PUT_Achievement.sh ../../test/fixture/achievement/Model_MyOneShotAchievement.json<br>
-    ./PUT_Achievement.sh ../../test/fixture/achievement/Model_MyCounterAchievement.json<br>
-    ./PUT_Achievement.sh ../../test/fixture/achievement/Model_MyOneShotAchievement.json<br>
+    cd qbadge-system/integrationtests/server<br>
+    ./PUT_Achievement.sh ../../unittests/fixture/achievement/Model_MyOneShotAchievement.json<br>
+    ./PUT_Achievement.sh ../../unittests/fixture/achievement/Model_MyCounterAchievement.json<br>
+    ./PUT_Achievement.sh ../../unittests/fixture/achievement/Model_MyOneShotAchievement.json<br>
 </div>
 </p>
 
@@ -108,14 +108,14 @@
 <p>
     <strong>Trigger events</strong><br>
 <div style='padding-left: 30pt'>
-    cd AchvSystemJS/it/server<br>
-    ./PUT_Event.sh ../../test/fixture/event/MyOneShotAchievementEvent.json<br>
-    ./PUT_Event.sh ../../test/fixture/event/MyCounterAchievementEvent.json <br>
-    ./PUT_Event.sh ../../test/fixture/event/MyCounterAchievementEvent.json <br>
-    ./PUT_Event.sh ../../test/fixture/event/MyCounterAchievementEvent.json <br>
-    ./PUT_Event.sh ../../test/fixture/event/MyCounterAchievementEvent.json <br>
-    ./PUT_Event.sh ../../test/fixture/event/MyCounterAchievementEvent.json <br>
-    ./PUT_Event.sh ../../test/fixture/event/StartMyStopWatchAchievementEvent.json<br>
+    cd qbadge-system/integrationstests/server<br>
+    ./PUT_Event.sh ../../unittests/fixture/event/MyOneShotAchievementEvent.json<br>
+    ./PUT_Event.sh ../../unittests/fixture/event/MyCounterAchievementEvent.json <br>
+    ./PUT_Event.sh ../../unittests/fixture/event/MyCounterAchievementEvent.json <br>
+    ./PUT_Event.sh ../../unittests/fixture/event/MyCounterAchievementEvent.json <br>
+    ./PUT_Event.sh ../../unittests/fixture/event/MyCounterAchievementEvent.json <br>
+    ./PUT_Event.sh ../../unittests/fixture/event/MyCounterAchievementEvent.json <br>
+    ./PUT_Event.sh ../../unittests/fixture/event/StartMyStopWatchAchievementEvent.json<br>
 </div>
 </p>
 
