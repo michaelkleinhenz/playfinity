@@ -1,0 +1,15 @@
+{
+    "_id" : "_design/achievement_instance",
+    "views" : {
+        "byGameIdAndUserId" : {
+            "map" : "function(doc){ emit([doc.gameId,doc.userId], doc)}"
+        },
+        "byLockedAndGameIdAndUserId" : {
+            "map" : "function(doc) { emit( [doc.locked, doc.gameId, doc.userId], doc)}"
+        },
+        "byInstanceOwnerIdAndAchievementId": {
+            "map": "function(doc) { emit( [doc.instanceOwnerId, doc.achievementId], doc)}"
+
+        }
+    }
+}

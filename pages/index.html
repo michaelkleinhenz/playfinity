@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Achievement-System</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script type="text/javascript">
+        function getAchievement() {
+            var achievementName = document.forms.AchievementForm.elements.achievementName.value;
+            $.getJSON("oauth/authorize", function(data) {
+                var accessToken = data.access_token;
+                console.log("accessToken: " + accessToken);
+                $.ajax({
+                    headers: {
+                        Authorization: "Bearer " + accessToken
+                    },
+                    url: "/store/" + achievementName
+                }).done(function (result) {
+                            alert(JSON.stringify(result));
+                            console.log(result);
+                        }).fail(function() {
+                            alert("fail - getAchievement");
+                        });
+            }).fail(function() {
+                        alert("fail - getAccessToken");
+                    });
+        }
+    </script>
+</head>
+
+<body>
+<form name="AchievementForm" action="">
+    <p>Achievement-Name:<br><input name="achievementName" type="text" size="50" maxlength="50" value="StartGameAchievement"></p>
+    <input type="button" value="Get Achievement" onclick="getAchievement()">
+</form>
+</body>
+
+
+</html>
