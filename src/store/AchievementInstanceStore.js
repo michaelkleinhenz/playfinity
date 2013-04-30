@@ -24,7 +24,10 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/*global ACHV*/
+/*
+ * Functions for operations on instance data.
+ */
+
 ACHV.achievementInstanceStore = function (conf) {
     "use strict";
     var logger = conf.logger,

@@ -60,7 +60,7 @@ ACHV.timerEngine = function (spec) {
             }
         }
         if (rule.hasOwnProperty("startTimerEvents")) {
-            if (Utils.arrayContains(rule.startTimerEvents, event.name)) {
+            if (Utils.arrayContains(rule.startTimerEvents, event.eventId)) {
                 setTimeProperties();
             }
         } else {

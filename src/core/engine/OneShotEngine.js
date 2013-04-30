@@ -34,7 +34,7 @@ ACHV.OneShotEngine = function () {
 
 ACHV.OneShotEngine.prototype.process = function (event, rule, valueChanged) {
     console.log("OneShotEngine.process");
-    if (rule.event === event.name) {
+    if (rule.event === event.eventId) {
         rule.state = "satisfied";
         valueChanged(true);
     }

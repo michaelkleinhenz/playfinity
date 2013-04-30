@@ -24,6 +24,11 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*
+ * Head processing class for event handling. Uses AchievementProcessor for
+ * further processing of an event.
+ */
+
 /*global ACHV, Utils, async*/
 ACHV.AchievementEngine = function (conf) {
     "use strict";

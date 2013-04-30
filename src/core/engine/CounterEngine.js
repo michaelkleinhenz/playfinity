@@ -35,11 +35,11 @@ ACHV.CounterEngine = function() {
 ACHV.CounterEngine.prototype.process = function (event, rule, valueChanged) {
     console.log("CounterEngine.process");
     var isChanged = false;
-    if (event.name === rule.interruptEvent) {
+    if (event.eventId === rule.interruptEvent) {
         rule.counter = 0;
         rule.state = "inProgress";
         isChanged = true;
-    } else if (rule.event === event.name) {
+    } else if (rule.event === event.eventId) {
         if (!rule.counter) {
             rule.counter = 0;
         }

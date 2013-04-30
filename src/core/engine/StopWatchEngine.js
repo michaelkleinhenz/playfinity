@@ -30,7 +30,7 @@ ACHV.stopWatchEngine = function (spec) {
 
     that.process = function (event, rule, valueChanged) {
         console.log("StopWatchEngine.process");
-        if (event.name === rule.startEvent) {
+        if (event.eventId === rule.startEvent) {
             that.processStartEvent(event, rule);
         }
         if (event.name === rule.stopEvent) {

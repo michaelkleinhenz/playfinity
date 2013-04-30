@@ -23,7 +23,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-OUTPUT_DIR="qbadge-system/test-reports"
+OUTPUT_DIR="qbadge/test-reports"
 mkdir $OUTPUT_DIR
 
 XVFB=`which Xvfb`
@@ -33,20 +33,19 @@ then
     exit 1
 fi
 
-FIREFOX=/opt/firefox-10.0.7esr/firefox-bin
-# FIREFOX=`which firefox`
-# if [ "$?" -eq 1 ];
-# then
-#     echo "Firefox not found."
-#     exit 1
-# fi
+FIREFOX=`which firefox`
+if [ "$?" -eq 1 ];
+then
+    echo "Firefox not found."
+    exit 1
+fi
 
 $XVFB :99 -ac &    # launch virtual framebuffer into the background
 PID_XVFB="$!"      # take the process ID
 export DISPLAY=:99 # set display to use that of the xvfb
 
 # run the tests
-java -jar JsTestDriver/JsTestDriver-1.3.4.b.jar --config AchvSystemJS/jsTestDriver.conf --port 9876 --browser $FIREFOX --tests all --testOutput $OUTPUT_DIR
+java -jar JsTestDriver/JsTestDriver-1.3.4.b.jar --config tests/unittests/jsTestDriver.conf --port 9876 --browser $FIREFOX --tests all --testOutput $OUTPUT_DIR
 
 kill $PID_XVFB     # shut down xvfb (firefox will shut down cleanly by JsTestDriver)
 echo "Done."

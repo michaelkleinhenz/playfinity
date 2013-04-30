@@ -37,9 +37,9 @@ Create the following databases:
 ## Create achievement models
 
     cd tests/integrationtests/server
-    ./PUT_Achievement.sh ../../unittests/fixture/achievement/Model_MyOneShotAchievement.json
-    ./PUT_Achievement.sh ../../unittests/fixture/achievement/Model_MyCounterAchievement.json
-    ./PUT_Achievement.sh ../../unittests/fixture/achievement/Model_MyOneShotAchievement.json
+    curl --upload-file ../../unittests/fixture/achievement/Model_MyOneShotAchievement.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model
+    curl --upload-file ../../unittests/fixture/achievement/Model_MyCounterAchievement.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model
+    curl --upload-file ../../unittests/fixture/achievement/Model_MyStopWatchAchievement.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model
 
 ## Read achievement models
 
@@ -63,6 +63,6 @@ Create the following databases:
     curl -s -X GET http://localhost:8080/event/My_Hunt/tim/MyCounterAchievementEvent
     curl -s -X GET http://localhost:8080/event/My_Hunt/tim/StartMyStopWatchAchievementEvent
 
-## Read the achievement instances
+## Read the unlocked achievements
 
     http://localhost:8080/store/unlocked/My_Hunt/tim

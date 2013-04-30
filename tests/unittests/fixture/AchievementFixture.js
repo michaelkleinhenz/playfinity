@@ -1,7 +1,7 @@
 FIXTURE = {
 
     getFixtureContent : function(fixtureFileName) {
-        var url ='/test/test/fixture/' + fixtureFileName;
+        var url ='/unittests/fixture/' + fixtureFileName;
         var request = new XMLHttpRequest();
         request.open('GET', url, false);
         request.send(null);

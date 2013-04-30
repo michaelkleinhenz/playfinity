@@ -24,6 +24,11 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*
+ * Head class for the achievement system. Handles initialization, basic
+ * i/o and events.
+ */
+
 ACHV.AchievementSystem = function (conf) {
     "use strict";
     var self = {},

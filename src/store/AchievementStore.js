@@ -24,6 +24,10 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*
+ * Functions for operations on model data.
+ */
+
 /*global ACHV*/
 ACHV.achievementStore = function (conf) {
     "use strict";

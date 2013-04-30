@@ -24,6 +24,10 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*
+ * Routes for CRUD ops on models and instances. Handles all request/response stuff.
+ */
+
 var http = require('http');
 var express = require('express');
 var logger = require('winston');

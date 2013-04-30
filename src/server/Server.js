@@ -91,11 +91,11 @@ function start(achvSystem) {
 
     // Setup server
     var app = express();
-
     app.use(express.bodyParser());
-    app.use(cors); // enable cors
-
     app.set('name', 'QBadge');
+
+    // enable cors
+    app.use(cors);
 
     // setup component paths
     app.use('/oauth', require('./../oauth/Oauth'));

@@ -24,8 +24,15 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*
+ * Utility functions.
+ */
+
 ACHV.achievementWrapper = function(achievement) {
 
+    /*
+     * Unwraps the rules from an achievement.
+     */
     achievement.getRules = function() {
         var rules = [];
         for (var i = 0; i < achievement.process.length; i++) {
