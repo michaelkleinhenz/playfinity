@@ -24,5 +24,5 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ACHIEVEMENT_JSON=$1
-curl --upload-file $ACHIEVEMENT_JSON -H "Content-Type: application/json" -X PUT http://localhost:8080/store/achievements
+curl --upload-file $ACHIEVEMENT_JSON -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model
 

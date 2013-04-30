@@ -24,15 +24,14 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/*global ACHV, Utils, async*/
 (function () {
     "use strict";
+
     ACHV.achievementProcessor = function () {
         var self = {};
 
         self.process = function (achievement, engines, event, next) {
-            //console.log("AchievementProcessor.process()");
-            async.series(
+            Async.series(
                 {
                     one: function (callback) {
                         processAchievementProcessParts(achievement, engines, event, callback);
@@ -56,7 +55,6 @@
         function processAchievementProcessParts(achievement, engines, event, callback) {
             var valueChanged = [],
                 rules = getActiveRules(achievement);
-                // console.log("AchievementProcessor.processAchievementProcesssParts()");
             for (var i = 0; i < rules.length; i++) {
                 valueChanged.push(processAchievementRule(engines, event, rules[i]));
             }
@@ -135,10 +133,7 @@
                     return false;
                 }
 
-
                 return true;
-
-
             }
 
             function getRules(achievement) {

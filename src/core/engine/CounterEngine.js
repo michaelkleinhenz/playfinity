@@ -24,12 +24,16 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/*global ACHV*/
+/*
+    Engine for counting until a max value is reached.
+ */
+
 ACHV.CounterEngine = function() {
     this.achievementType = 'CounterRule';
 };
 
 ACHV.CounterEngine.prototype.process = function (event, rule, valueChanged) {
+    console.log("CounterEngine.process");
     var isChanged = false;
     if (event.name === rule.interruptEvent) {
         rule.counter = 0;
@@ -40,7 +44,7 @@ ACHV.CounterEngine.prototype.process = function (event, rule, valueChanged) {
             rule.counter = 0;
         }
         rule.counter++;
-        if (rule.counter >= rule.COUNTER_MAX) {
+        if (rule.counter >= rule.counterMax) {
             rule.state = "satisfied";
         }
         isChanged = true;

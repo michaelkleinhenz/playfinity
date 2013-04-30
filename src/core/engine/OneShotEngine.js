@@ -24,24 +24,24 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/*global ACHV*/
-(function () {
-    "use strict";
-    ACHV.OneShotEngine = function () {
-        this.achievementType = "OneShotRule";
-    };
+/*
+    Engine for a simple one shot.
+ */
 
-    ACHV.OneShotEngine.prototype.process = function (event, rule, valueChanged) {
-        console.log("OneShotEngine.process()");
-        if (rule.event === event.name) {
-            rule.state = "satisfied";
-            valueChanged(true);
-        }
-    };
+ACHV.OneShotEngine = function () {
+    this.achievementType = "OneShotRule";
+};
 
-    ACHV.OneShotEngine.prototype.reset = function (rule) {
-        rule.state = "inProgress";
-    };
-}());
+ACHV.OneShotEngine.prototype.process = function (event, rule, valueChanged) {
+    console.log("OneShotEngine.process");
+    if (rule.event === event.name) {
+        rule.state = "satisfied";
+        valueChanged(true);
+    }
+};
+
+ACHV.OneShotEngine.prototype.reset = function (rule) {
+    rule.state = "inProgress";
+};
 
 exports.OneShotEngine = ACHV.OneShotEngine;

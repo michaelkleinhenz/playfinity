@@ -24,11 +24,19 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*
+    QBadge relies on a multi-stage achievement component model. An achievement
+    engine is a low-level implementation of an achievement element like "counter",
+    "timer" or "one shot". These implementations can laster be used in achievement
+    instance definitions as base components.
+
+    Defines the base prototype for all engine implementations.
+ */
+
 ACHV.engine = function(spec) {
+
     var that = {};
-
     that.achievementType = spec.achievementType;
-
     return that;
 };
 

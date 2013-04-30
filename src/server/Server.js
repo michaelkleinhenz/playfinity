@@ -40,7 +40,11 @@ function start(achvSystem) {
     }
 
     function triggerEvent(req, res, next) {
-        var event = req.body;
+        var event = {
+            "eventId": req.params.eventId,
+            "gameId": req.params.gameId,
+            "userId": req.params.userId
+        };
         if (!event.tsInit) {
             event.tsInit =  Date.now() / 1000;
         }
@@ -91,13 +95,17 @@ function start(achvSystem) {
     app.use(express.bodyParser());
     app.use(cors); // enable cors
 
-    app.set('name', 'Achievement-System');
+    app.set('name', 'QBadge');
+
+    // setup component paths
     app.use('/oauth', require('./../oauth/Oauth'));
     app.use('/store', require('./../store/Store'));
 
-    // Setup routes
+    // setup direct paths
+    app.get('/event/:gameId/:userId/:eventId', triggerEvent);
+
+    // Setup static html route
     app.get('/', getIndexHtml);
-    app.put('/achv/event', triggerEvent);
 
     // Run Server
     app.listen(8080, function () {

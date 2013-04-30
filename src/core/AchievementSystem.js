@@ -24,7 +24,6 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/*global ACHV*/
 ACHV.AchievementSystem = function (conf) {
     "use strict";
     var self = {},
@@ -35,8 +34,6 @@ ACHV.AchievementSystem = function (conf) {
         };
 
     self.ee = this.ee = conf.eventBus;
-
-
 
     function initAchievementEngine(event, unlockCallback) {
         // console.log("initAchievmentEngine()");
@@ -51,7 +48,6 @@ ACHV.AchievementSystem = function (conf) {
                 }
             }
         });
-
 
         function registerAchievement(doc) {
             var achvEngine = achvEngines[event.gameId + "_" + event.userId],

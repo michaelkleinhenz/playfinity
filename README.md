@@ -4,11 +4,12 @@ Copyright (c) 2013 Questor GmbH, Berlin
 
 See additional documentation at:
 
-    https://admin.goquestor.com/wiki/index.php/Achievement_System
-    https://admin.goquestor.com/wiki/index.php/Achievement_Integration
-    https://admin.goquestor.com/wiki/index.php/Achievement_Service
+    https://bitbucket.org/questor-ondemand/qbadge/wiki/Home
 
 # Simple Usage Example
+
+This assumes that you have a couchDB installed at localhost and some kind of POSIX compliant operating
+system capable of executing bash scripts. You also need curl installed to call REST endpoints.
 
 ## Create databases
 
@@ -46,7 +47,7 @@ Create the following databases:
 
 ## Init the achievement instances
 
-    curl -s -X POST http://localhost:8080/store/model/init/admin/My_Hunt/tim
+    curl -s -X POST http://localhost:8080/store/model/admin/My_Hunt/tim
 
 ## Read the achievement instances
 
@@ -54,15 +55,14 @@ Create the following databases:
 
 ## Trigger events
 
-    cd integrationstests/server
-    ./PUT_Event.sh ../../unittests/fixture/event/MyOneShotAchievementEvent.json
-    ./PUT_Event.sh ../../unittests/fixture/event/MyCounterAchievementEvent.json
-    ./PUT_Event.sh ../../unittests/fixture/event/MyCounterAchievementEvent.json
-    ./PUT_Event.sh ../../unittests/fixture/event/MyCounterAchievementEvent.json
-    ./PUT_Event.sh ../../unittests/fixture/event/MyCounterAchievementEvent.json
-    ./PUT_Event.sh ../../unittests/fixture/event/MyCounterAchievementEvent.json
-    ./PUT_Event.sh ../../unittests/fixture/event/StartMyStopWatchAchievementEvent.json
+    curl -s -X GET http://localhost:8080/event/My_Hunt/tim/MyOneShotAchievementEvent
+    curl -s -X GET http://localhost:8080/event/My_Hunt/tim/MyCounterAchievementEvent
+    curl -s -X GET http://localhost:8080/event/My_Hunt/tim/MyCounterAchievementEvent
+    curl -s -X GET http://localhost:8080/event/My_Hunt/tim/MyCounterAchievementEvent
+    curl -s -X GET http://localhost:8080/event/My_Hunt/tim/MyCounterAchievementEvent
+    curl -s -X GET http://localhost:8080/event/My_Hunt/tim/MyCounterAchievementEvent
+    curl -s -X GET http://localhost:8080/event/My_Hunt/tim/StartMyStopWatchAchievementEvent
 
 ## Read the achievement instances
 
-    http://localhost:8080/store/cabinet/My_Hunt/tim
+    http://localhost:8080/store/unlocked/My_Hunt/tim

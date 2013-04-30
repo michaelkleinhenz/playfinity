@@ -329,20 +329,28 @@ function initAchievementInstances(req, res, next) {
 app.enable("jsonp callback");
 
 // Setup routes
+
+// create achievement model
+app.put ('/model', createAchievement);
+
+// retrieve model data for owner and game
+app.get ('/model/:ownerId/:gameId', getAchievementsByOwnerIdAndGameId);
+
+// init model for owner, game and user
+app.post('/model/:ownerId/:gameId/:userId', initAchievementInstances);
+
+// retrieve instance state data for game and user
+app.get ('/instance/:gameId/:userId', getAchievementInstancesByGameIdAndUserId);
+
+// retrieve unlocked achievements for game and user
+app.get('/unlocked/:gameId/:userId', getUnlockedAchievementsByGameIdAndUserId);
+
+/*
 app.get('/', readAchievements);
 app.get('/:achievementName', readAchievement);
-
-app.get('/model/:ownerId/:gameId', getAchievementsByOwnerIdAndGameId);
-app.post('/model/init/:ownerId/:gameId/:userId', initAchievementInstances);
-
-app.get('/instance/:gameId/:userId', getAchievementInstancesByGameIdAndUserId);
-
-app.get('/cabinet/:gameId/:userId', getUnlockedAchievementsByGameIdAndUserId);
-
 app.del('/achievements/:achievementName/:revision', deleteAchievement);
-app.post('/achievements', createAchievement);
-app.put('/achievements', createAchievement);
 app.get('/achievements/:gameId', getAchievementsForGameId);
 app.get('/achievements/:ownerId/:gameId/name', getAchievementNamesByOwnerIdAndGameId);
 app.get('/achievements/:ownerId/:gameId/:achievementName', getAchievement);
 app.get('/achievements/:gameId/:achievementName', getAchievementByGameIdAndName);
+*/

@@ -124,7 +124,6 @@ ACHV.AchievementEngine.prototype.getAchievements = function() {
 };
 
 ACHV.AchievementEngine.prototype.getAchievementsForEventType = function(eventType) {
-    // console.log("AchievementEngine.getAchievementsForEventType() achievementsMap=" + JSON.stringify(this.achievementsMap));
     var achievements = [];
     if(this.achievementsMap[eventType]) {
         achievements = this.achievementsMap[eventType];
@@ -134,16 +133,15 @@ ACHV.AchievementEngine.prototype.getAchievementsForEventType = function(eventTyp
 
 ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCallback) {
     "use strict";
-    // console.log("processEvent(event) - " + JSON.stringify(event));
     var eventBus = this.eventBus,
         achvProcessor = this.achvProcessor,
         engines = this.engines,
         retryCounter = 0;
     var unlockedAchievements = [];
     var eventToAchievementsMap = this.achievementsMap;
-    var fittingAchievements = this.getAchievementsForEventType(event.name);
-    console.log("AchievementEngine.processEvent() - event.name=" + event.name +  ", fittingAchievements=" + JSON.stringify(fittingAchievements) );
-    async.series(
+    var fittingAchievements = this.getAchievementsForEventType(event.eventId);
+    console.log("AchievementEngine.processEvent() - event.eventId=" + event.eventId +  ", fittingAchievements=" + JSON.stringify(fittingAchievements) );
+    Async.series(
         {
             one: function (callback) {
                 processAchievements(engines, fittingAchievements, callback);
@@ -167,7 +165,7 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
                 eventBus.emitEvent('achv_value_changed', [processAchievementsResult.achievement]);
                 achvProcessor.process(processAchievementsResult.achievement, engines, event, processAchievementsCallback);
             } else {
-                async.series(
+                Async.series(
                     {
                         isAchievementRemoved: function(callback) {
                             if (processAchievementsResult.isUnlocked) {
@@ -229,8 +227,8 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
         }
 
         function isFrequencyReached(achievement) {
-            if (achievement.hasOwnProperty("FREQUENCY_COUNTER_MAX")) {
-                return achievement.frequencyCounter >= achievement.FREQUENCY_COUNTER_MAX;
+            if (achievement.hasOwnProperty("frequencyCounterMax")) {
+                return achievement.frequencyCounter >= achievement.frequencyCounterMax;
             } else {
                 return false;
             }

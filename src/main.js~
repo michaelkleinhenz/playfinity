@@ -35,7 +35,7 @@ var requireDir = require('require-dir');
 var nano = require('nano')('http://127.0.0.1:5984/');
 
 // no npm repo for this one
-var EventEmitter = require('./util/EventEmitter-4.0.2.min.js').EventEmitter;
+var EventEmitter = require('util/EventEmitter-4.0.2.min.js').EventEmitter;
 
 // import achievement core to ACHV
 requireDir('./core/engine');

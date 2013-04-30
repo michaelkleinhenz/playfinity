@@ -24,7 +24,10 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/*global ACHV, Utils*/
+/*
+    Engine for timed events.
+ */
+
 ACHV.timerEngine = function (spec) {
     "use strict";
     var that = ACHV.engine(spec);
@@ -42,7 +45,7 @@ ACHV.timerEngine = function (spec) {
     }();
 
     that.process = function (event, rule, valueChanged) {
-        console.log("timerEngine - process");
+        console.log("timerEngine.process");
         that.processStartEvent(event, rule);
         that.processCurrentEvent(event, rule);
         valueChanged(that.stateChanged.getValue());

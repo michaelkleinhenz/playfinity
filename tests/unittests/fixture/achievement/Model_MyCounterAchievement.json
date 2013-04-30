@@ -12,10 +12,10 @@
             {
                 "type": "CounterRule",
                 "event": "MyCounterAchievementEvent",
-                "COUNTER_MAX": 5
+                "counterMax": 5
             }
         ]
     ],
-    "FREQUENCY_COUNTER_MAX": 1,
+    "frequencyCounterMax": 1,
     "active": true
 }
