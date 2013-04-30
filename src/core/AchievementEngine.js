@@ -40,8 +40,8 @@ ACHV.AchievementEngine = function (conf) {
     //TODO move engines in configuration
     this.engines = {
         "TimerRule": ACHV.timerEngine({"achievementType": "TimerRule"}),
-        "OneShotRule": new ACHV.OneShotEngine(),
-        "CounterRule": new ACHV.CounterEngine(),
+        "OneShotRule": ACHV.oneShotEngine({"achievementType": "OneShotRule"}),
+        "CounterRule": new ACHV.counterEngine({"achievementType": "CounterRule"}),
         "StopWatchRule": ACHV.stopWatchEngine({"achievementType": "StopWatchRule"})
     };
 };
@@ -281,7 +281,6 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
         }
         return rules;
     }
-
 };
 
 exports.AchievementEngine = ACHV.AchievementEngine;

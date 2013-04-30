@@ -28,33 +28,36 @@
     Engine for counting until a max value is reached.
  */
 
-ACHV.CounterEngine = function() {
-    this.achievementType = 'CounterRule';
-};
+ACHV.counterEngine = function(spec) {
+    "use strict";
+    var that = ACHV.engine(spec);
 
-ACHV.CounterEngine.prototype.process = function (event, rule, valueChanged) {
-    console.log("CounterEngine.process");
-    var isChanged = false;
-    if (event.eventId === rule.interruptEvent) {
+    that.process = function (event, rule, valueChanged) {
+        console.log("CounterEngine.process");
+        var isChanged = false;
+        if (event.eventId === rule.interruptEvent) {
+            rule.counter = 0;
+            rule.state = "inProgress";
+            isChanged = true;
+        } else if (rule.event === event.eventId) {
+            if (!rule.counter) {
+                rule.counter = 0;
+            }
+            rule.counter++;
+            if (rule.counter >= rule.counterMax) {
+                rule.state = "satisfied";
+            }
+            isChanged = true;
+        }
+        valueChanged(isChanged);
+    };
+
+    that.reset = function (rule) {
         rule.counter = 0;
         rule.state = "inProgress";
-        isChanged = true;
-    } else if (rule.event === event.eventId) {
-        if (!rule.counter) {
-            rule.counter = 0;
-        }
-        rule.counter++;
-        if (rule.counter >= rule.counterMax) {
-            rule.state = "satisfied";
-        }
-        isChanged = true;
-    }
-    valueChanged(isChanged);
-};
+    };
 
-ACHV.CounterEngine.prototype.reset = function (rule) {
-    rule.counter = 0;
-    rule.state = "inProgress";
-};
+    return that;
+}
 
-exports.CounterEngine = ACHV.CounterEngine;
+exports.counterEngine = ACHV.counterEngine;

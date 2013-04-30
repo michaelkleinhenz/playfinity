@@ -28,20 +28,23 @@
     Engine for a simple one shot.
  */
 
-ACHV.OneShotEngine = function () {
-    this.achievementType = "OneShotRule";
-};
+ACHV.oneShotEngine = function (spec) {
+    "use strict";
+    var that = ACHV.engine(spec);
 
-ACHV.OneShotEngine.prototype.process = function (event, rule, valueChanged) {
-    console.log("OneShotEngine.process");
-    if (rule.event === event.eventId) {
-        rule.state = "satisfied";
-        valueChanged(true);
-    }
-};
+    that.process = function (event, rule, valueChanged) {
+        console.log("OneShotEngine.process");
+        if (rule.event === event.eventId) {
+            rule.state = "satisfied";
+            valueChanged(true);
+        }
+    };
 
-ACHV.OneShotEngine.prototype.reset = function (rule) {
-    rule.state = "inProgress";
-};
+    that.reset = function (rule) {
+        rule.state = "inProgress";
+    };
 
-exports.OneShotEngine = ACHV.OneShotEngine;
+    return that;
+}
+
+exports.oneShotEngine = ACHV.oneShotEngine;
