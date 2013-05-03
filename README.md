@@ -40,10 +40,10 @@ Create the following databases:
 
 ## Create achievement models
 
-    cd tests/integrationtests/server
-    curl --upload-file ../../unittests/fixture/achievement/Model_MyOneShotAchievement.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model
-    curl --upload-file ../../unittests/fixture/achievement/Model_MyCounterAchievement.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model
-    curl --upload-file ../../unittests/fixture/achievement/Model_MyStopWatchAchievement.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model
+    cd tests
+    curl --upload-file fixture/achievement/Model_MyOneShotAchievement.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model
+    curl --upload-file fixture/achievement/Model_MyCounterAchievement.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model
+    curl --upload-file fixture/achievement/Model_MyStopWatchAchievement.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model
 
 ## Read achievement models
 

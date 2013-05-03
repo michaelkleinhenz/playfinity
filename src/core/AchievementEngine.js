@@ -29,7 +29,6 @@
  * further processing of an event.
  */
 
-/*global ACHV, Utils, async*/
 ACHV.AchievementEngine = function (conf) {
     "use strict";
     this.eventBus = conf.eventBus;

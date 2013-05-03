@@ -1,0 +1,13 @@
+{
+    "name": "StartGameAchievement",
+    "process":  [
+            [
+                {
+                    "type": "OneShotRule",
+                    "state": "inProgress",
+                    "event": "StartGameEvent"
+                }
+            ]
+    ],
+    "locked": true
+}

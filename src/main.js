@@ -25,20 +25,13 @@
  */
 
 // Import global utility modules
-global.ACHV = require('./core/ACHV');
-global.Utils = require('./util/utils');
-global.Async = require('async');
-
-// import library modules
-var logger = require('winston');
-var requireDir = require('require-dir');
-var nano = require('nano')('http://127.0.0.1:5984/');
-
-// no npm repo for this one
+Utils = require('./util/utils');
+Async = require('async');
 var EventEmitter = require('./util/EventEmitter-4.0.2.min.js').EventEmitter;
 
-// import achievement core to ACHV
-requireDir('./core/engine');
+// Create Achievement System Class
+ACHV = require('./core/ACHV');
+require('require-dir')('./core/engine');
 require('./core/AchievementProcessor');
 require('./core/AchievementEngine');
 
@@ -48,19 +41,25 @@ var achvStore = require('./store/AchievementStore');
 var achvInstanceStore = require('./store/AchievementInstanceStore');
 var server = require('./server/Server');
 
-// setup achievement system configuration
+// Create data storage
+var logger = require('winston');
+var nano = require('nano')('http://127.0.0.1:5984/');
+
+// Create Achievement Model Store
 var achvStoreConf = {
     "logger": logger,
     "db": nano.use('achievement')
 };
 var achievementStore = achvStore.achievementStore(achvStoreConf);
 
+// Create Achievement Instance Store
 var achvInstanceStoreConf = {
     "logger": logger,
     "db": nano.use('achievement_instance')
 };
 var achievementInstanceStore = achvInstanceStore.achievementInstanceStore(achvInstanceStoreConf);
 
+// Create Achievement System - Only this is relevant for embedded use!
 var achvSystemConfiguration = {
     "achievementStore":  achievementStore,
     "achievementInstanceStore": achievementInstanceStore,

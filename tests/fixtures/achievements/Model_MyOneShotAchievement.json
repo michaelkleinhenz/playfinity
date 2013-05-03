@@ -1,0 +1,20 @@
+{
+    "name": "MyOneShotAchievement",
+    "gameId": "My_Hunt",
+    "ownerId": "admin",
+    "imageURI": "http://web.osrm.ch/sites/osrm_corm/files/images/Pokal.gif",
+    "description": {
+        "de": "Hier Beschreibung einfügen.",
+        "en": "A OneShotAchievemet."
+    },
+    "process": [
+        [
+            {
+                "type": "OneShotRule",
+                "event": "MyOneShotAchievementEvent"
+            }
+        ]
+    ],
+    "frequencyCounterMax": 1,
+    "active": true
+}
