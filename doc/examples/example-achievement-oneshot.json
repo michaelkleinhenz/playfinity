@@ -2,7 +2,7 @@
     "name": "MyOneShotAchievement",
     "gameId": "My_Hunt",
     "ownerId": "admin",
-    "imageURI": "http://web.osrm.ch/sites/osrm_corm/files/images/Pokal.gif",
+    "imageURI": "uri:some.image",
     "description": {
         "de": "Hier Beschreibung einfügen.",
         "en": "A OneShotAchievemet."
