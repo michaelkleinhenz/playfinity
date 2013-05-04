@@ -1,3 +1,3 @@
 #!/usr/bin/env node
 var reporter = require('nodeunit').reporters.default;
-reporter.run(['tests/src/AchievementSystemTest.js']);
+reporter.run(['tests/src']);
