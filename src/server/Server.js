@@ -93,7 +93,7 @@ function start(achvSystem) {
     // Setup server
     var app = express();
     app.use(express.bodyParser());
-    app.set('name', 'QBadge');
+    app.set('name', 'Service');
 
     // enable cors
     app.use(cors);
@@ -109,8 +109,10 @@ function start(achvSystem) {
     app.get('/', getIndexHtml);
 
     // Run Server
-    app.listen(8080, function () {
-        winston.info(app.get('name') + " listening at port 8080");
+    app.listen(QBadgeConfig.serverPort, function () {
+        winston.info("QBadge Achievement System");
+        winston.info("Copyright (c) 2013 Questor GmbH, Berlin");
+        winston.info(app.get('name') + " listening at port " + QBadgeConfig.serverPort);
     });
 }
 

@@ -24,6 +24,9 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+// Import configuration
+require('./config.js');
+
 // Import global utility modules
 Utils = require('./util/utils');
 Async = require('async');
@@ -43,19 +46,19 @@ var server = require('./server/Server');
 
 // Create data storage
 var logger = require('winston');
-var nano = require('nano')('http://127.0.0.1:5984/');
+var nano = require('nano')(QBadgeConfig.couchUrl);
 
 // Create Achievement Model Store
 var achvStoreConf = {
     "logger": logger,
-    "db": nano.use('achievement')
+    "db": nano.use(QBadgeConfig.modelDbName)
 };
 var achievementStore = achvStore.achievementStore(achvStoreConf);
 
 // Create Achievement Instance Store
 var achvInstanceStoreConf = {
     "logger": logger,
-    "db": nano.use('achievement_instance')
+    "db": nano.use(QBadgeConfig.instanceDbName)
 };
 var achievementInstanceStore = achvInstanceStore.achievementInstanceStore(achvInstanceStoreConf);
 
