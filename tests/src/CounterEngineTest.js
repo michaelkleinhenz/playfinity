@@ -53,11 +53,11 @@ module.exports = {
     "Process to unlock event": function(test) {
         var engine = ACHV.counterEngine({"achievementType": "CounterRule"});
         var event = {
-            "eventId": "HeadShotEvent",
+            "eventId": "EventA",
             "gameId": "1",
             "userId": "2"
         };
-        var achievement = ACHV.achievementWrapper(FIXTURE.getTenHeadShotsAchievement());
+        var achievement = ACHV.achievementWrapper(FIXTURE.get10AAchievement());
         var rules = achievement.getRules();
         for (var i = 0; i < 10; i++) {
             engine.process(event, rules[0], function(isChanged) {});
@@ -69,11 +69,11 @@ module.exports = {
     "Process still locked single counter": function(test) {
         var engine = ACHV.counterEngine({"achievementType": "CounterRule"});
         var event = {
-            "eventId": "HeadShotEvent",
+            "eventId": "EventA",
             "gameId": "1",
             "userId": "2"
         };
-        var achievement = ACHV.achievementWrapper(FIXTURE.getTenHeadShotsAchievement());
+        var achievement = ACHV.achievementWrapper(FIXTURE.get10AAchievement());
         var rules = achievement.getRules();
         engine.process(event, rules[0], function(isChanged) {});
         test.equals(rules[0].state, "inProgress");
@@ -82,21 +82,21 @@ module.exports = {
 
     "Process to unlock event alternate": function (test) {
         var engine = ACHV.counterEngine({"achievementType": "CounterRule"});
-        var headShotEvent = {
-            "eventId": "HeadShotEvent",
+        var eventA = {
+            "eventId": "EventA",
             "gameId": "1",
             "userId": "2"
         };
-        var kneeShotEvent = {
-            "eventId": "KneeShotEvent",
+        var eventC = {
+            "eventId": "EventC",
             "gameId": "1",
             "userId": "2"
         };
-        var achievement = ACHV.achievementWrapper(FIXTURE.getTenHeadAndKneeShotsAchievement());
+        var achievement = ACHV.achievementWrapper(FIXTURE.get10A10CAchievement());
         var rules = achievement.getRules();
         for (var i = 0; i < 10; i++) {
-            engine.process(headShotEvent, rules[0], function(isChanged) {});
-            engine.process(kneeShotEvent, rules[1], function(isChanged) {});
+            engine.process(eventA, rules[0], function(isChanged) {});
+            engine.process(eventC, rules[1], function(isChanged) {});
         }
         test.equals("satisfied", rules[0].state);
         test.equals("satisfied", rules[1].state);
@@ -105,23 +105,23 @@ module.exports = {
 
     "Process to unlock event in row": function (test) {
         var engine = ACHV.counterEngine({"achievementType": "CounterRule"});
-        var headShotEvent = {
-            "eventId": "HeadShotEvent",
+        var eventA = {
+            "eventId": "EventA",
             "gameId": "1",
             "userId": "2"
         };
-        var kneeShotEvent = {
-            "eventId": "KneeShotEvent",
+        var eventC = {
+            "eventId": "EventC",
             "gameId": "1",
             "userId": "2"
         };
-        var achievement = ACHV.achievementWrapper(FIXTURE.getTenHeadAndKneeShotsAchievement());
+        var achievement = ACHV.achievementWrapper(FIXTURE.get10A10CAchievement());
         var rules = achievement.getRules();
         for (var i = 0; i < 10; i++) {
-            engine.process(headShotEvent, rules[0], function(isChanged) {});
+            engine.process(eventA, rules[0], function(isChanged) {});
         }
         for (var j = 0; j < 10; j++) {
-            engine.process(kneeShotEvent, rules[1], function(isChanged) {});
+            engine.process(eventC, rules[1], function(isChanged) {});
         }
         test.equals("satisfied", rules[0].state);
         test.equals("satisfied", rules[1].state);
@@ -130,14 +130,14 @@ module.exports = {
 
     "Testing process locking": function(test) {
         var engine = ACHV.counterEngine({"achievementType": "CounterRule"});
-        var kneeShotEvent = {
-            "eventId": "KneeShotEvent",
+        var eventC = {
+            "eventId": "EventC",
             "gameId": "1",
             "userId": "2"
         };
-        var achievement = ACHV.achievementWrapper(FIXTURE.getTenHeadAndKneeShotsAchievement());
+        var achievement = ACHV.achievementWrapper(FIXTURE.get10A10CAchievement());
         for (var i = 0; i < 10; i++) {
-            engine.process(kneeShotEvent, achievement, function(isChanged) {});
+            engine.process(eventC, achievement, function(isChanged) {});
         }
         test.ok(achievement.locked);
         test.done();

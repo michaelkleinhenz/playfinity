@@ -1,5 +1,5 @@
 {
-    "name": "TwoHeadShotsAchievement",
+    "name": "10AAchievement",
     "gameId": 1,
     "userId": 2,
     "process": [
@@ -8,12 +8,12 @@
                 "type": "CounterRule",
                 "state": "inProgress",
                 "counter": 0,
-                "counterMax": 2,
-                "event": "HeadShotEvent"
+                "counterMax": 10,
+                "event": "EventA"
             }
         ]
     ],
     "frequencyCounter": 0,
-    "frequencyCounterMax": 1,
+    "frequencyCounterMax": 2,
     "locked": true
 }

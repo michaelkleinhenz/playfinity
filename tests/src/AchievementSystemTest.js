@@ -70,13 +70,13 @@ module.exports = {
                     };
                 startGameAchievement.gameId = 1;
                 startGameAchievement.userId = 2;
-                var twoHeadShotsAchievement = FIXTURE.getTwoHeadShotsAchievement();
-                twoHeadShotsAchievement.gameId = 1;
-                twoHeadShotsAchievement.userId = 2;
-                var twoHeadShotsAchievementDoc = {
-                    "value": twoHeadShotsAchievement
+                var a2AAchievement = FIXTURE.get2AAchievement();
+                a2AAchievement.gameId = 1;
+                a2AAchievement.userId = 2;
+                var a2AAchievementDoc = {
+                    "value": a2AAchievement
                 };
-                var achievementDocs = [startGameAchievementDoc, twoHeadShotsAchievementDoc];
+                var achievementDocs = [startGameAchievementDoc, a2AAchievementDoc];
                 var body = {
                     rows: {}
                 };
@@ -105,7 +105,7 @@ module.exports = {
 
         when(achvInstanceStoreMock).createOrUpdateAchievementInstance(hasMember("name", equalTo("PlayForTenSecondsAchievement"))).
             then(function (doc, callback) {
-                callback("Some Error", null);
+                callback("Unit Test Expected Error", null);
             });
 
         // AchievementStore callback with no achievement, gameId=0.
@@ -121,15 +121,15 @@ module.exports = {
         // AchievementStore callback with one achievement, gameId=1.
         when(achvStoreMock).getAchievementsForGameId(equalTo(1)).
             then(function (gameId, callback) {
-                var twoHeadShotsAchievement = FIXTURE.getTwoHeadShotsAchievement(),
+                var a2AAchievement = FIXTURE.get2AAchievement(),
                     doc = {
-                        value: twoHeadShotsAchievement
+                        value: a2AAchievement
                     },
                     body = {
                         rows: {}
                     };
                 body.rows.length = 1;
-                twoHeadShotsAchievement.gameId = 1;
+                a2AAchievement.gameId = 1;
                 body.rows.forEach = function (forEachCallBack) {
                     forEachCallBack(doc);
                 };
@@ -139,18 +139,18 @@ module.exports = {
         // AchievementStore callback with two achievements, gameId=2.
         when(achvStoreMock).getAchievementsForGameId(equalTo(2)).
             then(function (gameId, callback) {
-                var twoHeadShotsAchievement = FIXTURE.getTwoHeadShotsAchievement(),
+                var a2AAchievement = FIXTURE.get2AAchievement(),
                     docOne = {
-                        value: twoHeadShotsAchievement
+                        value: a2AAchievement
                     },
-                    playForTenSecondsAchievement = FIXTURE.getPlayForTenSecondsAchievement(),
+                    playForTenSecondsAchievement = FIXTURE.getPlayFor10000msAchievement(),
                     docTwo = {
                         value: playForTenSecondsAchievement
                     },
                     body = {
                         rows: {}
                     };
-                twoHeadShotsAchievement.gameId = 2;
+                a2AAchievement.gameId = 2;
                 playForTenSecondsAchievement.gameId = 2;
                 body.rows.length = 2;
                 body.rows.forEach = function (forEachCallBack) {
@@ -220,7 +220,7 @@ module.exports = {
 
     "Failed init achievement engine": function (test) {
         var event = {
-            "eventId": "chestShotEvent",
+            "eventId": "eventB",
             "gameId": "3",
             "userId": "2"
         };
@@ -233,7 +233,7 @@ module.exports = {
 
     "Registering an achievement": function (test) {
         var event = {
-            "eventId": "chestShotEvent",
+            "eventId": "eventB",
             "gameId": "3",
             "userId": "2"
         };
@@ -244,7 +244,7 @@ module.exports = {
     },
 
     "Failed achievement update": function (test) {
-        var achievement = FIXTURE.getPlayForTenSecondsAchievement();
+        var achievement = FIXTURE.getPlayFor10000msAchievement();
         this.eventBus.emitEvent('achv_value_changed', [achievement]);
         verify(this.achvInstanceStoreMock).createOrUpdateAchievementInstance(achievement, anything());
         test.done();

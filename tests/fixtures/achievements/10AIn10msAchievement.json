@@ -1,12 +1,12 @@
 {
-    "name": "TenHeadShotsInTenMinutesAchievement",
+    "name": "10AIn10msAchievement",
     "gameId": 1,
     "userId": 2,
     "process":  [
         [
             {
                 "type": "TimerRule",
-                "event": "HeadShotEvent",
+                "event": "EventA",
                 "state": "inProgress",
                 "timer": 0,
                 "timerMaxMs": 600
@@ -15,7 +15,7 @@
         [
             {
                 "type": "CounterRule",
-                "event": "HeadShotEvent",
+                "event": "EventA",
                 "state": "inProgress",
                 "counter": 0,
                 "counterMax": 10

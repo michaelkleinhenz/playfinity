@@ -1,5 +1,5 @@
 {
-    "name": "TenHeadAndKneeShotsAchievement",
+    "name": "10A10CAchievement",
     "gameId": 1,
     "userId": 2,
     "process":  [
@@ -7,14 +7,14 @@
                 {
                     "type": "CounterRule",
                     "state": "inProgress",
-                    "event": "HeadShotEvent",
+                    "event": "EventA",
                     "counter": 0,
                     "counterMax": 10
                 },
                 {
                     "type": "CounterRule",
                     "state": "inProgress",
-                    "event": "KneeShotEvent",
+                    "event": "EventC",
                     "counter": 0,
                     "counterMax": 10
                 }

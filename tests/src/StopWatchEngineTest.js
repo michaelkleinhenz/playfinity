@@ -64,7 +64,7 @@ module.exports = {
             "gameId": "1",
             "userId": "2"
         };
-        var achievement = ACHV.achievementWrapper(FIXTURE.getPlayForTenSecondsAchievement());
+        var achievement = ACHV.achievementWrapper(FIXTURE.getPlayFor10000msAchievement());
         var rules = achievement.getRules();
         engine.process(startGameEvent, rules[0], function () {});
         engine.process(stopGameEvent, rules[0], function () {});
@@ -86,7 +86,7 @@ module.exports = {
             "gameId": "1",
             "userId": "2"
         };
-        var achievement = ACHV.achievementWrapper(FIXTURE.getPlayForTenSecondsAchievement());
+        var achievement = ACHV.achievementWrapper(FIXTURE.getPlayFor10000msAchievement());
         var rules = achievement.getRules();
         engine.process(startGameEvent, rules[0], function () {});
         engine.process(stopGameEvent, rules[0], function () {});

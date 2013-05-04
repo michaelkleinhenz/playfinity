@@ -89,9 +89,9 @@ module.exports = {
     },
 
     testRegisterAchievementTwo: function (test) {
-        var achievement = FIXTURE.getTenHeadShotsInTenMinutesAchievement();
+        var achievement = FIXTURE.get10AIn10msAchievement();
         achievementEngine.registerAchievement(achievement);
-        var achievements = achievementEngine.getAchievementsForEventType("HeadShotEvent");
+        var achievements = achievementEngine.getAchievementsForEventType("EventA");
         test.equals(1, achievements.length);
         test.done();
     },
@@ -117,12 +117,12 @@ module.exports = {
 
     testGetAchievements: function (test) {
         var startGameAchievement = FIXTURE.getStartGameAchievement();
-        var headShotAchievement = FIXTURE.getTenHeadShotsAchievement();
+        var aAAchievement = FIXTURE.get10AAchievement();
         achievementEngine.registerAchievement(startGameAchievement);
-        achievementEngine.registerAchievement(headShotAchievement);
+        achievementEngine.registerAchievement(aAAchievement);
         var achievements = achievementEngine.getAchievements();
         test.ok(Utils.arrayContains(achievements, startGameAchievement));
-        test.ok(Utils.arrayContains(achievements, headShotAchievement));
+        test.ok(Utils.arrayContains(achievements, aAAchievement));
         test.done();
     },
 
@@ -163,7 +163,7 @@ module.exports = {
 
     testRemoveOnceAchievementForTwoEvents: function (test) {
         // set achievement
-        var achievement = FIXTURE.getTenHeadAndKneeShotsAchievement();
+        var achievement = FIXTURE.get10A10CAchievement();
         achievementEngine.registerAchievement(achievement);
 
         // check achievement registered
@@ -171,23 +171,23 @@ module.exports = {
         test.ok(Utils.arrayContains(achievements, achievement));
 
         // trigger unlock event
-        var kneeShotEvent = {
+        var eventC = {
             "tsInit": new Date().getTime(),
-            "eventId": "KneeShotEvent",
+            "eventId": "EventC",
             "gameId": "1",
             "userId": "2"
         };
-        var headShotEvent = {
+        var eventA = {
             "tsInit": new Date().getTime(),
-            "eventId": "HeadShotEvent",
+            "eventId": "EventA",
             "gameId": "1",
             "userId": "2"
         };
         for (var i = 0; i < 10; i++) {
-            achievementEngine.processEvent(headShotEvent, notifyUnlock);
+            achievementEngine.processEvent(eventA, notifyUnlock);
         }
         for (var j = 0; j < 10; j++) {
-            achievementEngine.processEvent(kneeShotEvent, notifyUnlock);
+            achievementEngine.processEvent(eventC, notifyUnlock);
         }
 
         // check achievement removed
@@ -236,7 +236,7 @@ module.exports = {
         var currentUnlockedAchievements = [];
 
         // set achievement with frequency property
-        var achievement = FIXTURE.getTenHeadShotsAchievement();
+        var achievement = FIXTURE.get10AAchievement();
         achievementEngine.registerAchievement(achievement);
 
         // check achievement registered
@@ -246,7 +246,7 @@ module.exports = {
         // trigger event to unlock first time
         var event = {
             "tsInit": new Date().getTime(),
-            "eventId": "HeadShotEvent",
+            "eventId": "EventA",
             "gameId": "1",
             "userId": "2"
         };
@@ -275,16 +275,16 @@ module.exports = {
         test.done();
     },
 
-    testTenHeadShotsInTenMinutesAchievementUnlocked: function (test) {
+    test10AIn600000msAchievementUnlocked: function (test) {
         var allUnlockedAchievements = [];
         // set achievement
-        var achievement = FIXTURE.getTenHeadShotsInTenMinutesAchievement();
+        var achievement = FIXTURE.get10AIn10msAchievement();
         achievementEngine.registerAchievement(achievement);
 
         // trigger event to unlock
         var event = {
             "tsInit": new Date().getTime(),
-            "eventId": "HeadShotEvent",
+            "eventId": "EventA",
             "gameId": "1",
             "userId": "2"
         };
@@ -306,15 +306,15 @@ module.exports = {
         test.done();
     },
 
-    testTenHeadShotsInTenMinutesAchievementLocked: function (test) {
+    test10Ain600000msAchievementLocked: function (test) {
         // set achievement
-        var achievement = FIXTURE.getTenHeadShotsInTenMinutesAchievement();
+        var achievement = FIXTURE.get10AIn10msAchievement();
         achievementEngine.registerAchievement(achievement);
 
         // trigger event to unlock
         var event = {
             "tsInit": new Date().getTime(),
-            "eventId": "HeadShotEvent",
+            "eventId": "EventA",
             "gameId": "1",
             "userId": "2"
         };
@@ -340,41 +340,41 @@ module.exports = {
 
     /**
      * Unlock achievement.
-     * (TenHeadShots -> TenKneeShots) || TenChestShots
+     * (10A -> 10C) || 10B
      * All events are triggered in row.
-     * First TenHeadShots, then TenKneeShots and finally TenChestShots.
+     * First 10A, then 10C and finally 10B.
      */
-    testTenHeadShotsSeqTenKneeShotsParTenChestShots: function (test) {
+    test10A10Cwhile10BAchievement1: function (test) {
         // set achievement
-        var achievement = FIXTURE.getTenHeadShotsSeqTenKneeShotsParTenChestShots();
+        var achievement = FIXTURE.get10A10Cwhile10BAchievement();
         achievementEngine.registerAchievement(achievement);
         // trigger events
-        var headShotEvent = {
+        var eventA = {
             "tsInit": new Date().getTime(),
-            "eventId": "HeadShotEvent",
+            "eventId": "EventA",
             "gameId": "1",
             "userId": "2"
         };
-        multiProcessEvent(achievementEngine, headShotEvent, 10);
+        multiProcessEvent(achievementEngine, eventA, 10);
         achievement = ACHV.achievementWrapper(achievement);
         var rules = achievement.getRules();
         test.equals("satisfied", rules[0].state);
-        var kneeShotEvent = {
+        var eventC = {
             "tsInit": new Date().getTime(),
-            "eventId": "KneeShotEvent",
+            "eventId": "EventC",
             "gameId": "1",
             "userId": "2"
         };
-        multiProcessEvent(achievementEngine, kneeShotEvent, 10);
+        multiProcessEvent(achievementEngine, eventC, 10);
         rules = achievement.getRules();
         test.equals("satisfied", rules[1].state);
-        var chestShotEvent = {
+        var eventB = {
             "tsInit": new Date().getTime(),
-            "eventId": "ChestShotEvent",
+            "eventId": "EventB",
             "gameId": "1",
             "userId": "2"
         };
-        multiProcessEvent(achievementEngine, chestShotEvent, 10);
+        multiProcessEvent(achievementEngine, eventB, 10);
         rules = achievement.getRules();
         test.equals("satisfied", rules[2].state);
         var achievements = achievementEngine.getAchievements();
@@ -384,41 +384,41 @@ module.exports = {
 
     /**
      * Locked achievement.
-     * (TenHeadShots -> TenKneeShots) || TenChestShots
+     * (10A -> 10C) || 10B
      * Sequential events are triggered in wrong order.
-     * First TenKneeShots, then TenHeadShots and finally TenChestShots.
+     * First 10C, then 10A and finally 10B.
      */
-    testTenHeadShotsSeqTenKneeShotsParTenChestShotsTwo: function (test) {
+    test10A10Cwhile10BAchievement2: function (test) {
         // set achievement
-        var achievement = FIXTURE.getTenHeadShotsSeqTenKneeShotsParTenChestShots();
+        var achievement = FIXTURE.get10A10Cwhile10BAchievement();
         achievementEngine.registerAchievement(achievement);
         achievement = ACHV.achievementWrapper(achievement);
         // trigger events
-        var kneeShotEvent = {
+        var eventC = {
             "tsInit": new Date().getTime(),
-            "eventId": "KneeShotEvent",
+            "eventId": "EventC",
             "gameId": "1",
             "userId": "2"
         };
-        multiProcessEvent(achievementEngine, kneeShotEvent, 10);
+        multiProcessEvent(achievementEngine, eventC, 10);
         var rules = achievement.getRules();
         test.equals("inProgress", rules[1].state);
-        var headShotEvent = {
+        var eventA = {
             "tsInit": new Date().getTime(),
-            "eventId": "HeadShotEvent",
+            "eventId": "EventA",
             "gameId": "1",
             "userId": "2"
         };
-        multiProcessEvent(achievementEngine, headShotEvent, 10);
+        multiProcessEvent(achievementEngine, eventA, 10);
         rules = achievement.getRules();
         test.equals("satisfied", rules[0].state);
-        var chestShotEvent = {
+        var eventB = {
             "tsInit": new Date().getTime(),
-            "eventId": "ChestShotEvent",
+            "eventId": "EventB",
             "gameId": "1",
             "userId": "2"
         };
-        multiProcessEvent(achievementEngine, chestShotEvent, 10);
+        multiProcessEvent(achievementEngine, eventB, 10);
         rules = achievement.getRules();
         test.equals("satisfied", rules[2].state);
         var achievements = achievementEngine.getAchievements();
@@ -428,51 +428,51 @@ module.exports = {
 
     /**
      * Unocked achievement.
-     * (TenHeadShots -> TenKneeShots) || TenChestShots
+     * (10A -> 10C) || 10B
      */
-    testTenHeadShotsSeqTenKneeShotsParTenChestShotsThree: function (test) {
+    test10A10Cwhile10BAchievement3: function (test) {
         // set achievement
-        var achievement = FIXTURE.getTenHeadShotsSeqTenKneeShotsParTenChestShots();
+        var achievement = FIXTURE.get10A10Cwhile10BAchievement();
         achievementEngine.registerAchievement(achievement);
         achievement = ACHV.achievementWrapper(achievement);
-        var kneeShotEvent = {
+        var eventC = {
             "tsInit": new Date().getTime(),
-            "eventId": "KneeShotEvent",
+            "eventId": "EventC",
             "gameId": "1",
             "userId": "2"
         };
-        var headShotEvent = {
+        var eventA = {
             "tsInit": new Date().getTime(),
-            "eventId": "HeadShotEvent",
+            "eventId": "EventA",
             "gameId": "1",
             "userId": "2"
         };
-        var chestShotEvent = {
+        var eventB = {
             "tsInit": new Date().getTime(),
-            "eventId": "ChestShotEvent",
+            "eventId": "EventB",
             "gameId": "1",
             "userId": "2"
         };
         // trigger events
-        multiProcessEvent(achievementEngine, kneeShotEvent, 10);
+        multiProcessEvent(achievementEngine, eventC, 10);
         var rules = achievement.getRules();
         test.equals("inProgress", rules[1].state);
-        multiProcessEvent(achievementEngine, headShotEvent, 5);
+        multiProcessEvent(achievementEngine, eventA, 5);
         rules = achievement.getRules();
         test.equals("inProgress", rules[0].state);
-        multiProcessEvent(achievementEngine, chestShotEvent, 5);
+        multiProcessEvent(achievementEngine, eventB, 5);
         rules = achievement.getRules();
         test.equals(rules[2].state, "inProgress");
-        multiProcessEvent(achievementEngine, kneeShotEvent, 5);
+        multiProcessEvent(achievementEngine, eventC, 5);
         rules = achievement.getRules();
         test.equals(rules[1].state, "inProgress");
-        multiProcessEvent(achievementEngine, chestShotEvent, 5);
+        multiProcessEvent(achievementEngine, eventB, 5);
         rules = achievement.getRules();
         test.equals(rules[2].state, "satisfied");
-        multiProcessEvent(achievementEngine, headShotEvent, 5);
+        multiProcessEvent(achievementEngine, eventA, 5);
         rules = achievement.getRules();
         test.equals(rules[0].state, "satisfied");
-        multiProcessEvent(achievementEngine, kneeShotEvent, 10);
+        multiProcessEvent(achievementEngine, eventC, 10);
         rules = achievement.getRules();
         test.equals(rules[1].state, "satisfied");
         var achievements = achievementEngine.getAchievements();
@@ -480,66 +480,66 @@ module.exports = {
         test.done();
     },
 
-    testTenHeadShotsTenKneeShotsUninterruptible: function (test) {
+    test10A10CAchievement1: function (test) {
         // set achievement
-        var achievement = FIXTURE.getTenHeadShotsUninterruptableAndTenKneeShotsAchievement();
+        var achievement = FIXTURE.get10A10CAchievement();
         achievementEngine.registerAchievement(achievement);
         achievement = ACHV.achievementWrapper(achievement);
         // trigger events
-        var headShotEvent = {
+        var eventA = {
             "tsInit": new Date().getTime(),
-            "eventId": "HeadShotEvent",
+            "eventId": "EventA",
             "gameId": "1",
             "userId": "2"
         };
-        multiProcessEvent(achievementEngine, headShotEvent, 5);
+        multiProcessEvent(achievementEngine, eventA, 5);
         var rules = achievement.getRules();
         test.equals(5, rules[0].counter);
-        var kneeShotEvent = {
+        var eventC = {
             "tsInit": new Date().getTime(),
-            "eventId": "KneeShotEvent",
+            "eventId": "EventC",
             "gameId": "1",
             "userId": "2"
         };
-        multiProcessEvent(achievementEngine, kneeShotEvent, 10);
+        multiProcessEvent(achievementEngine, eventC, 10);
         rules = achievement.getRules();
-        test.equals(0, rules[1].counter);
-        test.equals(0, rules[0].counter);
+        test.equals(rules[0].counter, 5);
+        test.equals(rules[1].counter, 0);
         test.done();
     },
 
     /**
      * Unlock achievement.
-     * (HeadShot -> TenKneeShots) || TenChestShots || InTenMinutes
+     * (A -> 10C) || 10B || In600000ms
      */
     testCombinedAchievement: function (test) {
         //setup achievements
-        var achievement = FIXTURE.getHeadKneeChestTenMinutesAchievement();
+        var achievement = FIXTURE.getA10Cwhile10Bin600000msAchievement();
         achievementEngine.registerAchievement(achievement);
         // trigger events
         var currentDate = new Date().getTime();
-        var headShotEvent = {
+        var eventA = {
             "tsInit": currentDate,
-            "eventId": "HeadShotEvent",
+            "eventId": "EventA",
             "gameId": "1",
             "userId": "2"
         };
-        var kneeShotEvent = {
+        var eventC = {
             "tsInit": currentDate,
-            "eventId": "KneeShotEvent",
+            "eventId": "EventC",
             "gameId": "1",
             "userId": "2"
         };
-        var chestShotEvent = {
+        var eventB = {
             "tsInit": currentDate,
-            "eventId": "ChestShotEvent",
+            "eventId": "EventB",
             "gameId": "1",
             "userId": "2"
         };
-        multiProcessTimedEvent(achievementEngine, chestShotEvent, 5, currentDate, 10);
-        multiProcessTimedEvent(achievementEngine, headShotEvent, 1, currentDate, 10);
-        multiProcessTimedEvent(achievementEngine, kneeShotEvent, 10, currentDate, 10);
-        multiProcessTimedEvent(achievementEngine, chestShotEvent, 10, currentDate, 10);
+        multiProcessTimedEvent(achievementEngine, eventB, 5, currentDate, 10);
+        multiProcessTimedEvent(achievementEngine, eventA, 1, currentDate, 10);
+        multiProcessTimedEvent(achievementEngine, eventC, 10, currentDate, 10);
+        multiProcessTimedEvent(achievementEngine, eventB, 10, currentDate, 10);
         // assertion
         achievement = ACHV.achievementWrapper(achievement);
         var rules = achievement.getRules();
@@ -552,45 +552,45 @@ module.exports = {
 
     /**
      * Still locked.
-     * (HeadShot -> TenKneeShots) || TenChestShots || InTenMinutes
-     * During TenKneeShots there will be an interrupt by HeadShotEvent.
+     * (A -> 10C) || 10B || In600000ms
+     * During 10C there will be an interrupt by EventA.
      */
     testCombinedAchievementInterrupt: function (test) {
         //setup achievements
-        var achievement = FIXTURE.getHeadKneeChestTenMinutesAchievement();
+        var achievement = FIXTURE.getA10Cwhile10Bin600000msAchievement();
         achievementEngine.registerAchievement(achievement);
         // trigger events
         var currentDate = new Date().getTime();
         // setup events
-        var headShotEvent = {
+        var eventA = {
             "tsInit": currentDate,
-            "eventId": "HeadShotEvent",
+            "eventId": "EventA",
             "gameId": "1",
             "userId": "2"
         };
-        var kneeShotEvent = {
+        var eventC = {
             "tsInit": currentDate,
-            "eventId": "KneeShotEvent",
+            "eventId": "EventC",
             "gameId": "1",
             "userId": "2"
         };
-        var chestShotEvent = {
+        var eventB = {
             "tsInit": currentDate,
-            "eventId": "ChestShotEvent",
+            "eventId": "EventB",
             "gameId": "1",
             "userId": "2"
         };
-        multiProcessTimedEvent(achievementEngine, chestShotEvent, 5, currentDate, 10);
+        multiProcessTimedEvent(achievementEngine, eventB, 5, currentDate, 10);
         currentDate = currentDate + 50;
-        multiProcessTimedEvent(achievementEngine, headShotEvent, 1, currentDate, 10);
+        multiProcessTimedEvent(achievementEngine, eventA, 1, currentDate, 10);
         currentDate = currentDate + 10;
-        multiProcessTimedEvent(achievementEngine, kneeShotEvent, 9, currentDate, 10);
+        multiProcessTimedEvent(achievementEngine, eventC, 9, currentDate, 10);
         currentDate = currentDate + 90;
-        multiProcessTimedEvent(achievementEngine, headShotEvent, 1, currentDate, 10);
+        multiProcessTimedEvent(achievementEngine, eventA, 1, currentDate, 10);
         currentDate = currentDate + 10;
-        multiProcessTimedEvent(achievementEngine, kneeShotEvent, 3, currentDate, 10);
+        multiProcessTimedEvent(achievementEngine, eventC, 3, currentDate, 10);
         currentDate = currentDate + 30;
-        multiProcessTimedEvent(achievementEngine, chestShotEvent, 4, currentDate, 10);
+        multiProcessTimedEvent(achievementEngine, eventB, 4, currentDate, 10);
         // assertion
         achievement = ACHV.achievementWrapper(achievement);
         var rules = achievement.getRules();
@@ -606,56 +606,56 @@ module.exports = {
 
     /**
      * Still locked.
-     * (HeadShot -> TenKneeShots) || TenChestShots || InTenMinutes
+     * (A -> 10C) || 10B || In600000ms
      * Timer first times out, but achievement will be unlocked in second try.
      */
     testCombinedAchievementTimer: function (test) {
 
         //setup achievements
-        var achievement = FIXTURE.getHeadKneeChestTenMinutesAchievement();
+        var achievement = FIXTURE.getA10Cwhile10Bin600000msAchievement();
         achievementEngine.registerAchievement(achievement);
 
         // setup events
-        var headShotEvent = {
+        var eventA = {
             "tsInit": 0,
-            "eventId": "HeadShotEvent",
+            "eventId": "EventA",
             "gameId": "1",
             "userId": "2"
         };
-        var kneeShotEvent = {
+        var eventC = {
             "tsInit": 0,
-            "eventId": "KneeShotEvent",
+            "eventId": "EventC",
             "gameId": "1",
             "userId": "2"
         };
-        var chestShotEvent = {
+        var eventB = {
             "tsInit": 0,
-            "eventId": "ChestShotEvent",
+            "eventId": "EventB",
             "gameId": "1",
             "userId": "2"
         };
 
         // first try
 
-        // send chestShotEvent at time 0
-        chestShotEvent.tsInit = 0;
-        achievementEngine.processEvent(chestShotEvent, function notifyUnlock(achievements) {});
+        // send eventB at time 0
+        eventB.tsInit = 0;
+        achievementEngine.processEvent(eventB, function notifyUnlock(achievements) {});
 
-        // send chestShotEvent at time 100
-        chestShotEvent.tsInit = 100;
-        achievementEngine.processEvent(chestShotEvent, function notifyUnlock(achievements) {});
+        // send eventB at time 100
+        eventB.tsInit = 100;
+        achievementEngine.processEvent(eventB, function notifyUnlock(achievements) {});
 
-        // send headShotEvent at time 200
-        headShotEvent.tsInit = 200;
-        achievementEngine.processEvent(headShotEvent, function notifyUnlock(achievements) {});
+        // send eventA at time 200
+        eventA.tsInit = 200;
+        achievementEngine.processEvent(eventA, function notifyUnlock(achievements) {});
 
-        // send kneeShotEvent at time 300
-        kneeShotEvent.tsInit = 300;
-        achievementEngine.processEvent(kneeShotEvent, function notifyUnlock(achievements) {});
+        // send eventC at time 300
+        eventC.tsInit = 300;
+        achievementEngine.processEvent(eventC, function notifyUnlock(achievements) {});
 
-        // send kneeShotEvent at time 400
-        kneeShotEvent.tsInit = 400;
-        achievementEngine.processEvent(kneeShotEvent, function notifyUnlock(achievements) {});
+        // send eventC at time 400
+        eventC.tsInit = 400;
+        achievementEngine.processEvent(eventC, function notifyUnlock(achievements) {});
 
         // check current status
         var rules = ACHV.achievementWrapper(achievement).getRules();
@@ -667,9 +667,9 @@ module.exports = {
         test.equals(rules[3].state, "satisfied");   // TimerRule, set C, sequence 1
         test.equals(rules[3].timer, 400);           // TimerRule, set C, sequence 1
 
-        // break timer: send kneeShotEvent at time 600001
-        kneeShotEvent.tsInit = 600001;
-        achievementEngine.processEvent(kneeShotEvent, function notifyUnlock(achievements) {});
+        // break timer: send eventC at time 600001
+        eventC.tsInit = 600001;
+        achievementEngine.processEvent(eventC, function notifyUnlock(achievements) {});
 
         // check current status
         test.equals(rules[0].state, "inProgress");  // OneShotRule, set A, sequence 1
@@ -682,17 +682,17 @@ module.exports = {
 
         // second try
 
-        // send headShotEvent at time 600100
-        headShotEvent.tsInit = 600100;
-        achievementEngine.processEvent(headShotEvent, function notifyUnlock(achievements) {});
+        // send eventA at time 600100
+        eventA.tsInit = 600100;
+        achievementEngine.processEvent(eventA, function notifyUnlock(achievements) {});
 
-        // send 10 kneeShotEvents starting time 600200 with 100 increment
-        kneeShotEvent.tsInit = 600200;
-        multiProcessTimedEvent(achievementEngine, kneeShotEvent, 10, 600200, 100);
+        // send 10 eventCs starting time 600200 with 100 increment
+        eventC.tsInit = 600200;
+        multiProcessTimedEvent(achievementEngine, eventC, 10, 600200, 100);
 
-        // send 10 chestShotEvents starting time 610000 with 100 increment
-        chestShotEvent.tsInit = 610000;
-        multiProcessTimedEvent(achievementEngine, chestShotEvent, 10, 610000, 100);
+        // send 10 eventBs starting time 610000 with 100 increment
+        eventB.tsInit = 610000;
+        multiProcessTimedEvent(achievementEngine, eventB, 10, 610000, 100);
 
         // check current status
         test.equals(rules[0].state, "satisfied");  // OneShotRule, set A, sequence 1
@@ -705,7 +705,6 @@ module.exports = {
 
         test.done();
     }
-
 };
 
 function multiProcessTimedEvent(achievementEngine, event, times, startTime, intervalDurationSec) {

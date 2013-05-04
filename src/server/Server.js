@@ -58,12 +58,12 @@ function start(achvSystem) {
     }
 
     function cors(req, res, next) {
-        console.log("cors headers" + JSON.stringify(req.headers));
-        console.log("req.method=" + req.method);
-        console.log("cors body" + JSON.stringify(req.body));
+        //console.log("cors headers" + JSON.stringify(req.headers));
+        //console.log("req.method=" + req.method);
+        //console.log("cors body" + JSON.stringify(req.body));
         var oneof = false;
         if (req.headers.origin) {
-            console.log("req.headers.origin=" + req.headers.origin);
+            //console.log("req.headers.origin=" + req.headers.origin);
             res.set('Access-Control-Allow-Origin', req.headers.origin);
             res.set('Access-Control-Allow-Methods', 'POST, GET, OPTIONS, PUT, DELETE, HEAD');
             res.set('Access-Control-Allow-Headers', 'Content-Type, *');
@@ -83,7 +83,7 @@ function start(achvSystem) {
 
         // intercept OPTIONS method
         if (oneof && req.method == 'OPTIONS') {
-            console.log("cors intercept OPTIONS");
+            //console.log("cors intercept OPTIONS");
             res.send(200);
         } else {
             next();

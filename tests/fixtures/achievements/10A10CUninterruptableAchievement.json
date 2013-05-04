@@ -1,5 +1,5 @@
 {
-    "name": "TenHeadShotsUninterruptableAndTenKneeShotsAchievement",
+    "name": "10A10CUniterruptableAchievement",
     "gameId": 1,
     "userId": 2,
     "process":  [
@@ -7,15 +7,15 @@
                 {
                     "type": "CounterRule",
                     "state": "inProgress",
-                    "event": "HeadShotEvent",
-                    "interruptEvent": "KneeShotEvent",
+                    "event": "EventA",
+                    "interruptEvent": "EventC",
                     "counter": 0,
                     "counterMax": 10
                 },
                 {
                     "type": "CounterRule",
                     "state": "inProgress",
-                    "event": "KneeShotEvent",
+                    "event": "EventC",
                     "counter": 0,
                     "counterMax": 10
                 }

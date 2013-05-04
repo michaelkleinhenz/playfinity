@@ -43,13 +43,13 @@
 
             function createInstances(error, rows) {
                 if (error) {
-                    console.log("Not able to get achievements for id=" + JSON.stringify(id));
+                    console.log("Error: not able to get achievements for id=" + JSON.stringify(id));
                     next(error, null);
                 } else {
                     if (rows.length > 0) {
                         rows.forEach(createAchievementInstance);
                     } else {
-                        console.log("No achievements for id:"  + JSON.stringify(id));
+                        console.log("Error: no achievements for id=" + JSON.stringify(id));
                     }
 
                     next(null, "Achievement instances created");
@@ -65,13 +65,13 @@
                         achievementInstance.locked = true; // TODO only temporarly until cabinet exists.
                         achvInstanceStore.createOrUpdateAchievementInstance(achievementInstance, function (error, body) {
                             if (error) {
-                                console.log("Not able to create achievement instance for doc: " + JSON.stringify(doc) + " Error:" + error);
+                                console.log("Error: not able to create achievement instance for doc " + JSON.stringify(doc._id) + ": " + error);
                             } else {
-                                console.log("Created achievement instance. body:" + JSON.stringify(body));
+                                console.log("Created achievement instance with " + JSON.stringify(body));
                             }
                         });
                     } else {
-                        console.log("Not active achievement=" + JSON.stringify(achievementInstance));
+                        console.log("Error: not an active achievement with id=" + JSON.stringify(achievementInstance._id));
                     }
                 }
             }

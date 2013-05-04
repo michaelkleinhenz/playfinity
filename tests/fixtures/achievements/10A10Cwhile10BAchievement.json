@@ -1,5 +1,5 @@
 {
-    "name": "TenHeadShotsSeqTenKneeShotsParTenChestShotsAchievement",
+    "name": "10A10Cwhile10BAchievement",
     "gameId": 1,
     "userId": 2,
     "process": [
@@ -9,14 +9,14 @@
                 "state": "inProgress",
                 "counter": 0,
                 "counterMax": 10,
-                "event": "HeadShotEvent"
+                "event": "EventA"
             },
             {
                 "type": "CounterRule",
                 "state": "inProgress",
                 "counter": 0,
                 "counterMax": 10,
-                "event": "KneeShotEvent"
+                "event": "EventC"
             }
         ],
         [
@@ -25,7 +25,7 @@
                 "state": "inProgress",
                 "counter": 0,
                 "counterMax": 10,
-                "event": "ChestShotEvent"
+                "event": "EventB"
             }
         ]
     ],
