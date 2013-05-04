@@ -33,7 +33,7 @@
                 "startTimerEvents": ["HeadShotEvent", "ChestShotEvent"],
                 "stopEvent": "StopGameEvent",
                 "timer": 0,
-                "timerMaxMs": 600
+                "timerMaxMs": 600000
             }
         ]
     ],

@@ -1,5 +1,7 @@
 {
     "name": "TenHeadShotsUninterruptableAndTenKneeShotsAchievement",
+    "gameId": 1,
+    "userId": 2,
     "process":  [
             [
                 {
@@ -8,18 +10,18 @@
                     "event": "HeadShotEvent",
                     "interruptEvent": "KneeShotEvent",
                     "counter": 0,
-                    "COUNTER_MAX": 10
+                    "counterMax": 10
                 },
                 {
                     "type": "CounterRule",
                     "state": "inProgress",
                     "event": "KneeShotEvent",
                     "counter": 0,
-                    "COUNTER_MAX": 10
+                    "counterMax": 10
                 }
             ]
     ],
     "frequencyCounter": 0,
-    "FREQUENCY_COUNTER_MAX": 1,
+    "frequencyCounterMax": 1,
     "locked": true
 }

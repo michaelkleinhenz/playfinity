@@ -510,7 +510,7 @@ module.exports = {
 
     /**
      * Unlock achievement.
-     * (TenHeadShots -> TenKneeShots) || TenChestShots || InTenMinutes
+     * (HeadShot -> TenKneeShots) || TenChestShots || InTenMinutes
      */
     testCombinedAchievement: function (test) {
         //setup achievements
@@ -539,7 +539,7 @@ module.exports = {
         multiProcessTimedEvent(achievementEngine, chestShotEvent, 5, currentDate, 10);
         multiProcessTimedEvent(achievementEngine, headShotEvent, 1, currentDate, 10);
         multiProcessTimedEvent(achievementEngine, kneeShotEvent, 10, currentDate, 10);
-        multiProcessTimedEvent(achievementEngine, chestShotEvent, 5, currentDate, 10);
+        multiProcessTimedEvent(achievementEngine, chestShotEvent, 10, currentDate, 10);
         // assertion
         achievement = ACHV.achievementWrapper(achievement);
         var rules = achievement.getRules();
@@ -552,7 +552,7 @@ module.exports = {
 
     /**
      * Still locked.
-     * (TenHeadShots -> TenKneeShots) || TenChestShots || InTenMinutes
+     * (HeadShot -> TenKneeShots) || TenChestShots || InTenMinutes
      * During TenKneeShots there will be an interrupt by HeadShotEvent.
      */
     testCombinedAchievementInterrupt: function (test) {
@@ -594,84 +594,115 @@ module.exports = {
         // assertion
         achievement = ACHV.achievementWrapper(achievement);
         var rules = achievement.getRules();
-        test.equals("satisfied", rules[0].state);
-        test.equals("inProgress", rules[1].state);
-        test.equals(3, rules[1].counter);
-        test.equals("inProgress", rules[2].state);
-        test.equals(9, rules[2].counter);
-        test.equals("satisfied", rules[3].state);
-        test.equals(220, rules[3].timer);
+        test.equals(rules[0].state, "satisfied");
+        test.equals(rules[1].state, "inProgress");
+        test.equals(rules[1].counter, 3);
+        test.equals(rules[2].state, "inProgress");
+        test.equals(rules[2].counter, 9);
+        test.equals(rules[3].state, "satisfied");
+        test.equals(rules[3].timer, 220);
         test.done();
     },
 
     /**
      * Still locked.
-     * (TenHeadShots -> TenKneeShots) || TenChestShots || InTenMinutes
+     * (HeadShot -> TenKneeShots) || TenChestShots || InTenMinutes
      * Timer first times out, but achievement will be unlocked in second try.
      */
     testCombinedAchievementTimer: function (test) {
+
         //setup achievements
         var achievement = FIXTURE.getHeadKneeChestTenMinutesAchievement();
         achievementEngine.registerAchievement(achievement);
-        // trigger events
-        var currentDate = Date.now() / 1000;
+
         // setup events
         var headShotEvent = {
-            "tsInit": new Date().getTime(),
+            "tsInit": 0,
             "eventId": "HeadShotEvent",
             "gameId": "1",
             "userId": "2"
         };
         var kneeShotEvent = {
-            "tsInit": new Date().getTime(),
+            "tsInit": 0,
             "eventId": "KneeShotEvent",
             "gameId": "1",
             "userId": "2"
         };
         var chestShotEvent = {
-            "tsInit": new Date().getTime(),
+            "tsInit": 0,
             "eventId": "ChestShotEvent",
             "gameId": "1",
             "userId": "2"
         };
-        multiProcessTimedEvent(achievementEngine, chestShotEvent, 2, currentDate, 100);
-        currentDate = currentDate + 200;
-        multiProcessTimedEvent(achievementEngine, headShotEvent, 1, currentDate, 150);
-        currentDate = currentDate + 150;
-        multiProcessTimedEvent(achievementEngine, kneeShotEvent, 2, currentDate, 150);
-        currentDate = currentDate + 300;
-        achievement = ACHV.achievementWrapper(achievement);
-        var rules = achievement.getRules();
-        test.equals("satisfied", rules[0].state);
-        test.equals("inProgress", rules[1].state);
-        test.equals(2, rules[1].counter);
-        test.equals("inProgress", rules[2].state);
-        test.equals(2, rules[2].counter);
-        test.equals("satisfied", rules[3].state);
-        test.equals(500, rules[3].timer);
-        // next event will break timer
-        multiProcessTimedEvent(achievementEngine, kneeShotEvent, 1, currentDate, 200);
-        currentDate = currentDate + 200;
-        test.equals("inProgress", rules[0].state);
-        test.equals("inProgress", rules[1].state);
-        test.equals(0, rules[1].counter); // TODO test the case, when event is valid in sequence
-        test.equals("inProgress", rules[2].state);
-        test.equals(0, rules[2].counter);
-        test.equals("inProgress", rules[3].state);
-        test.equals(0, rules[3].timer);
-        // unlock achievement
-        multiProcessTimedEvent(achievementEngine, headShotEvent, 1, currentDate, 10);
-        currentDate = currentDate + 10;
-        multiProcessTimedEvent(achievementEngine, kneeShotEvent, 10, currentDate, 10);
-        currentDate = currentDate + 100;
-        multiProcessTimedEvent(achievementEngine, chestShotEvent, 10, currentDate, 10);
-        test.equals("satisfied", rules[0].state);
-        test.equals("satisfied", rules[1].state);
-        test.equals(10, rules[1].counter);
-        test.equals("satisfied", rules[2].state);
-        test.equals(10, rules[2].counter);
-        test.equals("satisfied", rules[3].state);
-        test.equals(200, rules[3].timer);
+
+        // first try
+
+        // send chestShotEvent at time 0
+        chestShotEvent.tsInit = 0;
+        achievementEngine.processEvent(chestShotEvent, function notifyUnlock(achievements) {});
+
+        // send chestShotEvent at time 100
+        chestShotEvent.tsInit = 100;
+        achievementEngine.processEvent(chestShotEvent, function notifyUnlock(achievements) {});
+
+        // send headShotEvent at time 200
+        headShotEvent.tsInit = 200;
+        achievementEngine.processEvent(headShotEvent, function notifyUnlock(achievements) {});
+
+        // send kneeShotEvent at time 300
+        kneeShotEvent.tsInit = 300;
+        achievementEngine.processEvent(kneeShotEvent, function notifyUnlock(achievements) {});
+
+        // send kneeShotEvent at time 400
+        kneeShotEvent.tsInit = 400;
+        achievementEngine.processEvent(kneeShotEvent, function notifyUnlock(achievements) {});
+
+        // check current status
+        var rules = ACHV.achievementWrapper(achievement).getRules();
+        test.equals(rules[0].state, "satisfied");   // OneShotRule, set A, sequence 1
+        test.equals(rules[1].state, "inProgress");  // CounterRule, set A, sequence 2
+        test.equals(rules[1].counter, 2);           // CounterRule, set A, sequence 2
+        test.equals(rules[2].state, "inProgress");  // CounterRule, set B, sequence 1
+        test.equals(rules[2].counter, 2);           // CounterRule, set B, sequence 1
+        test.equals(rules[3].state, "satisfied");   // TimerRule, set C, sequence 1
+        test.equals(rules[3].timer, 400);           // TimerRule, set C, sequence 1
+
+        // break timer: send kneeShotEvent at time 600001
+        kneeShotEvent.tsInit = 600001;
+        achievementEngine.processEvent(kneeShotEvent, function notifyUnlock(achievements) {});
+
+        // check current status
+        test.equals(rules[0].state, "inProgress");  // OneShotRule, set A, sequence 1
+        test.equals(rules[1].state, "inProgress");  // CounterRule, set A, sequence 2
+        test.equals(rules[1].counter, 0);           // CounterRule, set A, sequence 2
+        test.equals(rules[2].state, "inProgress");  // CounterRule, set B, sequence 1
+        test.equals(rules[2].counter, 0);           // CounterRule, set B, sequence 1
+        test.equals(rules[3].state, "inProgress");  // TimerRule, set C, sequence 1
+        test.equals(rules[3].timer, 0);             // TimerRule, set C, sequence 1
+
+        // second try
+
+        // send headShotEvent at time 600100
+        headShotEvent.tsInit = 600100;
+        achievementEngine.processEvent(headShotEvent, function notifyUnlock(achievements) {});
+
+        // send 10 kneeShotEvents starting time 600200 with 100 increment
+        kneeShotEvent.tsInit = 600200;
+        multiProcessTimedEvent(achievementEngine, kneeShotEvent, 10, 600200, 100);
+
+        // send 10 chestShotEvents starting time 610000 with 100 increment
+        chestShotEvent.tsInit = 610000;
+        multiProcessTimedEvent(achievementEngine, chestShotEvent, 10, 610000, 100);
+
+        // check current status
+        test.equals(rules[0].state, "satisfied");  // OneShotRule, set A, sequence 1
+        test.equals(rules[1].state, "satisfied");  // CounterRule, set A, sequence 2
+        test.equals(rules[1].counter, 10);         // CounterRule, set A, sequence 2
+        test.equals(rules[2].state, "satisfied");  // CounterRule, set B, sequence 1
+        test.equals(rules[2].counter, 10);         // CounterRule, set B, sequence 1
+        test.equals(rules[3].state, "satisfied");  // TimerRule, set C, sequence 1
+        test.equals(rules[3].timer, 10800);        // TimerRule, set C, sequence 1
+
         test.done();
     }
 

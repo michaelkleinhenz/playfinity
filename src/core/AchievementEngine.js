@@ -259,9 +259,11 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
                 } else {
                     var currentEvent = rules[i].event;
                     var achievementArray = achievementsMap[currentEvent];
-                    var indexAchievement = achievementArray.indexOf(achievement);
-                    if (indexAchievement !== - 1) {
-                        achievementArray.splice(indexAchievement, 1);
+                    if (!(achievementArray===undefined)) {
+                        var indexAchievement = achievementArray.indexOf(achievement);
+                        if (indexAchievement !== - 1) {
+                            achievementArray.splice(indexAchievement, 1);
+                        }
                     }
                 }
             }

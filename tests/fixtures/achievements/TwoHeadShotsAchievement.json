@@ -1,17 +1,19 @@
 {
     "name": "TwoHeadShotsAchievement",
+    "gameId": 1,
+    "userId": 2,
     "process": [
         [
             {
                 "type": "CounterRule",
                 "state": "inProgress",
                 "counter": 0,
-                "COUNTER_MAX": 2,
+                "counterMax": 2,
                 "event": "HeadShotEvent"
             }
         ]
     ],
     "frequencyCounter": 0,
-    "FREQUENCY_COUNTER_MAX": 1,
+    "frequencyCounterMax": 1,
     "locked": true
 }
