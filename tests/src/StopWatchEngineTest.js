@@ -68,6 +68,28 @@ module.exports = {
         var rules = achievement.getRules();
         engine.process(startGameEvent, rules[0], function () {});
         engine.process(stopGameEvent, rules[0], function () {});
+        test.equals(rules[0].state, "satisfied");
+        test.done();
+    },
+
+    "Breaking stop watch achievement" : function(test) {
+        var engine = ACHV.stopWatchEngine({"achievementType": "StopWatchRule"})
+        var startGameEvent = {
+            "tsInit": new Date().getTime(),
+            "eventId": "StartGameEvent",
+            "gameId": "1",
+            "userId": "2"
+        };
+        var stopGameEvent = {
+            "tsInit": new Date().getTime() + 10001,
+            "eventId": "StopGameEvent",
+            "gameId": "1",
+            "userId": "2"
+        };
+        var achievement = ACHV.achievementWrapper(FIXTURE.getPlayForTenSecondsAchievement());
+        var rules = achievement.getRules();
+        engine.process(startGameEvent, rules[0], function () {});
+        engine.process(stopGameEvent, rules[0], function () {});
         test.equals(rules[0].state, "broken");
         test.done();
     }
