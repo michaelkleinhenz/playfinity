@@ -1,5 +1,7 @@
 {
     "name": "FirstStartAchievement",
+    "gameId": 1,
+    "userId": 2,
     "process":  [
         [
             {
@@ -10,6 +12,6 @@
         ]
     ],
     "frequencyCounter": 0,
-    "FREQUENCY_COUNTER_MAX": 1,
+    "frequencyCounterMax": 1,
     "locked": true
 }

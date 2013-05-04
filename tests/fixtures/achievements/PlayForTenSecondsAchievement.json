@@ -1,24 +1,17 @@
 {
     "name": "PlayForTenSecondsAchievement",
-    "process":  [
-            [
-                {
-                    "type": "StopWatchRule",
-                    "events": [
-                        {"name": "StartGameEvent"},
-                        {"name": "StopGameEvent"}
-                    ],
-                    "state": "inProgress",
-                    "startEvent": "StartGameEvent",
-                    "stopEvent": "StopGameEvent",
-                    "timer": 0,
-                    "TIMER_MAX_SEC": 10
-                }
-
-           ]
+    "gameId": 1,
+    "userId": 2,
+    "process": [
+        [
+            {
+                "type": "StopWatchRule",
+                "startEvent": "StartGameEvent",
+                "stopEvent": "StopGameEvent",
+                "timerMaxMs": 10000
+            }
+        ]
     ],
-
-    "locked": true,
-    "frequencyCounter": 0,
-    "FREQUENCY_COUNTER_MAX": 1
+    "frequencyCounterMax": 1,
+    "active": true
 }

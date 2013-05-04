@@ -24,51 +24,54 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+var fs = require("fs");
+
 FIXTURE = {
 
     getFixtureObj: function(fixtureFileName) {
-        var obj = require(fixtureFileName);
+        var fileContents = fs.readFileSync(fixtureFileName,'utf8');
+        var obj = JSON.parse(fileContents);
         return obj;
     },
 
     getStartGameAchievement: function() {
-        return FIXTURE.getFixtureObj("../fixtures/achievements/StartGameAchievement.json");
+        return FIXTURE.getFixtureObj("tests/fixtures/achievements/StartGameAchievement.json");
     },
 
     getFirstStartAchievement: function() {
-        return FIXTURE.getFixtureObj("../fixtures/achievements/FirstStartAchievement.json");
+        return FIXTURE.getFixtureObj("tests/fixtures/achievements/FirstStartAchievement.json");
     },
 
     getTenHeadShotsAchievement: function() {
-        return FIXTURE.getFixtureObj("../fixtures/achievements/TenHeadShotsAchievement.json");
+        return FIXTURE.getFixtureObj("tests/fixtures/achievements/TenHeadShotsAchievement.json");
     },
 
     getTenHeadAndKneeShotsAchievement: function() {
-        return FIXTURE.getFixtureObj("../fixtures/achievements/TenHeadAndKneeShotsAchievement.json");
+        return FIXTURE.getFixtureObj("tests/fixtures/achievements/TenHeadAndKneeShotsAchievement.json");
     },
 
     getPlayForTenSecondsAchievement: function() {
-        return FIXTURE.getFixtureObj("../fixtures/achievements/PlayForTenSecondsAchievement.json");
+        return FIXTURE.getFixtureObj("tests/fixtures/achievements/PlayForTenSecondsAchievement.json");
     },
 
     getTenHeadShotsInTenMinutesAchievement: function() {
-        return FIXTURE.getFixtureObj("../fixtures/achievements/TenHeadShotsInTenMinutesAchievement.json");
+        return FIXTURE.getFixtureObj("tests/fixtures/achievements/TenHeadShotsInTenMinutesAchievement.json");
     },
 
     getTenHeadShotsSeqTenKneeShotsParTenChestShots: function() {
-        return FIXTURE.getFixtureObj("../fixtures/achievements/TenHeadShotsSeqTenKneeShotsParTenChestShotsAchievement.json");
+        return FIXTURE.getFixtureObj("tests/fixtures/achievements/TenHeadShotsSeqTenKneeShotsParTenChestShotsAchievement.json");
     },
 
     getTenHeadShotsUninterruptableAndTenKneeShotsAchievement: function() {
-        return FIXTURE.getFixtureObj("../fixtures/achievements/TenHeadShotsUninterruptableAndTenKneeShotsAchievement.json");
+        return FIXTURE.getFixtureObj("tests/fixtures/achievements/TenHeadShotsUninterruptableAndTenKneeShotsAchievement.json");
     },
 
     getHeadKneeChestTenMinutesAchievement: function() {
-        return FIXTURE.getFixtureObj("../fixtures/achievements/HeadKneeChestInTenMinutesAchievement.json");
+        return FIXTURE.getFixtureObj("tests/fixtures/achievements/HeadKneeChestInTenMinutesAchievement.json");
     },
 
     getTwoHeadShotsAchievement: function() {
-        return FIXTURE.getFixtureObj("../fixtures/achievements/TwoHeadShotsAchievement.json");
+        return FIXTURE.getFixtureObj("tests/fixtures/achievements/TwoHeadShotsAchievement.json");
     }
 
 };

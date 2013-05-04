@@ -41,6 +41,7 @@ function start(achvSystem) {
 
     function triggerEvent(req, res, next) {
         var event = {
+            "tsInit": new Date().getTime(),
             "eventId": req.params.eventId,
             "gameId": req.params.gameId,
             "userId": req.params.userId

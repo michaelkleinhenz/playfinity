@@ -33,7 +33,6 @@ ACHV.oneShotEngine = function (spec) {
     var that = ACHV.engine(spec);
 
     that.process = function (event, rule, valueChanged) {
-        console.log("OneShotEngine.process");
         if (rule.event === event.eventId) {
             rule.state = "satisfied";
             valueChanged(true);

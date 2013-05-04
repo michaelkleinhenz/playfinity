@@ -1,5 +1,7 @@
 {
     "name": "TenHeadShotsInTenMinutesAchievement",
+    "gameId": 1,
+    "userId": 2,
     "process":  [
         [
             {
@@ -7,7 +9,7 @@
                 "event": "HeadShotEvent",
                 "state": "inProgress",
                 "timer": 0,
-                "TIMER_MAX_SEC": 600
+                "timerMaxMs": 600
             }
         ],
         [
@@ -16,11 +18,11 @@
                 "event": "HeadShotEvent",
                 "state": "inProgress",
                 "counter": 0,
-                "COUNTER_MAX": 10
+                "counterMax": 10
             }
         ]
     ],
     "locked": true,
     "frequencyCounter": 0,
-    "FREQUENCY_COUNTER_MAX": 1
+    "frequencyCounterMax": 1
 }

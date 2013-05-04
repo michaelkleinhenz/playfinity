@@ -24,35 +24,43 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+// load libraries
 var EventEmitter = require('../../src/util/EventEmitter-4.0.2.min.js').EventEmitter;
-var requireDir = require('require-dir');
+
+global.Async = require('async');
 
 global.JsHamcrest = require('../libs/jshamcrest-0.6.8.js').JsHamcrest;
 JsHamcrest.Integration.Nodeunit();
 
-var JsMockito = require('../libs/jsmockito-1.0.4.js').JsMockito;
+global.JsMockito = require('../libs/jsmockito-1.0.4.js').JsMockito;
 JsMockito.Integration.Nodeunit();
 
+// load achievement system class
 global.ACHV = require("../../src/core/ACHV.js");
-requireDir('../../src/core/engine');
+require('require-dir')('../../src/core/engine');
 require('../../src/core/AchievementProcessor');
 require('../../src/core/AchievementEngine');
+require('../../src/core/AchievementWrapper');
+require('../../src/core/AchievementSystem');
+require('../../src/store/AchievementStore');
+require('../../src/store/AchievementInstanceStore');
 
-var achvSystem = require('../../src/core/AchievementSystem');
-var achvStore = require('../../src/store/AchievementStore');
-var achvInstanceStore = require('../../src/store/AchievementInstanceStore');
-
-require('../fixtures/AchievementFixtures.js')
+// load fixtures
+require('../fixtures/AchievementFixtures.js');
 
 module.exports = {
 
-        testProcess : function () {
-        "use strict";
-        var engine = new ACHV.OneShotEngine(),
-            event = FIXTURE.getStartGameEvent(),
-            achievement = ACHV.achievementWrapper(FIXTURE.getStartGameAchievement()),
-            rules = achievement.getRules();
-        engine.process(event, rules[0], function () {});
-        assertEquals("satisfied", rules[0].state);
+    "Simple one shot achievement unlocking" : function (test) {
+        var engine = ACHV.oneShotEngine({"achievementType": "OneShotRule"});
+        var event = {
+            "eventId": "StartGameEvent",
+            "gameId": "1",
+            "userId": "2"
+        };
+        var achievement = ACHV.achievementWrapper(FIXTURE.getStartGameAchievement());
+        var rules = achievement.getRules();
+        engine.process(event, rules[0], function(){});
+        test.equals(rules[0].state, "satisfied");
+        test.done();
     }
 };

@@ -45,7 +45,6 @@ ACHV.timerEngine = function (spec) {
     }();
 
     that.process = function (event, rule, valueChanged) {
-        console.log("timerEngine.process");
         that.processStartEvent(event, rule);
         that.processCurrentEvent(event, rule);
         valueChanged(that.stateChanged.getValue());
@@ -72,7 +71,7 @@ ACHV.timerEngine = function (spec) {
         if (event.hasOwnProperty("tsInit")) {
             rule.lastEventTime = event.tsInit;
             rule.timer = rule.lastEventTime - rule.startTime;
-            if (rule.timer <= rule.TIMER_MAX_SEC) {
+            if (rule.timer <= rule.timerMaxMs) {
                 rule.state = "satisfied";
             } else {
                 rule.state = "broken";

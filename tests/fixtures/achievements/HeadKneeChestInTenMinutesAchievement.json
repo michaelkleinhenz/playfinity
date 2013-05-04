@@ -1,5 +1,7 @@
 {
     "name": "HeadKneeChestInTenMinutesAchievement",
+    "gameId": 1,
+    "userId": 2,
     "process": [
         [
             {
@@ -12,7 +14,7 @@
                 "state": "inProgress",
                 "interruptEvent": "HeadShotEvent",
                 "counter": 0,
-                "COUNTER_MAX": 10,
+                "counterMax": 10,
                 "event": "KneeShotEvent"
             }
         ],
@@ -21,22 +23,21 @@
                 "type": "CounterRule",
                 "state": "inProgress",
                 "counter": 0,
-                "COUNTER_MAX": 10,
+                "counterMax": 10,
                 "event": "ChestShotEvent"
             }
         ],
         [
             {
                 "type": "TimerRule",
-                "events": ["HeadShotEvent", "KneeShotEvent", "ChestShotEvent"],
                 "startTimerEvents": ["HeadShotEvent", "ChestShotEvent"],
-                "state": "inProgress",
+                "stopEvent": "StopGameEvent",
                 "timer": 0,
-                "TIMER_MAX_SEC": 600
+                "timerMaxMs": 600
             }
         ]
     ],
     "frequencyCounter": 0,
-    "FREQUENCY_COUNTER_MAX": 1,
+    "frequencyCounterMax": 1,
     "locked": true
 }

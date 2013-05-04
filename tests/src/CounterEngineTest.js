@@ -24,100 +24,122 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+// load libraries
 var EventEmitter = require('../../src/util/EventEmitter-4.0.2.min.js').EventEmitter;
-var requireDir = require('require-dir');
+
+global.Async = require('async');
 
 global.JsHamcrest = require('../libs/jshamcrest-0.6.8.js').JsHamcrest;
 JsHamcrest.Integration.Nodeunit();
 
-var JsMockito = require('../libs/jsmockito-1.0.4.js').JsMockito;
+global.JsMockito = require('../libs/jsmockito-1.0.4.js').JsMockito;
 JsMockito.Integration.Nodeunit();
 
+// load achievement system class
 global.ACHV = require("../../src/core/ACHV.js");
-requireDir('../../src/core/engine');
+require('require-dir')('../../src/core/engine');
 require('../../src/core/AchievementProcessor');
 require('../../src/core/AchievementEngine');
+require('../../src/core/AchievementWrapper');
+require('../../src/core/AchievementSystem');
+require('../../src/store/AchievementStore');
+require('../../src/store/AchievementInstanceStore');
 
-var achvSystem = require('../../src/core/AchievementSystem');
-var achvStore = require('../../src/store/AchievementStore');
-var achvInstanceStore = require('../../src/store/AchievementInstanceStore');
-
-require('../fixtures/AchievementFixtures.js')
+// load fixtures
+require('../fixtures/AchievementFixtures.js');
 
 module.exports = {
 
-        testProcessToUnlockEvent: function() {
-        var isLocked = true;
-        var engine = new ACHV.CounterEngine();
-        var event = FIXTURE.getHeadShotEvent();
-        var achievement = FIXTURE.getTenHeadShotsAchievement();
-        achievement = ACHV.achievementWrapper(achievement);
+    "Process to unlock event": function(test) {
+        var engine = ACHV.counterEngine({"achievementType": "CounterRule"});
+        var event = {
+            "eventId": "HeadShotEvent",
+            "gameId": "1",
+            "userId": "2"
+        };
+        var achievement = ACHV.achievementWrapper(FIXTURE.getTenHeadShotsAchievement());
         var rules = achievement.getRules();
         for (var i = 0; i < 10; i++) {
-            engine.process(event, rules[0], this.valueChanged);
+            engine.process(event, rules[0], function(isChanged) {});
         }
-        assertEquals("satisfied", rules[0].state);
+        test.equals("satisfied", rules[0].state);
+        test.done();
     },
 
-    testProcessStillLockedSingleCounter: function() {
-        var engine = new ACHV.CounterEngine(),
-            event = FIXTURE.getHeadShotEvent(),
-            achievement = ACHV.achievementWrapper(FIXTURE.getTenHeadShotsAchievement()),
-            rules = achievement.getRules();
-
-        engine.process(event, rules[0], this.valueChanged);
-        assertEquals("inProgress", rules[0].state);
+    "Process still locked single counter": function(test) {
+        var engine = ACHV.counterEngine({"achievementType": "CounterRule"});
+        var event = {
+            "eventId": "HeadShotEvent",
+            "gameId": "1",
+            "userId": "2"
+        };
+        var achievement = ACHV.achievementWrapper(FIXTURE.getTenHeadShotsAchievement());
+        var rules = achievement.getRules();
+        engine.process(event, rules[0], function(isChanged) {});
+        test.equals(rules[0].state, "inProgress");
+        test.done();
     },
 
-    testProcessToUnlockEventAlternate: function () {
-        "use strict";
-        var isLocked = true;
-        var engine = new ACHV.CounterEngine();
-        var headShotEvent = FIXTURE.getHeadShotEvent();
-        var kneeShotEvent = FIXTURE.getKneeShotEvent();
-        var achievement = FIXTURE.getTenHeadAndKneeShotsAchievement();
-        achievement = ACHV.achievementWrapper(achievement);
+    "Process to unlock event alternate": function (test) {
+        var engine = ACHV.counterEngine({"achievementType": "CounterRule"});
+        var headShotEvent = {
+            "eventId": "HeadShotEvent",
+            "gameId": "1",
+            "userId": "2"
+        };
+        var kneeShotEvent = {
+            "eventId": "KneeShotEvent",
+            "gameId": "1",
+            "userId": "2"
+        };
+        var achievement = ACHV.achievementWrapper(FIXTURE.getTenHeadAndKneeShotsAchievement());
         var rules = achievement.getRules();
         for (var i = 0; i < 10; i++) {
-            engine.process(headShotEvent, rules[0], this.valueChanged);
-            engine.process(kneeShotEvent, rules[1], this.valueChanged);
+            engine.process(headShotEvent, rules[0], function(isChanged) {});
+            engine.process(kneeShotEvent, rules[1], function(isChanged) {});
         }
-        assertEquals("satisfied", rules[0].state);
-        assertEquals("satisfied", rules[1].state);
+        test.equals("satisfied", rules[0].state);
+        test.equals("satisfied", rules[1].state);
+        test.done();
     },
 
-    testProcessToUnlockEventInRow: function () {
-        var isLocked = true;
-        var engine = new ACHV.CounterEngine();
-        var headShotEvent = FIXTURE.getHeadShotEvent();
-        var kneeShotEvent = FIXTURE.getKneeShotEvent();
-        var achievement = FIXTURE.getTenHeadAndKneeShotsAchievement();
-        achievement = ACHV.achievementWrapper(achievement);
+    "Process to unlock event in row": function (test) {
+        var engine = ACHV.counterEngine({"achievementType": "CounterRule"});
+        var headShotEvent = {
+            "eventId": "HeadShotEvent",
+            "gameId": "1",
+            "userId": "2"
+        };
+        var kneeShotEvent = {
+            "eventId": "KneeShotEvent",
+            "gameId": "1",
+            "userId": "2"
+        };
+        var achievement = ACHV.achievementWrapper(FIXTURE.getTenHeadAndKneeShotsAchievement());
         var rules = achievement.getRules();
         for (var i = 0; i < 10; i++) {
-            engine.process(headShotEvent, rules[0], this.valueChanged);
+            engine.process(headShotEvent, rules[0], function(isChanged) {});
         }
         for (var j = 0; j < 10; j++) {
-            engine.process(kneeShotEvent, rules[1], this.valueChanged);
+            engine.process(kneeShotEvent, rules[1], function(isChanged) {});
         }
-        assertEquals("satisfied", rules[0].state);
-        assertEquals("satisfied", rules[1].state);
+        test.equals("satisfied", rules[0].state);
+        test.equals("satisfied", rules[1].state);
+        test.done();
     },
 
-    testProcessStillLocked: function() {
-        var isLocked = true;
-        var engine = new ACHV.CounterEngine();
-        var kneeShotEvent = FIXTURE.getKneeShotEvent();
-        var achievement = FIXTURE.getTenHeadAndKneeShotsAchievement();
-        var callback = function(unlockedAchievement) {
+    "Testing process locking": function(test) {
+        var engine = ACHV.counterEngine({"achievementType": "CounterRule"});
+        var kneeShotEvent = {
+            "eventId": "KneeShotEvent",
+            "gameId": "1",
+            "userId": "2"
         };
+        var achievement = ACHV.achievementWrapper(FIXTURE.getTenHeadAndKneeShotsAchievement());
         for (var i = 0; i < 10; i++) {
-            engine.process(kneeShotEvent, achievement, callback);
+            engine.process(kneeShotEvent, achievement, function(isChanged) {});
         }
-        assertTrue(isLocked);
-    },
-
-    valueChanged: function(isChanged) {
-
+        test.ok(achievement.locked);
+        test.done();
     }
 };

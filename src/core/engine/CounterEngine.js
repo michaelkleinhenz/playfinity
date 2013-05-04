@@ -33,7 +33,6 @@ ACHV.counterEngine = function(spec) {
     var that = ACHV.engine(spec);
 
     that.process = function (event, rule, valueChanged) {
-        console.log("CounterEngine.process");
         var isChanged = false;
         if (event.eventId === rule.interruptEvent) {
             rule.counter = 0;

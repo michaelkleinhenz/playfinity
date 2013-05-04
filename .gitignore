@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 .idea
 .project
 .classpath
@@ -11,11 +10,4 @@ test-reports/
 node_modules/
 test-results/
 *.swp
-=======
-/build
-/dist
-/doc
 
-.DS_Store
-.*.swp
->>>>>>> 3b38185c166ac6132e104efff7d5c2565089769a

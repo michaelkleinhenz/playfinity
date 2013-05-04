@@ -24,43 +24,51 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+// load libraries
 var EventEmitter = require('../../src/util/EventEmitter-4.0.2.min.js').EventEmitter;
-var requireDir = require('require-dir');
+
+global.Async = require('async');
+global.Utils = require('../../src/util/utils');
 
 global.JsHamcrest = require('../libs/jshamcrest-0.6.8.js').JsHamcrest;
 JsHamcrest.Integration.Nodeunit();
 
-var JsMockito = require('../libs/jsmockito-1.0.4.js').JsMockito;
+global.JsMockito = require('../libs/jsmockito-1.0.4.js').JsMockito;
 JsMockito.Integration.Nodeunit();
 
+// load achievement system class
 global.ACHV = require("../../src/core/ACHV.js");
-requireDir('../../src/core/engine');
+require('require-dir')('../../src/core/engine');
 require('../../src/core/AchievementProcessor');
 require('../../src/core/AchievementEngine');
+require('../../src/core/AchievementSystem');
+require('../../src/store/AchievementStore');
+require('../../src/store/AchievementInstanceStore');
 
-var achvSystem = require('../../src/core/AchievementSystem');
-var achvStore = require('../../src/store/AchievementStore');
-var achvInstanceStore = require('../../src/store/AchievementInstanceStore');
-
-require('../fixtures/AchievementFixtures.js')
+// load fixtures
+require('../fixtures/AchievementFixtures.js');
 
 module.exports = {
 
-        testProcessAchievement: function () {
-        "use strict";
-        var processor = ACHV.achievementProcessor(),
-            achievement = FIXTURE.getStartGameAchievement(),
-            event = FIXTURE.getStartGameEvent(),
-            engines = {
+        "Processing an achievement": function (test) {
+        var processor = ACHV.achievementProcessor();
+        var achievement = FIXTURE.getStartGameAchievement();
+        var event = {
+                "eventId": "StartGameEvent",
+                "gameId": achievement.gameId,
+                "userId": achievement.userId
+        };
+        engines = {
                 "TimerRule": ACHV.timerEngine({"achievementType": "TimerRule"}),
-                "OneShotRule": new ACHV.OneShotEngine(),
-                "CounterRule": new ACHV.CounterEngine(),
+                "OneShotRule": ACHV.oneShotEngine({"achievementType": "OneShotRule"}),
+                "CounterRule": ACHV.counterEngine({"achievementType": "CounterRule"}),
                 "StopWatchRule": ACHV.stopWatchEngine({"achievementType": "StopWatchRule"})
-            };
+        };
         processor.process(achievement, engines, event, function (error, result) {
-            assertNull(error);
-            assertTrue(result.isUnlocked);
-            assertTrue(result.isValueChanged);
+            test.equals(error, null);
+            test.ok(result.isUnlocked);
+            test.ok(result.isValueChanged);
         });
+        test.done();
     }
 };

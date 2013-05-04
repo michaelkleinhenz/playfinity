@@ -1,5 +1,7 @@
 {
     "name": "StartGameAchievement",
+    "gameId": 1,
+    "userId": 2,
     "process":  [
             [
                 {

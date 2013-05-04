@@ -24,42 +24,44 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+// load libraries
 var EventEmitter = require('../../src/util/EventEmitter-4.0.2.min.js').EventEmitter;
-var requireDir = require('require-dir');
+
+global.Async = require('async');
 
 global.JsHamcrest = require('../libs/jshamcrest-0.6.8.js').JsHamcrest;
 JsHamcrest.Integration.Nodeunit();
 
-var JsMockito = require('../libs/jsmockito-1.0.4.js').JsMockito;
+global.JsMockito = require('../libs/jsmockito-1.0.4.js').JsMockito;
 JsMockito.Integration.Nodeunit();
 
+// load achievement system class
 global.ACHV = require("../../src/core/ACHV.js");
-requireDir('../../src/core/engine');
+require('require-dir')('../../src/core/engine');
 require('../../src/core/AchievementProcessor');
 require('../../src/core/AchievementEngine');
+require('../../src/core/AchievementSystem');
+require('../../src/store/AchievementStore');
+require('../../src/store/AchievementInstanceStore');
 
-var achvSystem = require('../../src/core/AchievementSystem');
-var achvStore = require('../../src/store/AchievementStore');
-var achvInstanceStore = require('../../src/store/AchievementInstanceStore');
-
-require('../fixtures/AchievementFixtures.js')
+// load fixtures
+require('../fixtures/AchievementFixtures.js');
 
 module.exports = {
 
     setUp: function(callback) {
-        "use strict";
         var db = {
                 view: function () {},
                 destroy: function () {}
-            },
-            dbMock = mock(db),
-            logger = {
+        };
+        var dbMock = mock(db);
+        var logger = {
                 error: function () {}
-            },
-            conf = {
+        };
+        var conf = {
                 "db": dbMock,
                 "logger": logger
-            };
+        };
 
         when(dbMock).view(anything()).
             then(function (table, design, key, callback) {
@@ -84,59 +86,59 @@ module.exports = {
             });
 
         this.store = ACHV.achievementStore(conf);
+        callback();
     },
 
-    testGetAchievementsForGameId: function () {
-        "use strict";
+    "Get achievements for game id": function (test) {
         this.store.getAchievementsForGameId(1, getAchievementsForGameIdCallback);
-
         function getAchievementsForGameIdCallback(error, result) {
-            assertEquals("error", error);
-            assertEquals("result", result);
+            test.equal("error", error);
+            test.equal("result", result);
         }
+        test.done();
     },
 
-    testDeleteAchievement: function () {
-        "use strict";
+    "Deleting achievement": function (test) {
         this.store.deleteAchievement("name", "revision", deleteAchievementCallback);
 
         function deleteAchievementCallback(error, result) {
-            assertNull(error);
-            assertEquals("some result", result);
+            test.equal(error, null);
+            test.equal("some result", result);
         }
+        test.done();
     },
 
-    testDeleteAchievementError: function () {
-        "use strict";
+    "Failed deleting achievement": function (test) {
         this.store.deleteAchievement("name", "error_revision", deleteAchievementCallback);
 
         function deleteAchievementCallback(error, result) {
-            assertNotNull(error);
-            assertNull(result);
+            test.notEqual(error, null);
+            test.equal(result, null);
         }
+        test.done();
     },
 
-    testGetAchievementByGameIdAndName: function () {
-        "use strict";
+    "Get achievement by game id and name": function (test) {
         var gameId = 2,
             achievementName = "FirstStartAchievement";
         this.store.getAchievementByGameIdAndName(gameId, achievementName, getAchievementCallback);
 
         function getAchievementCallback(error, result) {
-            assertNull(error);
-            assertNotNull(result);
+            test.equal(error, null);
+            test.notEqual(result, null);
         }
+        test.done();
     },
 
-    testGetAchievementByGameIdAndNameError: function () {
-        "use strict";
+    "Failed getting achievement by game id and name": function (test) {
         var gameId = 2,
             achievementName = "ErrorAchievement";
         this.store.getAchievementByGameIdAndName(gameId, achievementName, getAchievementCallback);
 
         function getAchievementCallback(error, result) {
-            assertNotNull(error);
-            assertNull(result);
+            test.notEqual(error, null);
+            test.equal(result, null);
         }
+        test.done();
     }
 };

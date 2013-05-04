@@ -24,39 +24,41 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+// load libraries
 var EventEmitter = require('../../src/util/EventEmitter-4.0.2.min.js').EventEmitter;
-var requireDir = require('require-dir');
+
 global.Async = require('async');
 
 global.JsHamcrest = require('../libs/jshamcrest-0.6.8.js').JsHamcrest;
 JsHamcrest.Integration.Nodeunit();
 
-var JsMockito = require('../libs/jsmockito-1.0.4.js').JsMockito;
+global.JsMockito = require('../libs/jsmockito-1.0.4.js').JsMockito;
 JsMockito.Integration.Nodeunit();
 
+// load achievement system class
 global.ACHV = require("../../src/core/ACHV.js");
-requireDir('../../src/core/engine');
+require('require-dir')('../../src/core/engine');
 require('../../src/core/AchievementProcessor');
 require('../../src/core/AchievementEngine');
+require('../../src/core/AchievementSystem');
+require('../../src/store/AchievementStore');
+require('../../src/store/AchievementInstanceStore');
 
-var achvSystem = require('../../src/core/AchievementSystem');
-var achvStore = require('../../src/store/AchievementStore');
-var achvInstanceStore = require('../../src/store/AchievementInstanceStore');
-
+// load fixtures
 require('../fixtures/AchievementFixtures.js');
 
 module.exports = {
 
     setUp: function (callback) {
         this.eventBus = new EventEmitter();
-        var achvInstanceStoreMock = this.achvInstanceStoreMock =  mock(ACHV.achievementInstanceStore({})),
-            achvStoreMock = mock(ACHV.achievementStore({})),
-            achvSysConf = {
+        var achvInstanceStoreMock = this.achvInstanceStoreMock = mock(ACHV.achievementInstanceStore({}));
+        var achvStoreMock = mock(ACHV.achievementStore({}));
+        var achvSysConf = {
                 "achievementStore" : achvStoreMock,
                 "achievementInstanceStore" : achvInstanceStoreMock,
                 "achievementEngines": {},
                 "eventBus": this.eventBus
-            };
+        };
 
         // AchievementInstanceStore getAchievementsForGameIdAndUserId
         // Valid
@@ -179,16 +181,14 @@ module.exports = {
         test.done();
     },
 
-    testIsAchivementUnlocked: function (test) {
+    "Unlocking an achievement": function (test) {
         var eventBus = new EventEmitter();
         var achvEngineConf = {
                 "eventBus": eventBus
             };
         var achievementEngine = mock(new ACHV.AchievementEngine(achvEngineConf));
         when(achievementEngine).getAchievements().thenReturn([achievement]);
-
         var achievement = FIXTURE.getStartGameAchievement();
-
         var achvSystemConf = {
                 achievementStore: mock(ACHV.achievementStore({})),
                 achievementInstanceStore: mock(ACHV.achievementInstanceStore({})),
@@ -196,121 +196,57 @@ module.exports = {
                 eventBus: eventBus
             };
         var achievementSystem = new ACHV.AchievementSystem(achvSystemConf);
-
         test.ok(!achievementSystem.isAchievementUnlocked(1, 2, achievement));
         test.done();
     },
 
-    testCreatingAchievementEngineForGameAndUser: function (test) {
+    "Creating achievement engine for game and user": function (test) {
         var achvSystem = this.defaultAchvSys;
-
         var event = {
             "eventId": "",
             "gameId": "1",
             "userId": "2"
         };
-
         achvSystem.getAchievementEngineForGameAndUser(event.gameId, event.userId, function (achievementEngine) {
             test.ok(achievementEngine===undefined);
         });
-
         achvSystem.triggerEvent(event, function (achievements) {
             achvSystem.getAchievementEngineForGameAndUser(event.gameId, event.userId, function(achievementEngine) {
                 test.ok(!(achievementEngine===undefined));
             });
         });
         test.done();
-    }
+    },
 
-    /*
-
-    testInitAchievementsOneAchievement: function (test) {
-        var id = {
-            "gameId": 1,
-            "userId": 2
+    "Failed init achievement engine": function (test) {
+        var event = {
+            "eventId": "chestShotEvent",
+            "gameId": "3",
+            "userId": "2"
         };
-        this.defaultAchvSys.
-        this.defaultAchvSys.initAchievements(id, initAchievementCallback);
-
-        function initAchievementCallback(error, result) {
-            ok(error==undefined);
-            ok("Achievement instances created.", result);
-        }
+        this.defaultAchvSys.triggerEvent(event, function(error, achievements) {
+            test.ok(!(error===undefined));
+            test.equal(achievements, null);
+        });
         test.done();
     },
 
-    testInitAchievementsTwoAchievements: function () {
-        "use strict";
-        var id = {
-            "gameId": 2,
-            "userId": 2
+    "Registering an achievement": function (test) {
+        var event = {
+            "eventId": "chestShotEvent",
+            "gameId": "3",
+            "userId": "2"
         };
-        this.defaultAchvSys.initAchievements(id, initAchievementsCallback);
-
-        function initAchievementsCallback(error, result) {
-            assertNull(error);
-            assertEquals("Achievement instances created.", result);
-        }
+        this.defaultAchvSys.triggerEvent(event, function(achievements) {
+            test.ok(!(achievements===null));
+        });
+        test.done();
     },
 
-    testInitAchievementsError: function () {
-        "use strict";
-        var id = {
-            "gameId": 3,
-            "userId": 2
-        };
-        this.defaultAchvSys.initAchievements(id, initAchievementsCallback);
-
-        function initAchievementsCallback(error, result) {
-            assertNotNull(error);
-            assertNull(result);
-        }
-    },
-
-    testInitAchievementsNoAchievements: function () {
-        "use strict";
-        var id = {
-            "gameId": 0,
-            "userId": 2
-        };
-        this.defaultAchvSys.initAchievements(id, initAchievementsCallback);
-
-        function initAchievementsCallback(error, result) {
-            assertNull(error);
-            assertEquals("Achievement instances created.", result);
-        }
-    },
-
-    testInitAchievementEngineError: function () {
-        "use strict";
-        var event = FIXTURE.getChestShotEvent();
-        event.gameId = 3;
-        event.userId = 2;
-        this.defaultAchvSys.triggerEvent(event, initAchievementEngineCallback);
-
-        function initAchievementEngineCallback(error, achievements) {
-            assertNotNull(error);
-            assertNull(achievements);
-        }
-    },
-
-    testRegisterAchievement: function () {
-        "use strict";
-        var event = FIXTURE.getChestShotEvent();
-        event.gameId = 1;
-        event.userId = 2;
-        this.defaultAchvSys.triggerEvent(event, registerAchievementCallback);
-
-        function registerAchievementCallback(achievements) {
-            assertNotNull(achievements);
-        }
-    },
-
-    testUpdateAchievementError: function () {
-        "use strict";
+    "Failed achievement update": function (test) {
         var achievement = FIXTURE.getPlayForTenSecondsAchievement();
         this.eventBus.emitEvent('achv_value_changed', [achievement]);
         verify(this.achvInstanceStoreMock).createOrUpdateAchievementInstance(achievement, anything());
+        test.done();
     }
-    */
 };

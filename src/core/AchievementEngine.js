@@ -40,7 +40,7 @@ ACHV.AchievementEngine = function (conf) {
     this.engines = {
         "TimerRule": ACHV.timerEngine({"achievementType": "TimerRule"}),
         "OneShotRule": ACHV.oneShotEngine({"achievementType": "OneShotRule"}),
-        "CounterRule": new ACHV.counterEngine({"achievementType": "CounterRule"}),
+        "CounterRule": ACHV.counterEngine({"achievementType": "CounterRule"}),
         "StopWatchRule": ACHV.stopWatchEngine({"achievementType": "StopWatchRule"})
     };
 };
@@ -144,7 +144,7 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
     var unlockedAchievements = [];
     var eventToAchievementsMap = this.achievementsMap;
     var fittingAchievements = this.getAchievementsForEventType(event.eventId);
-    console.log("AchievementEngine.processEvent() - event.eventId=" + event.eventId +  ", fittingAchievements=" + JSON.stringify(fittingAchievements) );
+    //console.log("AchievementEngine.processEvent() - event.eventId=" + event.eventId +  ", fittingAchievements=" + JSON.stringify(fittingAchievements) );
     Async.series(
         {
             one: function (callback) {
@@ -163,7 +163,7 @@ ACHV.AchievementEngine.prototype.processEvent = function(event, notifyUnlockCall
         callback(null, null);
 
         function processAchievementsCallback(error, processAchievementsResult) {
-            console.log("AchievementEngine.processAchievementsCallback() - processAchievementsResult=" + JSON.stringify(processAchievementsResult));
+            //console.log("AchievementEngine.processAchievementsCallback() - processAchievementsResult=" + JSON.stringify(processAchievementsResult));
             if(processAchievementsResult.hasToRetriggerEvent && retryCounter < 1) {
                 retryCounter++;
                 eventBus.emitEvent('achv_value_changed', [processAchievementsResult.achievement]);
