@@ -2,7 +2,7 @@
 
 Copyright (c) 2013 Questor GmbH, Berlin
 
-QBadge is a universal achievement and badge system based on flexible state engine. QBadge uses a technology based on process definitions and elements from common Business Process Management Systems (BPMS) to provide an easy, yet flexible approach to achievements.
+QBadge is a universal achievement and badge system based on a flexible state engine. QBadge uses a technology based on process definitions and elements from common Business Process Management Systems (BPMS) to provide an easy, yet flexible approach to achievements.
 
 QBadge can be used as a cloud-hosted service, a self-hosted service on your own servers or as an embedded library on all platforms that support JavaScript as a scripting language. Common targets include Windows, Linux, Mac, iOS, Android, and even web browsers.
 
