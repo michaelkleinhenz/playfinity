@@ -46,26 +46,26 @@ Create the following databases:
 
 ## Read achievement models
 
-    http://localhost:8080/store/model/admin/My_Hunt
+    http://localhost:8080/store/model/developer/mygame
 
 ## Init the achievement instances
 
-    curl -s -X POST http://localhost:8080/store/model/admin/My_Hunt/tim
+    curl -s -X POST http://localhost:8080/store/model/developer/mygame/gamername
 
 ## Read the achievement instances
 
-    http://localhost:8080/store/instance/My_Hunt/tim
+    http://localhost:8080/store/instance/mygame/gamername
 
 ## Trigger events
 
-    curl -s -X GET http://localhost:8080/event/My_Hunt/tim/MyOneShotAchievementEvent
-    curl -s -X GET http://localhost:8080/event/My_Hunt/tim/MyCounterAchievementEvent
-    curl -s -X GET http://localhost:8080/event/My_Hunt/tim/MyCounterAchievementEvent
-    curl -s -X GET http://localhost:8080/event/My_Hunt/tim/MyCounterAchievementEvent
-    curl -s -X GET http://localhost:8080/event/My_Hunt/tim/MyCounterAchievementEvent
-    curl -s -X GET http://localhost:8080/event/My_Hunt/tim/MyCounterAchievementEvent
-    curl -s -X GET http://localhost:8080/event/My_Hunt/tim/StartMyStopWatchAchievementEvent
+    curl -s -X GET http://localhost:8080/event/mygame/gamername/MyOneShotAchievementEvent
+    curl -s -X GET http://localhost:8080/event/mygame/gamername/MyCounterAchievementEvent
+    curl -s -X GET http://localhost:8080/event/mygame/gamername/MyCounterAchievementEvent
+    curl -s -X GET http://localhost:8080/event/mygame/gamername/MyCounterAchievementEvent
+    curl -s -X GET http://localhost:8080/event/mygame/gamername/MyCounterAchievementEvent
+    curl -s -X GET http://localhost:8080/event/mygame/gamername/MyCounterAchievementEvent
+    curl -s -X GET http://localhost:8080/event/mygame/gamername/StartMyStopWatchAchievementEvent
 
 ## Read the unlocked achievements
 
-    http://localhost:8080/store/unlocked/My_Hunt/tim
+    http://localhost:8080/store/unlocked/mygame/gamername

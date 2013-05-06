@@ -1,10 +1,10 @@
 {
     "name": "MyOneShotAchievement",
-    "gameId": "My_Hunt",
-    "ownerId": "admin",
+    "gameId": "mygame",
+    "ownerId": "developer",
     "imageURI": "uri:some.image",
     "description": {
-        "de": "Hier Beschreibung einfügen.",
+        "de": "Ein OneShot Achievement.",
         "en": "A OneShotAchievemet."
     },
     "process": [
