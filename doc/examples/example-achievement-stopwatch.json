@@ -1,5 +1,8 @@
 {
-    "name": "MyStopWatchAchievement",
+    "name": {
+        "de": "MyStopWatchAchievement DE",
+        "en": "MyStopWatchAchievement EN"
+    },
     "gameId": "mygame",
     "ownerId": "developer",
     "imageURI": "uri:some.image",

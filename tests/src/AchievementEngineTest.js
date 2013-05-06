@@ -99,7 +99,7 @@ module.exports = {
     testGetAchievement: function (test) {
         var achievement = FIXTURE.getStartGameAchievement();
         achievementEngine.registerAchievement(achievement);
-        var resultAchievement = achievementEngine.getAchievement(achievement.name);
+        var resultAchievement = achievementEngine.getAchievement(achievement.name["en"]);
         test.equals(achievement, resultAchievement);
         test.done();
     },

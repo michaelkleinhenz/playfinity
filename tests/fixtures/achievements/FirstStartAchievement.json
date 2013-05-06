@@ -1,7 +1,10 @@
 {
-    "name": "FirstStartAchievement",
+    "name": {
+        "de" : "FirstStartAchievement DE",
+        "en" : "FirstStartAchievement EN"
+    },
     "gameId": 1,
-    "userId": 2,
+    "ownerId": 2,
     "process":  [
         [
             {

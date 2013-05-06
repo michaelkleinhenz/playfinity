@@ -109,8 +109,10 @@ ACHV.AchievementEngine.prototype.registerAchievement = function (achievement) {
 ACHV.AchievementEngine.prototype.getAchievement = function(achievementName) {
     var allAchievements = this.getAchievements();
     for (var i = 0; i < allAchievements.length; i++) {
-        if (allAchievements[i].name === achievementName) {
-            return allAchievements[i];
+        for (var property in allAchievements[i].name) {
+            var thisName = allAchievements[i].name[property];
+            if (thisName === achievementName)
+                return allAchievements[i];
         }
     }
 };

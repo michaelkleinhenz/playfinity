@@ -1,7 +1,10 @@
 {
-    "name": "10A10Cwhile10BAchievement",
+    "name": {
+        "de" : "10A10Cwhile10BAchievement DE",
+        "en" : "10A10Cwhile10BAchievement EN"
+    },
     "gameId": 1,
-    "userId": 2,
+    "ownerId": 2,
     "process": [
         [
             {

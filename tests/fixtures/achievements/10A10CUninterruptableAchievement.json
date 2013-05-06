@@ -1,7 +1,10 @@
 {
-    "name": "10A10CUniterruptableAchievement",
+    "name": {
+        "de" : "10A10CUniterruptableAchievement DE",
+        "en" : "10A10CUniterruptableAchievement EN"
+    },
     "gameId": 1,
-    "userId": 2,
+    "ownerId": 2,
     "process":  [
             [
                 {

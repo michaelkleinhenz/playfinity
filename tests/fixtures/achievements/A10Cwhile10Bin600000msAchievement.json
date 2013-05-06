@@ -1,7 +1,10 @@
 {
-    "name": "A10Cwhile10Bin600000ms",
+    "name": {
+        "de" : "A10Cwhile10Bin600000ms DE",
+        "en" : "A10Cwhile10Bin600000ms EN"
+    },
     "gameId": 1,
-    "userId": 2,
+    "ownerId": 2,
     "process": [
         [
             {
