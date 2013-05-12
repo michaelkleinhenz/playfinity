@@ -21,12 +21,14 @@ system capable of executing bash scripts. You also need curl installed to call R
 
 Create the following databases:
 
+    user
     achievement
     achievement_instance
 
 ## Upload designs to databases
 
     cd db
+    ./uploadDesign.sh user user designs/user_design.json
     ./uploadDesign.sh achievement achievement designs/achievement_design.json
     ./uploadDesign.sh achievement_instance achievement_instance designs/achievement_instance_design.json
 
@@ -37,6 +39,16 @@ Create the following databases:
 ## Start node
 
     node src/main.js
+
+Note the example auth token reported on the console:
+
+    info: QBadge Achievement System
+    info: Copyright (c) 2013 Questor GmbH, Berlin
+    info: Service listening at port 8080
+    Running in debug mode. Example user created. Use the following auth token for demo queries:
+    44dac55565d1ce6b9995f25077430a0922dfe3b6ddcb419eb0d3698e0c0f72c9%user%1368318150709%1234567890
+
+The token has to be added to all subsequent calls as the "auth" parameter.
 
 ## Create achievement models
 

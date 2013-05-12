@@ -1,0 +1,8 @@
+{
+    "_id" : "_design/user",
+    "views" : {
+        "byUserId" : {
+            "map" : "function(doc){ emit(doc.userId, doc)}"
+        }
+    }
+}

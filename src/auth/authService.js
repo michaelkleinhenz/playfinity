@@ -28,191 +28,280 @@ var express = require('express');
 var winston = require('winston');
 var crypto = require('crypto');
 
-var authVerifier = require("authVerifier");
-
-var config = {
-    nonceReleaseTimeMs: 60000
+/**
+ * Creates a new instance of the AuthService.
+ *
+ * @param userStore reference to the user store.
+ * @constructor
+ */
+function AuthService(userStore) {
+    this.nonceReleaseTimeMs = 1000*60*60*24; // 24 hours
+    this.userStore = userStore;
 }
 
-function processRequest(req, res) {
-    var callbackForVerifyIfRequestIsAuthorized = function (verified, msg) {
+/**
+ * Checks if the given date is too old to be deemed valid.
+ *
+ * @param date the date to be checked.
+ * @returns {boolean} true if the date is too old, false otherwise.
+ */
+AuthService.prototype.isDateToOld = function(date) {
+    var now = new Date().getTime();
+    var diff = now - date;
+    if(diff > this.nonceReleaseTimeMs) {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Calculates the hash of a given string.
+ *
+ * @param input string to be hashed.
+ * @returns {*} hash value.
+ */
+AuthService.prototype.calculateHash = function(input) {
+    if (input === undefined) {
+        return undefined;
+    } else
+        return crypto.createHash('sha256').update(input).digest("hex");
+}
+
+/**
+ * Retrieves the API key by user id.
+ *
+ * @param userId user id of the key to be retrieved.
+ * @param callback
+ */
+AuthService.prototype.getApiKey = function(userId, callback) {
+    this.userStore.getUser(userId, function(error, rows) {
+        if (error) {
+            winston.error("Not able to get user from user store: userId=" + userId +
+                ", error=" + JSON().stringify(error));
+        }
+        callback(error, rows[0].value.apiKey);
+    });
+}
+
+/**
+ * Retrieves the list of current nonces by user id. Returns objects with
+ * nonce value as key, date issued as value.
+ *
+ * @param userId
+ * @param callback
+ */
+AuthService.prototype.getNonces = function(userId, callback) {
+    this.userStore.getUser(userId, function(error, rows) {
+        if (error) {
+            winston.error("Not able to get user from user store: userId=" + userId +
+                ", error=" + JSON().stringify(error));
+        }
+        callback(error, rows[0].value.nonces);
+    });
+}
+
+/**
+ * Stores a nonce with user id and date.
+ *
+ * @param userId user id to be stored.
+ * @param nonce the nonce to be stored.
+ * @param date the issue date of the nonce.
+ * @param callback
+ */
+AuthService.prototype.storeNonce = function(userId, nonce, date, callback) {
+    var self = this;
+    this.userStore.getUser(userId, function(error, rows) {
+        if (error) {
+            winston.error("Not able to get user from user store: userId=" + userId +
+                ", error=" + JSON().stringify(error));
+        } else {
+            rows[0].value.nonces[nonce] = date;
+            self.userStore.createOrUpdateUser(rows[0], function(error) {
+                if (error) {
+                    winston.error("Not able to update nonce on user: userId=" + userId +
+                        ", error=" + JSON().stringify(error));
+                }
+            });
+        }
+        callback();
+    });
+}
+
+/**
+ * Removes a nonce from storage.
+ *
+ * @param userId the user id of the nonce.
+ * @param nonce the nonce to be deleted.
+ * @param callback
+ */
+AuthService.prototype.deleteNonce = function(userId, nonce, callback) {
+    var self = this;
+    this.userStore.getUser(userId, function(error, rows) {
+        if (error) {
+            winston.error("Not able to get user from user store: userId=" + userId +
+                ", error=" + JSON().stringify(error));
+        } else {
+            delete rows[0].value.nonces[nonce];
+            self.userStore.createOrUpdateUser(rows[0], function(error) {
+                if (error) {
+                    winston.error("Not able to update nonce on user: userId=" + userId +
+                        ", error=" + JSON().stringify(error));
+                }
+            });
+        }
+        callback();
+    });
+}
+
+/**
+ * Checks if the given nonce is valid for the given userId. Checks
+ * first if the nonce has already been used in the ttl of nonces.
+ *
+ * @param userId
+ * @param nonce
+ * @param callback
+ */
+AuthService.prototype.isNonceValid = function(userId, nonce, callback) {
+    var self = this;
+    this.getNonces(userId, function(nonces) {
+        var currentDate = new Date().getTime();
+        if (typeof nonces == "undefined" || nonces==null || typeof nonces[nonce] == "undefined") {
+            self.storeNonce(userId, nonce, currentDate, function() {
+                callback(true);
+            });
+        } else {
+            if (((currentDate-nonces[nonce])<this.nonceReleaseTimeMs))
+                callback(false, "Err: nonce already known.");
+            else {
+                self.deleteNonce(userId, nonce, function() {});
+                self.storeNonce(userId, nonce, currentDate, function() {
+                    callback(true);
+                });
+            }
+        };
+    });
+}
+
+/**
+ * Verifies the key/hash. The algorithm takes a SHA-256 hash of the following
+ * concatenated string: "apiKey + userId + epoch + nonce".
+ *
+ * @param hash the calculated hash.
+ * @param userId the user id.
+ * @param epoch the ms since epoch.
+ * @param nonce the nonce.
+ * @param callback the callback called with the result.
+ */
+AuthService.prototype.apiKeyAndHashValidation = function(hash, userId, epoch, nonce, callback) {
+    var self = this;
+    this.getApiKey(userId, function(apiKey) {
+        if(apiKey === undefined) {
+            callback(false, "Err: Could not find api key.");
+            return;
+        }
+        var calculatedHash = self.calculateHash(apiKey + userId + epoch + nonce);
+        if(!(calculatedHash === hash)) {
+            callback(false, "Err: hash mismatch, expected " + calculatedHash + " received " + hash);
+        } else
+            callback(true, "Success");
+    });
+}
+
+/**
+ * Creates an auth token from the given data.
+ *
+ * @param userId the user id.
+ * @param epoch the current epoch.
+ * @param nonce the nonce.
+ * @param callback
+ */
+AuthService.prototype.createAuthToken = function(userId, epoch, nonce, callback) {
+    var self = this;
+    this.getApiKey(userId, function(apiKey) {
+        var calculatedHash = self.calculateHash(apiKey + userId + epoch + nonce);
+        callback(calculatedHash + "%" +userId + "%" + epoch + "%" + nonce);
+    })
+}
+
+/**
+ * Verifies the plain auth data. Calls callback with results.
+ *
+ * @param hash the auth hash in the form "apiKey + userId + epoch + nonce".
+ * @param userId the user id.
+ * @param epoch the epoch.
+ * @param nonce the nonce.
+ * @param callback
+ */
+AuthService.prototype.verifyAuthData = function(hash, userId, epoch, nonce, callback) {
+    var self = this;
+    // check if given date is too old
+    if(this.isDateToOld(epoch)) {
+        callback(false, "Err: date timeout.");
+        return;
+    }
+    // check if nonce is valid, check keyhash
+    this.isNonceValid(userId, nonce, function(result) {
+        if (result)
+            self.apiKeyAndHashValidation(hash, userId, epoch, nonce, callback);
+        else
+            callback(false, "Err: nonce already known.")
+    });
+};
+
+/**
+ * Verifies the given token in the form "hash%userId%epoch%nonce".
+ *
+ * @param token the token to be verified.
+ * @param callback
+ */
+AuthService.prototype.verifyAuthToken = function(token, callback) {
+    if (typeof token == "undefined")
+        callback(false, "Err: token empty.");
+    else {
+        var dataArray = token.split("%");
+        if (dataArray.length!=4)
+            callback(false, "Err: token format unknown.");
+        else
+            this.verifyAuthData(dataArray[0], dataArray[1], dataArray[2], dataArray[3], callback);
+    }
+}
+
+/**
+ * Validates an express request. Expects the complete hash and metadata in a request
+ * parameter named "auth" with the following format: "hash%userId%epoch%nonce".
+ *
+ * @param req Express request.
+ * @param res Express response.
+ * @param next
+ */
+AuthService.prototype.verifyExpressRequest = function(req, res, next) {
+    var self = this;
+    this.verifyAuthToken(req.param("auth"), function(verified, msg) {
         if (verified) {
             winston.info("Request authenticated.")
+            next();
         } else {
             winston.info("Request denied: " + msg)
+            res.statusCode = 401;
+            res.end('Unauthorized');
         }
-    }
-
-    verifyIfRequestIsAuthorized(req.params.userId, req.params.date, req.params.nonce, req.params.opData, req.params.hash, callbackForVerifyIfRequestIsAuthorized);
+    });
 };
 
-function verifyIfRequestIsAuthorized(system, userId, dateAsString, nolp, opData, hash, verificationCallback) {
+// node integration, if running in node
+if (typeof exports != "undefined") {
+    exports.AuthService = AuthService;
+}
 
-    /**
-     * Verifies if the given string matches the date pattern.
-     *
-     * @param dateString date string to be checked.
-     * @returns {boolean} true if pattern matches, false otherwise.
-     */
-    var validateDatePattern = function(dateString) {
-        var validationPattern = /^\d{4}-\d{1,2}-\d{1,2}_\d{1,2}:\d{1,2}:\d{1,2}$/;
-        if(validationPattern.test(dateString)) {
-            return true;
-        }
-        return false;
-    }
+/*
 
-    /**
-     * Parses a string, returns parsed date.
-     *
-     * @param dateString string to be parsed.
-     * @returns {Date} parsed date.
-     */
-    var parseStringToDate = function(dateString) {
-        var splitedDate = dateString.split("_");
-        var yearMonthDay = splitedDate[0].split("-");
-        var hourMinuteSecond = splitedDate[1].split(":");
-        var parsedDate = new Date(yearMonthDay[0], yearMonthDay[1]-1, yearMonthDay[2], hourMinuteSecond[0], hourMinuteSecond[1], hourMinuteSecond[2]);
-        return parsedDate;
-    }
-
-    /**
-     * Checks if the given date is too old to be deemed valid.
-     *
-     * @param date the date to be checked.
-     * @returns {boolean} true if the date is too old, false otherwise.
-     */
-    var isDateToOld = function(date) {
-        var now = new Date();
-        //diff is in milli-seconds (1000ms = 1s)
-        var dif = now - date;
-        dif = dif / 1000;
-        if(dif > config.nonceReleaseTimeMs) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Calculates the hash of a given string.
-     *
-     * @param input string to be hashed.
-     * @returns {*} hash value.
-     */
-    var calculateHash = function(input) {
-        if (input === undefined) {
-            return undefined;
-        } else
-            return crypto.createHash('sha256').update(stringToHash).digest("hex");
-    }
-
-    /**
-     * Retrieves the API key by user id.
-     *
-     * @param userId user id of the key to be retrieved.
-     * @returns {string} API key.
-     */
-    var getApiKeyById = function(userId) {
-        //This is only for testing.
-        //Later you must implement a real connection to a db to get api key
-        if(userId === "12345") {
-            return "set97Wruset97Wruset97Wruset97Wru";
-        }
-    }
-
-    /**
-     * Retrieves the list of current nonces by user id. Returns objects with
-     * nonce value as key, date issued as value.
-     *
-     * @param userId
-     * @returns {*} nonce object list.
-     */
-    var getNonces = function(userId) {
-        // TODO READ NONCE
-    }
-
-    /**
-     * Stores a nonce with user id and date.
-     *
-     * @param userId user id to be stored.
-     * @param nonce the nonce to be stored.
-     * @param date the issue date of the nonce.
-     */
-    var storeNonce = function(userId, nonce, date) {
-        // TODO WRITE NONCE
-    }
-
-    /**
-     * Removes a nonce from storage.
-     *
-     * @param userId the user id of the nonce.
-     * @param nonce the nonce to be deleted.
-     */
-    var deleteNonce = function(userId, nonce) {
-        // TODO DELETE NONCE
-    }
-
-    /**
-     * Checks if the given nonce is valid for the given userId. Checks
-     * first if the nonce has already been used in the ttl of nonces.
-     *
-     * @param userId
-     * @param nonce
-     * @param callback
-     */
-    var isNonceValid = function(userId, nonce, callback) {
-        var nonces = getNonces(userId);
-        var currentDate = new Date().getTime();
-        for (var dbNonce in nonces) {
-            if (dbNonce===nonce)
-                if (((currentDate-nonces[nonce])<config.nonceReleaseTimeMs))
-                    callback(false);
-                else
-                    deleteNonce(userId, nonce);
-            else {
-                storeNonce(userId, nonce, currentDate);
-                callback(true);
-            }
-        }
-    }
-
-    /**
-     * Verifies the key/hash. The algorithm takes a SHA-256 hash of the following
-     * concatenated string: "apiKey + userId + dateAsString + nolp".
-     */
-    var apiKeyAndHashValidation = function(verified) {
-        if (!verified) {
-            verificationCallback(false, "Err: Nolp already in db.");
-            return;
-        }
-        var apiKey = getApiKeyById(userId);
-        if(apiKey === undefined) {
-            verificationCallback(false, "Err: Could not find api key.");
-            return;
-        }
-
-        var calculatedHash = calculateHash(apiKey + userId + dateAsString + nonce);
-        if(!(calculatedHash === hash)) {
-            verificationCallback(false, "Err: Hashes did not match. Calculated: " + calculatedHash + " Received: " + hash);
-            return;
-        }
-        verificationCallback(true, "Verification completed successfully.");
-    }
-
-    // check date pattern and parse date
-    if(!validateDatePattern(dateAsString)) {
-        verificationCallback(false, "Err: Date pattern not valid.");
-        return;
-    };
-    var parsedDate = parseStringToDate(dateAsString);
-
-    // check if given date is too old
-    if(isDateToOld(parsedDate)) {
-        verificationCallback(false, "Err: Out of date.");
-        return;
-    }
-
-    // check if nonce is valid, check keyhash
-    isNonceValid(userId, nonce, dateAsString, apiKeyAndHashValidation);
-};
-
+// user user
+// key set97Wruset97Wruset97Wruset97Wru
+// nonce 123
+createAuthToken("user", new Date().getTime(), "1230", function(token) {
+    console.log("Created token: " + token);
+    verifyAuthToken(token, function(result, message) {
+        console.log("Verify result: " + result + " " + message);
+    })
+})
+    */

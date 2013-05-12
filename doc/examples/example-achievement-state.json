@@ -10,7 +10,7 @@
         "de": "Ein State Achievement.",
         "en": "A State Achievement"
     },
-    "data": {
+    "statedata": {
         "key1": "value1",
         "key2": "value2"
     },

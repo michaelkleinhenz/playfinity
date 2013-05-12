@@ -24,12 +24,14 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+var authService = require("../auth/authService");
+
 var express = require('express');
 var winston = require('winston');
 var fs = require('fs');
+var crypto = require('crypto');
 
-function start(achvSystem) {
-    "use strict";
+function start(userStore, achvSystem) {
 
     function getIndexHtml(req, res, next) {
         fs.readFile('pages/index.html', function (err, data) {
@@ -49,7 +51,6 @@ function start(achvSystem) {
         if (!event.tsInit) {
             event.tsInit =  Date.now() / 1000;
         }
-        winston.debug("triggerEvent - event: " + JSON.stringify(event));
         achvSystem.triggerEvent(event, function (achievement) {
             winston.debug(JSON.stringify(achievement));
         });
@@ -90,7 +91,25 @@ function start(achvSystem) {
         }
     }
 
-    // Setup server
+    // setup authN
+    var authN = new authService.AuthService(userStore);
+
+    // create example user if in debug mode
+    if (QBadgeConfig.debugMode) {
+        var exampleUser = {
+            nonces: {"1234567890": (new Date().getTime())},
+            apiKey: crypto.createHash('sha256').update(""+new Date().getTime()).digest("hex"),
+            userId: "user"
+        };
+        userStore.createOrUpdateUser(exampleUser, function(error, body) {
+            console.log("Running in debug mode. Example user created. Use the following auth token for demo queries:");
+            authN.createAuthToken(exampleUser.userId, new Date().getTime(), "1234567890", function(token) {
+                console.log(token);
+            })
+        });
+    }
+
+    // setup server
     var app = express();
     app.use(express.bodyParser());
     app.set('name', 'Service');
@@ -100,10 +119,17 @@ function start(achvSystem) {
 
     // setup component paths
     app.use('/oauth', require('./../oauth/Oauth'));
-    app.use('/store', require('./../store/Store'));
+
+    // FIXME: find out why we can't use authN.verifyExpressRequest directly as argument.
+    app.use('/store', function(req, res, next) {
+        authN.verifyExpressRequest(req, res, next);
+    }, require('./../store/Store'));
 
     // setup direct paths
-    app.get('/event/:gameId/:userId/:eventId', triggerEvent);
+    // TODO has the event receiver use the authN? Unknown data will be ignored anyway.
+    app.get('/event/:gameId/:userId/:eventId', function(req, res, next) {
+        authN.verifyExpressRequest(req, res, next);
+    }, triggerEvent);
 
     // Setup static html route
     app.get('/', getIndexHtml);

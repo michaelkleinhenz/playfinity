@@ -35,7 +35,12 @@ global.QBadgeConfig = {
     // Name of the couch database for the achievement models. Must already be created.
     modelDbName: 'achievement',
 
-    // Port to be used. QBadge will bind to 0.0.0.0
-    serverPort: 8080
+    // Name of the couch database for the users. Must already be created.
+    userDbName: 'user',
 
+    // Port to be used. QBadge will bind to 0.0.0.0
+    serverPort: 8080,
+
+    // Debug mode - SET TO FALSE FOR PRODUCTION
+    debugMode: true
 }

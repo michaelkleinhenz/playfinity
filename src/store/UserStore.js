@@ -25,89 +25,47 @@
  */
 
 /*
- * Functions for operations on model data.
+ * Functions for operations on user data.
  */
 
-/*global ACHV*/
-ACHV.achievementStore = function (conf) {
-    "use strict";
-    var db = conf.db,
-        logger = conf.logger,
-        self = {};
+// TODO: users should be stored with a gameId
+userStore = function(conf) {
+    var db = conf.db;
+    var logger = conf.logger;
+    var self = {};
 
-    self.getAchievementsForGameId = function (gameId, callback) {
-        db.view('achievement', 'byGameId', {"key": gameId}, callback);
-    };
-
-    self.getAchievementsByOwnerIdAndGameId = function (ownerId, gameId, callback) {
-        db.view('achievement', 'byOwnerIdAndGameId', {"key": [ownerId, gameId]}, getAchievementCallback);
-
-        function getAchievementCallback(error, body) {
+    self.getUser = function (userId, callback) {
+        db.view('user', 'byUserId', {"key": userId}, function(error, body) {
             if (error) {
-                logger.error("Not able to get achievement: ownerId=" + ownerId +
-                    ", gameId=" + gameId +
+                logger.error("Not able to get user: userId=" + userId +
                     ", error=" + JSON().stringify(error));
             }
             callback(error, body.rows);
-        }
+        });
     };
 
-    self.deleteAchievement = function (name, revision, callback) {
-        db.destroy(name, revision, deleteAchievementCallback);
-
-        function deleteAchievementCallback(error, body) {
+    self.deleteUser = function (user, callback) {
+        db.destroy(user.id, user.revision, function(error, body) {
             if (error) {
-                logger.error("Not able to delete achievement: name=" + name +
-                    ", revision=" + revision +
+                logger.error("Not able to delete user: userId=" + user.id +
+                    ", revision=" + user.revision +
                     ", error" + JSON.stringify(error));
             }
-            callback(error, body);
-        }
+            callback(error);
+        });
     };
 
-    self.getAchievementByGameIdAndName = function (gameId, name, callback) {
-        db.view('achievement', 'byGameIdAndName', {"key": [gameId, name]}, getAchievementCallback);
-
-        function getAchievementCallback(error, body) {
+    self.createOrUpdateUser = function (user, callback) {
+        db.insert(user, function (error, body, headers) {
             if (error) {
-                logger.error("Not able to get achievement: gameId=" + gameId +
-                    ", name=" + name +
-                    ", error=" + JSON.stringify(error));
+                logger.error("Not able to insert user" +
+                    JSON.stringify(doc) + " Reason:" + error);
             }
-            callback(error, body);
-        }
+            callback(error);
+        });
     };
 
-    self.getAchievementNamesByOwnerIdAndGameId = function (ownerId, gameId, callback) {
-        db.view('achievement', 'nameByOwnerIdAndGameId', {"key": [ownerId, gameId]}, getAchievementCallback);
-
-        function getAchievementCallback(error, body) {
-            if (error) {
-                logger.error("Not able to get achievement names: ownerId=" + ownerId +
-                    ", gameId=" + gameId +
-                    ", error=" + JSON.stringify(error));
-            }
-            callback(error, body.rows);
-        }
-    };
-
-    self.getAchievement = function (ownerId, gameId, name, callback) {
-        db.view('achievement', 'byOwnerIdAndGameIdAndName', {"key": [ownerId, gameId, name]}, getAchievementCallback);
-
-        function getAchievementCallback(error, body) {
-            if (error) {
-                logger.error("Not able to get achievement names: ownerId=" + ownerId +
-                    ", gameId=" + gameId +
-                    ", error=" + JSON.stringify(error));
-            }
-            var result = {};
-            if (body.rows.length > 0) {
-                result = body.rows[0].value;
-            }
-            callback(error, result);
-        }
-    };
     return self;
-};
+}
 
-exports.achievementStore = ACHV.achievementStore;
+exports.userStore = userStore;

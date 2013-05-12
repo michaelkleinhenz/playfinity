@@ -42,11 +42,19 @@ require('./core/AchievementEngine');
 var achvSystem = require('./core/AchievementSystem');
 var achvStore = require('./store/AchievementStore');
 var achvInstanceStore = require('./store/AchievementInstanceStore');
+var achvUserStore = require('./store/UserStore');
 var server = require('./server/Server');
 
 // Create data storage
 var logger = require('winston');
 var nano = require('nano')(QBadgeConfig.couchUrl);
+
+// Create User Store
+var userStoreConf = {
+    "logger": logger,
+    "db": nano.use(QBadgeConfig.userDbName)
+};
+var userStore = achvUserStore.userStore(userStoreConf);
 
 // Create Achievement Model Store
 var achvStoreConf = {
@@ -72,4 +80,4 @@ var achvSystemConfiguration = {
 
 // Start achievement system
 var achvSystemInstance = new achvSystem.AchievementSystem(achvSystemConfiguration);
-server.start(achvSystemInstance);
+server.start(userStore, achvSystemInstance);
