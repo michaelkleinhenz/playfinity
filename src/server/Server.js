@@ -31,7 +31,7 @@ var winston = require('winston');
 var fs = require('fs');
 var crypto = require('crypto');
 
-function start(userStore, achvSystem) {
+function start(userStore, gameStore, achvSystem) {
 
     function getIndexHtml(req, res, next) {
         fs.readFile('pages/index.html', function (err, data) {
@@ -92,21 +92,36 @@ function start(userStore, achvSystem) {
     }
 
     // setup authN
-    var authN = new authService.AuthService(userStore);
+    var authN = new authService.AuthService(userStore, gameStore);
 
-    // create example user if in debug mode
+    // create example user and game if in debug mode
     if (QBadgeConfig.debugMode) {
         var exampleUser = {
             nonces: {"1234567890": (new Date().getTime())},
-            apiKey: crypto.createHash('sha256').update(""+new Date().getTime()).digest("hex"),
+            apiKey: crypto.createHash('sha256').update("user"+new Date().getTime()).digest("hex"),
             userId: "user"
         };
+        var exampleGame = {
+            apiKey: crypto.createHash('sha256').update("game"+new Date().getTime()).digest("hex"),
+            gameId: "game"
+        };
         userStore.createOrUpdateUser(exampleUser, function(error, body) {
-            console.log("Running in debug mode. Example user created. Use the following auth token for demo queries:");
-            authN.createAuthToken(exampleUser.userId, new Date().getTime(), "1234567890", function(token) {
-                console.log(token);
-            })
+            winston.debug("Example user created.");
         });
+        gameStore.createOrUpdateGame(exampleGame, function(error, body) {
+            winston.debug("Example game created.");
+        });
+        authN.createAuthToken(exampleUser.userId, exampleGame.gameId, new Date().getTime(), "1234567890", function(token) {
+            // check the generated token with the verify algorithm to make sure the system works nominal
+            authN.verifyAuthToken(token, function(result, msg) {
+                if (result) {
+                    winston.debug("Running in debug mode. Use the following auth token for demo queries:");
+                    winston.debug(token);
+                }
+                else
+                    winston.debug("Token verification check failed: " + msg);
+            })
+        })
     }
 
     // setup server
@@ -126,7 +141,6 @@ function start(userStore, achvSystem) {
     }, require('./../store/Store'));
 
     // setup direct paths
-    // TODO has the event receiver use the authN? Unknown data will be ignored anyway.
     app.get('/event/:gameId/:userId/:eventId', function(req, res, next) {
         authN.verifyExpressRequest(req, res, next);
     }, triggerEvent);

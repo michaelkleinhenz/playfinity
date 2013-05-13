@@ -38,6 +38,9 @@ global.QBadgeConfig = {
     // Name of the couch database for the users. Must already be created.
     userDbName: 'user',
 
+    // Name of the couch database for the games. Must already be created.
+    gameDbName: 'game',
+
     // Port to be used. QBadge will bind to 0.0.0.0
     serverPort: 8080,
 

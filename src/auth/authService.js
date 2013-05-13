@@ -28,15 +28,19 @@ var express = require('express');
 var winston = require('winston');
 var crypto = require('crypto');
 
+//TODO store nonces in own documents
+
 /**
  * Creates a new instance of the AuthService.
  *
  * @param userStore reference to the user store.
+ * @param gameStore reference to the game store.
  * @constructor
  */
-function AuthService(userStore) {
-    this.nonceReleaseTimeMs = 1000*60*60*24; // 24 hours
+function AuthService(userStore, gameStore) {
+    this.nonceReleaseTimeMs = 1000*60*5 // 5 minutes
     this.userStore = userStore;
+    this.gameStore = gameStore;
 }
 
 /**
@@ -68,15 +72,31 @@ AuthService.prototype.calculateHash = function(input) {
 }
 
 /**
- * Retrieves the API key by user id.
+ * Retrieves the user API key by user id.
  *
  * @param userId user id of the key to be retrieved.
  * @param callback
  */
-AuthService.prototype.getApiKey = function(userId, callback) {
+AuthService.prototype.getUserApiKey = function(userId, callback) {
     this.userStore.getUser(userId, function(error, rows) {
         if (error) {
             winston.error("Not able to get user from user store: userId=" + userId +
+                ", error=" + JSON().stringify(error));
+        }
+        callback(error, rows[0].value.apiKey);
+    });
+}
+
+/**
+ * Retrieves the game API key by game id.
+ *
+ * @param gameId game id of the key to be retrieved.
+ * @param callback
+ */
+AuthService.prototype.getGameApiKey = function(gameId, callback) {
+    this.gameStore.getGame(gameId, function(error, rows) {
+        if (error) {
+            winston.error("Not able to get game from game store: gameId=" + gameId +
                 ", error=" + JSON().stringify(error));
         }
         callback(error, rows[0].value.apiKey);
@@ -184,26 +204,33 @@ AuthService.prototype.isNonceValid = function(userId, nonce, callback) {
 
 /**
  * Verifies the key/hash. The algorithm takes a SHA-256 hash of the following
- * concatenated string: "apiKey + userId + epoch + nonce".
+ * concatenated string: "userApiKey + gameApiKey + userId + gameId + epoch + nonce".
  *
  * @param hash the calculated hash.
  * @param userId the user id.
+ * @param gameId the game id.
  * @param epoch the ms since epoch.
  * @param nonce the nonce.
  * @param callback the callback called with the result.
  */
-AuthService.prototype.apiKeyAndHashValidation = function(hash, userId, epoch, nonce, callback) {
+AuthService.prototype.apiKeyAndHashValidation = function(hash, userId, gameId, epoch, nonce, callback) {
     var self = this;
-    this.getApiKey(userId, function(apiKey) {
-        if(apiKey === undefined) {
+    this.getUserApiKey(userId, function(userApiKey) {
+        if(userApiKey === undefined) {
             callback(false, "Err: Could not find api key.");
             return;
         }
-        var calculatedHash = self.calculateHash(apiKey + userId + epoch + nonce);
-        if(!(calculatedHash === hash)) {
-            callback(false, "Err: hash mismatch, expected " + calculatedHash + " received " + hash);
-        } else
-            callback(true, "Success");
+        self.getGameApiKey(gameId, function(gameApiKey) {
+            if(gameApiKey === undefined) {
+                callback(false, "Err: Could not find api key.");
+                return;
+            }
+            var calculatedHash = self.calculateHash(userApiKey + gameApiKey + userId + gameId + epoch + nonce);
+            if(!(calculatedHash === hash)) {
+                callback(false, "Err: hash mismatch, expected " + calculatedHash + " received " + hash);
+            } else
+                callback(true, "Success");
+        })
     });
 }
 
@@ -211,28 +238,32 @@ AuthService.prototype.apiKeyAndHashValidation = function(hash, userId, epoch, no
  * Creates an auth token from the given data.
  *
  * @param userId the user id.
+ * @param gameId the game id.
  * @param epoch the current epoch.
  * @param nonce the nonce.
  * @param callback
  */
-AuthService.prototype.createAuthToken = function(userId, epoch, nonce, callback) {
+AuthService.prototype.createAuthToken = function(userId, gameId, epoch, nonce, callback) {
     var self = this;
-    this.getApiKey(userId, function(apiKey) {
-        var calculatedHash = self.calculateHash(apiKey + userId + epoch + nonce);
-        callback(calculatedHash + "%" +userId + "%" + epoch + "%" + nonce);
+    this.getUserApiKey(userId, function(userApiKey) {
+        self.getGameApiKey(gameId, function(gameApiKey) {
+            var calculatedHash = self.calculateHash(userApiKey + gameApiKey + userId + gameId + epoch + nonce);
+            callback(calculatedHash + "%" + userId + "%" + gameId + "%" + epoch + "%" + nonce);
+        })
     })
 }
 
 /**
  * Verifies the plain auth data. Calls callback with results.
  *
- * @param hash the auth hash in the form "apiKey + userId + epoch + nonce".
+ * @param hash the auth hash in the form sha256(userApiKey + gameApiKey + userId  + gameId + epoch + nonce).
  * @param userId the user id.
+ * @param gameId the game id.
  * @param epoch the epoch.
  * @param nonce the nonce.
  * @param callback
  */
-AuthService.prototype.verifyAuthData = function(hash, userId, epoch, nonce, callback) {
+AuthService.prototype.verifyAuthData = function(hash, userId, gameId, epoch, nonce, callback) {
     var self = this;
     // check if given date is too old
     if(this.isDateToOld(epoch)) {
@@ -242,14 +273,14 @@ AuthService.prototype.verifyAuthData = function(hash, userId, epoch, nonce, call
     // check if nonce is valid, check keyhash
     this.isNonceValid(userId, nonce, function(result) {
         if (result)
-            self.apiKeyAndHashValidation(hash, userId, epoch, nonce, callback);
+            self.apiKeyAndHashValidation(hash, userId, gameId, epoch, nonce, callback);
         else
             callback(false, "Err: nonce already known.")
     });
 };
 
 /**
- * Verifies the given token in the form "hash%userId%epoch%nonce".
+ * Verifies the given token in the form "hash%userId%gameId%epoch%nonce".
  *
  * @param token the token to be verified.
  * @param callback
@@ -259,22 +290,23 @@ AuthService.prototype.verifyAuthToken = function(token, callback) {
         callback(false, "Err: token empty.");
     else {
         var dataArray = token.split("%");
-        if (dataArray.length!=4)
+        if (dataArray.length!=5)
             callback(false, "Err: token format unknown.");
         else
-            this.verifyAuthData(dataArray[0], dataArray[1], dataArray[2], dataArray[3], callback);
+            this.verifyAuthData(dataArray[0], dataArray[1], dataArray[2], dataArray[3], dataArray[4], callback);
     }
 }
 
 /**
  * Validates an express request. Expects the complete hash and metadata in a request
- * parameter named "auth" with the following format: "hash%userId%epoch%nonce".
+ * parameter named "auth" with the following format: "hash%userId%gameId%epoch%nonce".
  *
  * @param req Express request.
  * @param res Express response.
  * @param next
  */
 AuthService.prototype.verifyExpressRequest = function(req, res, next) {
+    // TODO check if the rest params equal the token encoded params
     var self = this;
     this.verifyAuthToken(req.param("auth"), function(verified, msg) {
         if (verified) {
@@ -292,16 +324,3 @@ AuthService.prototype.verifyExpressRequest = function(req, res, next) {
 if (typeof exports != "undefined") {
     exports.AuthService = AuthService;
 }
-
-/*
-
-// user user
-// key set97Wruset97Wruset97Wruset97Wru
-// nonce 123
-createAuthToken("user", new Date().getTime(), "1230", function(token) {
-    console.log("Created token: " + token);
-    verifyAuthToken(token, function(result, message) {
-        console.log("Verify result: " + result + " " + message);
-    })
-})
-    */

@@ -22,6 +22,7 @@ system capable of executing bash scripts. You also need curl installed to call R
 Create the following databases:
 
     user
+    game
     achievement
     achievement_instance
 
@@ -29,6 +30,7 @@ Create the following databases:
 
     cd db
     ./uploadDesign.sh user user designs/user_design.json
+    ./uploadDesign.sh game game designs/game_design.json
     ./uploadDesign.sh achievement achievement designs/achievement_design.json
     ./uploadDesign.sh achievement_instance achievement_instance designs/achievement_instance_design.json
 
@@ -45,39 +47,47 @@ Note the example auth token reported on the console:
     info: QBadge Achievement System
     info: Copyright (c) 2013 Questor GmbH, Berlin
     info: Service listening at port 8080
-    Running in debug mode. Example user created. Use the following auth token for demo queries:
-    44dac55565d1ce6b9995f25077430a0922dfe3b6ddcb419eb0d3698e0c0f72c9%user%1368318150709%1234567890
+    debug: Example game created.
+    debug: Example user created.
+    debug: Running in debug mode. Use the following auth token for demo queries:
+    debug: 6c9507072946a6b06efd52566d005267923ec32036186de1e0364017b8dd6791%user%game%1368362322639%1234567890
 
 The token has to be added to all subsequent calls as the "auth" parameter.
 
+***Important*** The last substring (after the last "%") in the token string is the nonce which prevents replay
+attacks. It has to be unique for each call. In the above case, the nonce is "1234567890". Just use a random nonce
+for each call below. Every unique nonce can only be used once in 5 minutes. The token in general is only valid for
+5 minutes, which is checked by the encoded epoch time. So make sure you run the below demos in 5 minutes after
+starting the service.
+
 ## Create achievement models
 
-    curl --upload-file doc/examples/example-achievement-oneshot.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model
-    curl --upload-file doc/examples/example-achievement-counter.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model
-    curl --upload-file doc/examples/example-achievement-stopwatch.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model
+    curl --upload-file doc/examples/example-achievement-oneshot.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model?auth=<authToken>
+    curl --upload-file doc/examples/example-achievement-counter.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model?auth=<authToken>
+    curl --upload-file doc/examples/example-achievement-stopwatch.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model?auth=<authToken>
 
 ## Read achievement models
 
-    http://localhost:8080/store/model/developer/mygame
+    http://localhost:8080/store/model/developer/mygame?auth=<authToken>
 
 ## Init the achievement instances
 
-    curl -s -X POST http://localhost:8080/store/model/developer/mygame/gamername
+    curl -s -X POST http://localhost:8080/store/model/developer/mygame/gamername?auth=<authToken>
 
 ## Read the achievement instances
 
-    http://localhost:8080/store/instance/mygame/gamername
+    http://localhost:8080/store/instance/mygame/gamername?auth=<authToken>
 
 ## Trigger events
 
-    curl -s -X GET http://localhost:8080/event/mygame/gamername/MyOneShotAchievementEvent
-    curl -s -X GET http://localhost:8080/event/mygame/gamername/MyCounterAchievementEvent
-    curl -s -X GET http://localhost:8080/event/mygame/gamername/MyCounterAchievementEvent
-    curl -s -X GET http://localhost:8080/event/mygame/gamername/MyCounterAchievementEvent
-    curl -s -X GET http://localhost:8080/event/mygame/gamername/MyCounterAchievementEvent
-    curl -s -X GET http://localhost:8080/event/mygame/gamername/MyCounterAchievementEvent
-    curl -s -X GET http://localhost:8080/event/mygame/gamername/StartMyStopWatchAchievementEvent
+    curl -s -X GET http://localhost:8080/event/mygame/gamername/MyOneShotAchievementEvent?auth=<authToken>
+    curl -s -X GET http://localhost:8080/event/mygame/gamername/MyCounterAchievementEvent?auth=<authToken>
+    curl -s -X GET http://localhost:8080/event/mygame/gamername/MyCounterAchievementEvent?auth=<authToken>
+    curl -s -X GET http://localhost:8080/event/mygame/gamername/MyCounterAchievementEvent?auth=<authToken>
+    curl -s -X GET http://localhost:8080/event/mygame/gamername/MyCounterAchievementEvent?auth=<authToken>
+    curl -s -X GET http://localhost:8080/event/mygame/gamername/MyCounterAchievementEvent?auth=<authToken>
+    curl -s -X GET http://localhost:8080/event/mygame/gamername/StartMyStopWatchAchievementEvent?auth=<authToken>
 
 ## Read the unlocked achievements
 
-    http://localhost:8080/store/unlocked/mygame/gamername
+    http://localhost:8080/store/unlocked/mygame/gamername?auth=<authToken>
