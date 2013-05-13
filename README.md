@@ -54,41 +54,44 @@ Note the example auth token reported on the console:
 
 An authentication token has to be added to all subsequent calls as the "auth" parameter.
 
-***Important***: The authentication token has to be calculated from the request parameters for each subsequent call.
+The authentication token has to be calculated from the request parameters for each subsequent call.
 To make things easier for testing out the service, a REST call for creating tokens is provided ***only in debug
-mode*** at the given address (in this case "http://localhost:8080/token"). Use it to create the tokens for the calls
-below.
+mode*** at the given address (in this case "http://localhost:8080/token").
+
+***Important***: In the default configuration, the authentication is disabled entirely. You'll need no auth tokens for
+the calls below. In production mode, each call has to carry a parameter "auth" which contains the token.
+
 
 ## Create achievement models
 
-    curl --upload-file doc/examples/example-achievement-oneshot.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model?auth=<authToken>
-    curl --upload-file doc/examples/example-achievement-counter.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model?auth=<authToken>
-    curl --upload-file doc/examples/example-achievement-stopwatch.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model?auth=<authToken>
+    curl --upload-file doc/examples/example-achievement-oneshot.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model
+    curl --upload-file doc/examples/example-achievement-counter.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model
+    curl --upload-file doc/examples/example-achievement-stopwatch.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model
 
 ## Read achievement models
 
-    http://localhost:8080/store/model/developer/mygame?auth=<authToken>
+    http://localhost:8080/store/model/developer/mygame
 
 ## Init the achievement instances
 
-    curl -s -X GET http://localhost:8080/store/model/developer/mygame/developer?auth=<authToken>
+    curl -s -X GET http://localhost:8080/store/model/developer/mygame/developer
 
 In this case, the user is the same as the developer ("developer").
 
 ## Read the achievement instances
 
-    http://localhost:8080/store/instance/mygame/developer?auth=<authToken>
+    http://localhost:8080/store/instance/mygame/developer
 
 ## Trigger events
 
-    curl -s -X GET http://localhost:8080/event/mygame/developer/MyOneShotAchievementEvent?auth=<authToken>
-    curl -s -X GET http://localhost:8080/event/mygame/developer/MyCounterAchievementEvent?auth=<authToken>
-    curl -s -X GET http://localhost:8080/event/mygame/developer/MyCounterAchievementEvent?auth=<authToken>
-    curl -s -X GET http://localhost:8080/event/mygame/developer/MyCounterAchievementEvent?auth=<authToken>
-    curl -s -X GET http://localhost:8080/event/mygame/developer/MyCounterAchievementEvent?auth=<authToken>
-    curl -s -X GET http://localhost:8080/event/mygame/developer/MyCounterAchievementEvent?auth=<authToken>
-    curl -s -X GET http://localhost:8080/event/mygame/developer/StartMyStopWatchAchievementEvent?auth=<authToken>
+    curl -s -X GET http://localhost:8080/event/mygame/developer/MyOneShotAchievementEvent
+    curl -s -X GET http://localhost:8080/event/mygame/developer/MyCounterAchievementEvent
+    curl -s -X GET http://localhost:8080/event/mygame/developer/MyCounterAchievementEvent
+    curl -s -X GET http://localhost:8080/event/mygame/developer/MyCounterAchievementEvent
+    curl -s -X GET http://localhost:8080/event/mygame/developer/MyCounterAchievementEvent
+    curl -s -X GET http://localhost:8080/event/mygame/developer/MyCounterAchievementEvent
+    curl -s -X GET http://localhost:8080/event/mygame/developer/StartMyStopWatchAchievementEvent
 
 ## Read the unlocked achievements
 
-    http://localhost:8080/store/unlocked/mygame/developer?auth=<authToken>
+    http://localhost:8080/store/unlocked/mygame/developer

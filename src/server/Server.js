@@ -61,6 +61,10 @@ function start(userStore, gameStore, achvSystem) {
     }
 
     function validParams(req, res, keys) {
+        if (!QBadgeConfig.authenticationEnabled) {
+            winston.debug("AuthN disabled. Not checking authentication.");
+            return true;
+        }
         // make sure the token fields match the request fields
         var decodedToken = authN.splitAuthToken(req.param("auth"));
         for (var key in keys) {
@@ -161,9 +165,14 @@ function start(userStore, gameStore, achvSystem) {
     // setup store calls
 
     app.put('/store/model', function(req, res, next) {
+        if (!QBadgeConfig.authenticationEnabled) {
+            winston.debug("AuthN disabled. Not checking authentication.");
+            next();
+            return;
+        }
         var doc = req.body;
         var decodedToken = authN.splitAuthToken(req.param("auth"));
-        if (decodedToken.userId!=doc.ownerId || decodedToken.gameId!=doc.gameId) {
+        if (decodedToken==null || decodedToken.userId!=doc.ownerId || decodedToken.gameId!=doc.gameId) {
             winston.info("Request denied: token fields do not match request fields.");
             res.statusCode = 401;
             res.end('Unauthorized');
@@ -172,8 +181,13 @@ function start(userStore, gameStore, achvSystem) {
     }, store.createAchievement);
 
     app.get('/store/model/:ownerId/:gameId', function(req, res, next) {
+        if (!QBadgeConfig.authenticationEnabled) {
+            winston.debug("AuthN disabled. Not checking authentication.");
+            next();
+            return;
+        }
         var decodedToken = authN.splitAuthToken(req.param("auth"));
-        if (decodedToken.userId!=req.params.ownerId || decodedToken.gameId!=req.params.gameId) {
+        if (decodedToken==null || decodedToken.userId!=req.params.ownerId || decodedToken.gameId!=req.params.gameId) {
             winston.info("Request denied: token fields do not match request fields.");
             res.statusCode = 401;
             res.end('Unauthorized');
@@ -182,9 +196,14 @@ function start(userStore, gameStore, achvSystem) {
     }, store.getAchievementsByOwnerIdAndGameId);
 
     app.get('/store/model/:ownerId/:gameId/:userId', function(req, res, next) {
+        if (!QBadgeConfig.authenticationEnabled) {
+            winston.debug("AuthN disabled. Not checking authentication.");
+            next();
+            return;
+        }
         var doc = req.body;
         var decodedToken = authN.splitAuthToken(req.param("auth"));
-        if (decodedToken.userId!=req.params.ownerId || decodedToken.gameId!=req.params.gameId) {
+        if (decodedToken==null || decodedToken.userId!=req.params.ownerId || decodedToken.gameId!=req.params.gameId) {
             winston.info("Request denied: token fields do not match request fields.");
             res.statusCode = 401;
             res.end('Unauthorized');
@@ -217,6 +236,9 @@ function start(userStore, gameStore, achvSystem) {
         winston.info("QBadge Achievement System");
         winston.info("Copyright (c) 2013 Questor GmbH, Berlin");
         winston.info(app.get('name') + " listening at port " + QBadgeConfig.serverPort);
+        if (!QBadgeConfig.authenticationEnabled) {
+            winston.info("WARNING: AUTHENTICATION IS DISABLED. SEE DOCUMENTATION FOR DETAILS.")
+        }
     });
 }
 

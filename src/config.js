@@ -45,5 +45,8 @@ global.QBadgeConfig = {
     serverPort: 8080,
 
     // Debug mode - SET TO FALSE FOR PRODUCTION
-    debugMode: true
+    debugMode: true,
+
+    // AuthN switch - SET TO TRUE FOR PRODUCTION
+    authenticationEnabled: false
 }
