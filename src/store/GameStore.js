@@ -39,7 +39,7 @@ gameStore = function(conf) {
                 logger.error("Not able to get game: gameId=" + gameId +
                     ", error=" + JSON.stringify(error));
             }
-            callback(error, body.rows);
+            callback(error, (typeof body=="undefined")?body:body.rows);
         });
     };
 
@@ -55,10 +55,11 @@ gameStore = function(conf) {
     };
 
     self.createOrUpdateGame = function (game, callback) {
+        game._id = game.gameId;
         db.insert(game, function (error, body, headers) {
             if (error) {
                 logger.error("Not able to insert game" +
-                    JSON.stringify(doc) + " Reason:" + error);
+                    JSON.stringify(game) + " Reason:" + error);
             }
             callback(error);
         });

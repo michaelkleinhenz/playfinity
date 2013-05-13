@@ -49,16 +49,15 @@ Note the example auth token reported on the console:
     info: Service listening at port 8080
     debug: Example game created.
     debug: Example user created.
-    debug: Running in debug mode. Use the following auth token for demo queries:
-    debug: 6c9507072946a6b06efd52566d005267923ec32036186de1e0364017b8dd6791%user%game%1368362322639%1234567890
+    debug: Running in debug mode. Use the following auth token dispenser to get tokens for demo queries:
+    debug: http://localhost:8080/token
 
-The token has to be added to all subsequent calls as the "auth" parameter.
+An authentication token has to be added to all subsequent calls as the "auth" parameter.
 
-***Important*** The last substring (after the last "%") in the token string is the nonce which prevents replay
-attacks. It has to be unique for each call. In the above case, the nonce is "1234567890". Just use a random nonce
-for each call below. Every unique nonce can only be used once in 5 minutes. The token in general is only valid for
-5 minutes, which is checked by the encoded epoch time. So make sure you run the below demos in 5 minutes after
-starting the service.
+***Important***: The authentication token has to be calculated from the request parameters for each subsequent call.
+To make things easier for testing out the service, a REST call for creating tokens is provided ***only in debug
+mode*** at the given address (in this case "http://localhost:8080/token"). Use it to create the tokens for the calls
+below.
 
 ## Create achievement models
 
@@ -72,22 +71,24 @@ starting the service.
 
 ## Init the achievement instances
 
-    curl -s -X POST http://localhost:8080/store/model/developer/mygame/gamername?auth=<authToken>
+    curl -s -X GET http://localhost:8080/store/model/developer/mygame/developer?auth=<authToken>
+
+In this case, the user is the same as the developer ("developer").
 
 ## Read the achievement instances
 
-    http://localhost:8080/store/instance/mygame/gamername?auth=<authToken>
+    http://localhost:8080/store/instance/mygame/developer?auth=<authToken>
 
 ## Trigger events
 
-    curl -s -X GET http://localhost:8080/event/mygame/gamername/MyOneShotAchievementEvent?auth=<authToken>
-    curl -s -X GET http://localhost:8080/event/mygame/gamername/MyCounterAchievementEvent?auth=<authToken>
-    curl -s -X GET http://localhost:8080/event/mygame/gamername/MyCounterAchievementEvent?auth=<authToken>
-    curl -s -X GET http://localhost:8080/event/mygame/gamername/MyCounterAchievementEvent?auth=<authToken>
-    curl -s -X GET http://localhost:8080/event/mygame/gamername/MyCounterAchievementEvent?auth=<authToken>
-    curl -s -X GET http://localhost:8080/event/mygame/gamername/MyCounterAchievementEvent?auth=<authToken>
-    curl -s -X GET http://localhost:8080/event/mygame/gamername/StartMyStopWatchAchievementEvent?auth=<authToken>
+    curl -s -X GET http://localhost:8080/event/mygame/developer/MyOneShotAchievementEvent?auth=<authToken>
+    curl -s -X GET http://localhost:8080/event/mygame/developer/MyCounterAchievementEvent?auth=<authToken>
+    curl -s -X GET http://localhost:8080/event/mygame/developer/MyCounterAchievementEvent?auth=<authToken>
+    curl -s -X GET http://localhost:8080/event/mygame/developer/MyCounterAchievementEvent?auth=<authToken>
+    curl -s -X GET http://localhost:8080/event/mygame/developer/MyCounterAchievementEvent?auth=<authToken>
+    curl -s -X GET http://localhost:8080/event/mygame/developer/MyCounterAchievementEvent?auth=<authToken>
+    curl -s -X GET http://localhost:8080/event/mygame/developer/StartMyStopWatchAchievementEvent?auth=<authToken>
 
 ## Read the unlocked achievements
 
-    http://localhost:8080/store/unlocked/mygame/gamername?auth=<authToken>
+    http://localhost:8080/store/unlocked/mygame/developer?auth=<authToken>

@@ -81,9 +81,9 @@ AuthService.prototype.getUserApiKey = function(userId, callback) {
     this.userStore.getUser(userId, function(error, rows) {
         if (error) {
             winston.error("Not able to get user from user store: userId=" + userId +
-                ", error=" + JSON().stringify(error));
+                ", error=" + JSON.stringify(error));
         }
-        callback(error, rows[0].value.apiKey);
+        callback(error, error?undefined:rows[0].value.apiKey);
     });
 }
 
@@ -97,9 +97,10 @@ AuthService.prototype.getGameApiKey = function(gameId, callback) {
     this.gameStore.getGame(gameId, function(error, rows) {
         if (error) {
             winston.error("Not able to get game from game store: gameId=" + gameId +
-                ", error=" + JSON().stringify(error));
-        }
-        callback(error, rows[0].value.apiKey);
+                ", error=" + JSON.stringify(error));
+            callback(error, undefined);
+        } else
+            callback(error, rows[0].value.apiKey);
     });
 }
 
@@ -114,9 +115,10 @@ AuthService.prototype.getNonces = function(userId, callback) {
     this.userStore.getUser(userId, function(error, rows) {
         if (error) {
             winston.error("Not able to get user from user store: userId=" + userId +
-                ", error=" + JSON().stringify(error));
-        }
-        callback(error, rows[0].value.nonces);
+                ", error=" + JSON.stringify(error));
+            callback(error, undefined);
+        } else
+            callback(error, rows[0].value.nonces);
     });
 }
 
@@ -133,39 +135,21 @@ AuthService.prototype.storeNonce = function(userId, nonce, date, callback) {
     this.userStore.getUser(userId, function(error, rows) {
         if (error) {
             winston.error("Not able to get user from user store: userId=" + userId +
-                ", error=" + JSON().stringify(error));
+                ", error=" + JSON.stringify(error));
         } else {
-            rows[0].value.nonces[nonce] = date;
-            self.userStore.createOrUpdateUser(rows[0], function(error) {
+            var user = rows[0].value;
+            // expire timed out nonces
+            var currentDate = new Date().getTime();
+            for (var n in user.nonces) {
+                if (user.nonces.hasOwnProperty(n) && ((currentDate-user.nonces[n])>self.nonceReleaseTimeMs))
+                    delete user.nonces[n];
+            }
+            // add new nonce
+            user.nonces[nonce] = date;
+            self.userStore.createOrUpdateUser(rows[0].value, function(error) {
                 if (error) {
                     winston.error("Not able to update nonce on user: userId=" + userId +
-                        ", error=" + JSON().stringify(error));
-                }
-            });
-        }
-        callback();
-    });
-}
-
-/**
- * Removes a nonce from storage.
- *
- * @param userId the user id of the nonce.
- * @param nonce the nonce to be deleted.
- * @param callback
- */
-AuthService.prototype.deleteNonce = function(userId, nonce, callback) {
-    var self = this;
-    this.userStore.getUser(userId, function(error, rows) {
-        if (error) {
-            winston.error("Not able to get user from user store: userId=" + userId +
-                ", error=" + JSON().stringify(error));
-        } else {
-            delete rows[0].value.nonces[nonce];
-            self.userStore.createOrUpdateUser(rows[0], function(error) {
-                if (error) {
-                    winston.error("Not able to update nonce on user: userId=" + userId +
-                        ", error=" + JSON().stringify(error));
+                        ", error=" + JSON.stringify(error));
                 }
             });
         }
@@ -183,7 +167,7 @@ AuthService.prototype.deleteNonce = function(userId, nonce, callback) {
  */
 AuthService.prototype.isNonceValid = function(userId, nonce, callback) {
     var self = this;
-    this.getNonces(userId, function(nonces) {
+    this.getNonces(userId, function(error, nonces) {
         var currentDate = new Date().getTime();
         if (typeof nonces == "undefined" || nonces==null || typeof nonces[nonce] == "undefined") {
             self.storeNonce(userId, nonce, currentDate, function() {
@@ -193,9 +177,8 @@ AuthService.prototype.isNonceValid = function(userId, nonce, callback) {
             if (((currentDate-nonces[nonce])<this.nonceReleaseTimeMs))
                 callback(false, "Err: nonce already known.");
             else {
-                self.deleteNonce(userId, nonce, function() {});
                 self.storeNonce(userId, nonce, currentDate, function() {
-                    callback(true);
+                    callback(false);
                 });
             }
         };
@@ -280,20 +263,40 @@ AuthService.prototype.verifyAuthData = function(hash, userId, gameId, epoch, non
 };
 
 /**
+ * Splits the token into it's subparts. Returns null if the token is invalid.
+ *
+ * @param token input token.
+ * @returns {*} Object containing the subpart fields or null if the token is invalid.
+ */
+AuthService.prototype.splitAuthToken = function(token) {
+    var dataArray = token.split("%");
+    if (dataArray.length!=5)
+        return null;
+    var decodedToken = {
+        "hash": dataArray[0],
+        "userId": dataArray[1],
+        "gameId": dataArray[2],
+        "epoch": dataArray[3],
+        "nonce": dataArray[4]
+    };
+    return decodedToken;
+}
+
+/**
  * Verifies the given token in the form "hash%userId%gameId%epoch%nonce".
  *
  * @param token the token to be verified.
  * @param callback
  */
 AuthService.prototype.verifyAuthToken = function(token, callback) {
-    if (typeof token == "undefined")
+    if (typeof token == "undefined" || token == null)
         callback(false, "Err: token empty.");
     else {
-        var dataArray = token.split("%");
-        if (dataArray.length!=5)
+        var decodedToken = this.splitAuthToken(token);
+        if (decodedToken==null)
             callback(false, "Err: token format unknown.");
         else
-            this.verifyAuthData(dataArray[0], dataArray[1], dataArray[2], dataArray[3], dataArray[4], callback);
+            this.verifyAuthData(decodedToken.hash, decodedToken.userId, decodedToken.gameId, decodedToken.epoch, decodedToken.nonce, callback);
     }
 }
 
@@ -306,11 +309,10 @@ AuthService.prototype.verifyAuthToken = function(token, callback) {
  * @param next
  */
 AuthService.prototype.verifyExpressRequest = function(req, res, next) {
-    // TODO check if the rest params equal the token encoded params
     var self = this;
-    this.verifyAuthToken(req.param("auth"), function(verified, msg) {
+    var token = req.param("auth");
+    this.verifyAuthToken(token, function(verified, msg) {
         if (verified) {
-            winston.info("Request authenticated.")
             next();
         } else {
             winston.info("Request denied: " + msg)

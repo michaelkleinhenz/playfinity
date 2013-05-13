@@ -54,10 +54,7 @@ var achievementStore = require('./AchievementStore'),
         "achvInstanceStore": achvInstanceStore
     };
 
-var app = module.exports = express();
-
-function readAchievements(req, res, next) {
-    "use strict";
+exports.readAchievements = function(req, res, next) {
     logger.info('readAchievements()');
     logger.debug("jsonp callback: " + req.query.callback);
     achvModelDB.list(function (error, body) {
@@ -73,7 +70,7 @@ function readAchievements(req, res, next) {
     });
 }
 
-function readAchievement(req, res, next) {
+exports.readAchievement = function(req, res, next) {
     if (req.headers["authorization"] && req.headers["authorization"].indexOf('Bearer ') == 0) {
         var accessToken = getAccessToken(req.headers["authorization"]);
 
@@ -148,8 +145,7 @@ function readAchievement(req, res, next) {
     }
 }
 
-function createAchievement(req, res, next) {
-    "use strict";
+exports.createAchievement = function(req, res, next) {
     var doc = req.body;
     logger.info('createAchievement(' + JSON.stringify(doc) + ')' );
     achvModelDB.insert(doc, function (error, body, headers) {
@@ -163,7 +159,7 @@ function createAchievement(req, res, next) {
     });
 }
 
-function getAchievementsForGameId(req, res, next) {
+exports.getAchievementsForGameId = function(req, res, next) {
     var gameId = req.params.gameId;
     achievementStore.achievementStore(achvStoreConf).getAchievementsForGameId(gameId, callback);
 
@@ -177,7 +173,7 @@ function getAchievementsForGameId(req, res, next) {
     }
 }
 
-function deleteAchievement(req, res, next) {
+exports.deleteAchievement = function(req, res, next) {
     var name = req.params.achievementName,
         revision = req.params.revision;
     achievementStore.achievementStore(achvStoreConf).deleteAchievement(name, revision, callback);
@@ -191,8 +187,7 @@ function deleteAchievement(req, res, next) {
     }
 }
 
-function getAchievementByGameIdAndName(req, res, next) {
-    "use strict";
+exports.getAchievementByGameIdAndName = function(req, res, next) {
     var gameId = req.params.gameId,
         name = req.params.achievementName;
     achievementStore.achievementStore(achvStoreConf).getAchievementByGameIdAndName(gameId, name, callback);
@@ -206,8 +201,7 @@ function getAchievementByGameIdAndName(req, res, next) {
     }
 }
 
-function getAchievementsByOwnerIdAndGameId(req, res, next) {
-    "use strict";
+exports.getAchievementsByOwnerIdAndGameId = function(req, res, next) {
     var gameId = req.params.gameId,
         ownerId = req.params.ownerId;
     achievementStore.achievementStore(achvStoreConf).getAchievementsByOwnerIdAndGameId(ownerId, gameId, callback);
@@ -225,8 +219,7 @@ function getAchievementsByOwnerIdAndGameId(req, res, next) {
     }
 }
 
-function getAchievementNamesByOwnerIdAndGameId(req, res, next) {
-    "use strict";
+exports.getAchievementNamesByOwnerIdAndGameId = function(req, res, next) {
     var gameId = req.params.gameId,
         ownerId = req.params.ownerId;
     achievementStore.achievementStore(achvStoreConf).getAchievementNamesByOwnerIdAndGameId(ownerId, gameId, callback);
@@ -244,8 +237,7 @@ function getAchievementNamesByOwnerIdAndGameId(req, res, next) {
     }
 }
 
-function getAchievementInstancesByGameIdAndUserId(req, res, next) {
-    "use strict";
+exports.getAchievementInstancesByGameIdAndUserId = function(req, res, next) {
     var userId = req.params.userId,
         gameId = req.params.gameId;
     achvInstanceStore.getAchievementsForGameIdAndUserId(gameId, userId, callback);
@@ -263,8 +255,7 @@ function getAchievementInstancesByGameIdAndUserId(req, res, next) {
     }
 }
 
-function getUnlockedAchievementsByGameIdAndUserId(req, res, next) {
-    "use strict";
+exports.getUnlockedAchievementsByGameIdAndUserId = function(req, res, next) {
     var userId = req.params.userId,
         gameId = req.params.gameId;
     achvInstanceStore.getUnlockedAchievementsForGameIdAndUserId(gameId, userId, callback);
@@ -282,8 +273,7 @@ function getUnlockedAchievementsByGameIdAndUserId(req, res, next) {
     }
 }
 
-function getAchievement(req, res, next) {
-    "use strict";
+exports.getAchievement = function(req, res, next) {
     var gameId = req.params.gameId,
         ownerId = req.params.ownerId,
         name = req.params.achievementName;
@@ -311,8 +301,7 @@ function getAchievement(req, res, next) {
  * @param req.params.gameId - The identification of the game
  * @param req.params.userId - The idendification of the user
  */
-function initAchievementInstances(req, res, next) {
-    "use strict";
+exports.initAchievementInstances = function (req, res, next) {
     var id = {
         "ownerId": req.params.ownerId,
         "gameId": req.params.gameId,
@@ -328,6 +317,10 @@ function initAchievementInstances(req, res, next) {
         }
     }
 }
+
+
+/*
+//var app = module.exports = express();
 
 // Configuration
 app.enable("jsonp callback");
@@ -348,7 +341,7 @@ app.get ('/instance/:gameId/:userId', getAchievementInstancesByGameIdAndUserId);
 
 // retrieve unlocked achievements for game and user
 app.get('/unlocked/:gameId/:userId', getUnlockedAchievementsByGameIdAndUserId);
-
+*/
 /*
 app.get('/', readAchievements);
 app.get('/:achievementName', readAchievement);

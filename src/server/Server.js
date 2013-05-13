@@ -25,6 +25,7 @@
  */
 
 var authService = require("../auth/authService");
+var store = require('./../store/Store');
 
 var express = require('express');
 var winston = require('winston');
@@ -34,6 +35,7 @@ var crypto = require('crypto');
 function start(userStore, gameStore, achvSystem) {
 
     function getIndexHtml(req, res, next) {
+        // FIXME broken, pages does not exist
         fs.readFile('pages/index.html', function (err, data) {
             res.writeHead(200, {'Content-Type': 'text/html', 'Content-Length': data.length});
             res.write(data);
@@ -52,10 +54,24 @@ function start(userStore, gameStore, achvSystem) {
             event.tsInit =  Date.now() / 1000;
         }
         achvSystem.triggerEvent(event, function (achievement) {
-            winston.debug(JSON.stringify(achievement));
+            //winston.debug(JSON.stringify(achievement));
         });
         res.status(204);
         res.send();
+    }
+
+    function validParams(req, res, keys) {
+        // make sure the token fields match the request fields
+        var decodedToken = authN.splitAuthToken(req.param("auth"));
+        for (var key in keys) {
+            if (decodedToken==null || decodedToken[key]!=req.params[key]) {
+                winston.info("Request denied: token fields do not match request fields.");
+                res.statusCode = 401;
+                res.end('Unauthorized');
+                return false;
+            }
+        }
+        return true;
     }
 
     function cors(req, res, next) {
@@ -94,16 +110,22 @@ function start(userStore, gameStore, achvSystem) {
     // setup authN
     var authN = new authService.AuthService(userStore, gameStore);
 
+    // setup server
+    var app = express();
+    app.enable("jsonp callback");
+    app.use(express.bodyParser());
+    app.set('name', 'Service');
+
     // create example user and game if in debug mode
     if (QBadgeConfig.debugMode) {
         var exampleUser = {
             nonces: {"1234567890": (new Date().getTime())},
             apiKey: crypto.createHash('sha256').update("user"+new Date().getTime()).digest("hex"),
-            userId: "user"
+            userId: "developer"
         };
         var exampleGame = {
             apiKey: crypto.createHash('sha256').update("game"+new Date().getTime()).digest("hex"),
-            gameId: "game"
+            gameId: "mygame"
         };
         userStore.createOrUpdateUser(exampleUser, function(error, body) {
             winston.debug("Example user created.");
@@ -111,38 +133,80 @@ function start(userStore, gameStore, achvSystem) {
         gameStore.createOrUpdateGame(exampleGame, function(error, body) {
             winston.debug("Example game created.");
         });
-        authN.createAuthToken(exampleUser.userId, exampleGame.gameId, new Date().getTime(), "1234567890", function(token) {
+        authN.createAuthToken(exampleUser.userId, exampleGame.gameId, new Date().getTime(), new Date().getTime(), function(token) {
             // check the generated token with the verify algorithm to make sure the system works nominal
             authN.verifyAuthToken(token, function(result, msg) {
                 if (result) {
-                    winston.debug("Running in debug mode. Use the following auth token for demo queries:");
-                    winston.debug(token);
+                    winston.debug("Running in debug mode. Use the following auth token dispenser to get tokens for demo queries:");
+                    winston.debug("http://localhost:" + QBadgeConfig.serverPort + "/token");
                 }
                 else
                     winston.debug("Token verification check failed: " + msg);
             })
-        })
+        });
+        // create token dispenser route
+        app.get('/token', function(req, res, next) {
+            authN.createAuthToken(exampleUser.userId, exampleGame.gameId, new Date().getTime(), new Date().getTime(), function(token) {
+                res.json(200, token);
+            });
+        });
     }
-
-    // setup server
-    var app = express();
-    app.use(express.bodyParser());
-    app.set('name', 'Service');
 
     // enable cors
     app.use(cors);
 
-    // setup component paths
-    app.use('/oauth', require('./../oauth/Oauth'));
+    // setup OAuth
+    //app.use('/oauth', require('./../oauth/Oauth'));
 
-    // FIXME: find out why we can't use authN.verifyExpressRequest directly as argument.
-    app.use('/store', function(req, res, next) {
-        authN.verifyExpressRequest(req, res, next);
-    }, require('./../store/Store'));
+    // setup store calls
 
-    // setup direct paths
+    app.put('/store/model', function(req, res, next) {
+        var doc = req.body;
+        var decodedToken = authN.splitAuthToken(req.param("auth"));
+        if (decodedToken.userId!=doc.ownerId || decodedToken.gameId!=doc.gameId) {
+            winston.info("Request denied: token fields do not match request fields.");
+            res.statusCode = 401;
+            res.end('Unauthorized');
+        } else
+            authN.verifyExpressRequest(req, res, next);
+    }, store.createAchievement);
+
+    app.get('/store/model/:ownerId/:gameId', function(req, res, next) {
+        var decodedToken = authN.splitAuthToken(req.param("auth"));
+        if (decodedToken.userId!=req.params.ownerId || decodedToken.gameId!=req.params.gameId) {
+            winston.info("Request denied: token fields do not match request fields.");
+            res.statusCode = 401;
+            res.end('Unauthorized');
+        } else
+            authN.verifyExpressRequest(req, res, next);
+    }, store.getAchievementsByOwnerIdAndGameId);
+
+    app.get('/store/model/:ownerId/:gameId/:userId', function(req, res, next) {
+        var doc = req.body;
+        var decodedToken = authN.splitAuthToken(req.param("auth"));
+        if (decodedToken.userId!=req.params.ownerId || decodedToken.gameId!=req.params.gameId) {
+            winston.info("Request denied: token fields do not match request fields.");
+            res.statusCode = 401;
+            res.end('Unauthorized');
+        } else
+            authN.verifyExpressRequest(req, res, next);
+    }, store.initAchievementInstances);
+
+    app.get('/store/instance/:gameId/:userId', function(req, res, next) {
+        if (validParams(req, res, ["userId", "gameId"]))
+            authN.verifyExpressRequest(req, res, next);
+    }, store.getAchievementInstancesByGameIdAndUserId);
+
+    app.get('/store/unlocked/:gameId/:userId', function(req, res, next) {
+        if (validParams(req, res, ["userId", "gameId"]))
+            authN.verifyExpressRequest(req, res, next);
+    }, store.getUnlockedAchievementsByGameIdAndUserId);
+
+    // setup event call
+
     app.get('/event/:gameId/:userId/:eventId', function(req, res, next) {
-        authN.verifyExpressRequest(req, res, next);
+        if (validParams(req, res, ["userId", "gameId"]))
+            authN.verifyExpressRequest(req, res, next);
     }, triggerEvent);
 
     // Setup static html route

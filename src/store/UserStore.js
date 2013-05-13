@@ -38,9 +38,9 @@ userStore = function(conf) {
         db.view('user', 'byUserId', {"key": userId}, function(error, body) {
             if (error) {
                 logger.error("Not able to get user: userId=" + userId +
-                    ", error=" + JSON().stringify(error));
+                    ", error=" + JSON.stringify(error));
             }
-            callback(error, body.rows);
+            callback(error, (typeof body=="undefined")?body:body.rows);
         });
     };
 
@@ -56,10 +56,11 @@ userStore = function(conf) {
     };
 
     self.createOrUpdateUser = function (user, callback) {
+        user._id = user.userId;
         db.insert(user, function (error, body, headers) {
             if (error) {
                 logger.error("Not able to insert user" +
-                    JSON.stringify(doc) + " Reason:" + error);
+                    JSON.stringify(user) + " Reason:" + error);
             }
             callback(error);
         });
