@@ -255,6 +255,27 @@ exports.getAchievementInstancesByGameIdAndUserId = function(req, res, next) {
     }
 }
 
+exports.getHTMLAchievementInstancesByGameIdAndUserId = function(req, res, next) {
+    var userId = req.params.userId,
+        gameId = req.params.gameId;
+    achvInstanceStore.getAchievementsForGameIdAndUserId(gameId, userId, callback);
+
+    function callback(error, result) {
+        if (error) {
+            res.json(404, error);
+        } else {
+            var achievements = [];
+            for (var i=0; i<result.rows.length;i++) {
+                achievements.push(result.rows[i].value);
+            }
+            res.render('achievement_instances.jade', { locals: {
+                'achievements' : achievements,
+                'css': req.param("css")
+            },'pretty': true, status: 200 });
+        }
+    }
+}
+
 exports.getUnlockedAchievementsByGameIdAndUserId = function(req, res, next) {
     var userId = req.params.userId,
         gameId = req.params.gameId;
@@ -317,37 +338,3 @@ exports.initAchievementInstances = function (req, res, next) {
         }
     }
 }
-
-
-/*
-//var app = module.exports = express();
-
-// Configuration
-app.enable("jsonp callback");
-
-// Setup routes
-
-// create achievement model
-app.put ('/model', createAchievement);
-
-// retrieve model data for owner and game
-app.get ('/model/:ownerId/:gameId', getAchievementsByOwnerIdAndGameId);
-
-// init model for owner, game and user
-app.post('/model/:ownerId/:gameId/:userId', initAchievementInstances);
-
-// retrieve instance state data for game and user
-app.get ('/instance/:gameId/:userId', getAchievementInstancesByGameIdAndUserId);
-
-// retrieve unlocked achievements for game and user
-app.get('/unlocked/:gameId/:userId', getUnlockedAchievementsByGameIdAndUserId);
-*/
-/*
-app.get('/', readAchievements);
-app.get('/:achievementName', readAchievement);
-app.del('/achievements/:achievementName/:revision', deleteAchievement);
-app.get('/achievements/:gameId', getAchievementsForGameId);
-app.get('/achievements/:ownerId/:gameId/name', getAchievementNamesByOwnerIdAndGameId);
-app.get('/achievements/:ownerId/:gameId/:achievementName', getAchievement);
-app.get('/achievements/:gameId/:achievementName', getAchievementByGameIdAndName);
-*/

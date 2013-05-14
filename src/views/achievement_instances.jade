@@ -1,0 +1,20 @@
+!!! 5
+head
+    meta(charset='utf-8')
+    title='QBadge Achievement Instances'
+    link(href=locals.css, media="all", rel="stylesheet", type="text/css")
+body
+    div.achievements
+    each a in locals.achievements
+        if a.locked
+            - var divClasses = ['achievement', 'locked']
+        else
+            - var divClasses = ['achievement', 'unlocked']
+        div(class=divClasses)
+            each value, key in a.name
+                div(class='a_name #{key}') #{value}
+            div.a_imageuri=a.imageURI
+            each value, key in a.description
+                div(class='a_description #{key}') #{value}
+            div.a_frequencycounter=a.frequencycounter
+            div.a_frequencycountermax=a.frequencycountermax

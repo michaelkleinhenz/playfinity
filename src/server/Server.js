@@ -119,6 +119,8 @@ function start(userStore, gameStore, achvSystem) {
     app.enable("jsonp callback");
     app.use(express.bodyParser());
     app.set('name', 'Service');
+    app.set('views', __dirname + '/../views');
+//    app.set('view options', { layout: false });
 
     // create example user and game if in debug mode
     if (QBadgeConfig.debugMode) {
@@ -227,6 +229,13 @@ function start(userStore, gameStore, achvSystem) {
         if (validParams(req, res, ["userId", "gameId"]))
             authN.verifyExpressRequest(req, res, next);
     }, triggerEvent);
+
+    // setup iFrame interface
+
+    app.get('/htmlstore/instance/:gameId/:userId', function(req, res, next) {
+        if (validParams(req, res, ["userId", "gameId"]))
+            authN.verifyExpressRequest(req, res, next);
+    }, store.getHTMLAchievementInstancesByGameIdAndUserId);
 
     // Setup static html route
     app.get('/', getIndexHtml);

@@ -10,6 +10,7 @@
         "nano": "3.3.2",
         "serializer": "0.0.3",
         "async": "0.2.7",
-	"nodeunit": "0.8.0"
+	    "nodeunit": "0.8.0",
+        "jade": "0.20.0"
     }
 }
