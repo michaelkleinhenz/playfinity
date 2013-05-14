@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link href="jquery-ui-1.10.3.custom/css/ui-lightness/jquery-ui-1.10.3.custom.css" rel="stylesheet" type="text/css" />
+    <link href="jtable-2.3.0/themes/lightcolor/blue/jtable.css" rel="stylesheet" type="text/css" />
+    <script src="jquery-ui-1.10.3.custom/js/jquery-1.9.1.js" type="text/javascript"></script>
+    <script src="jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.js" type="text/javascript"></script>
+    <script src="jtable-2.3.0/jquery.jtable.js" type="text/javascript"></script>
+</head>
+<body>
+
+<div id="AchievementTableContainer" height="500px"></div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#AchievementTableContainer').jtable({
+            title: 'Achievements',
+            sorting: true,
+            paging: true,
+            pageSize: 5,
+            actions: {
+                listAction: '/frontend/achievements',
+                createAction: '/frontend/CreatePerson'
+            },
+            fields: {
+                details: {
+                    title: '',
+                    width: '5%',
+                    sorting: false,
+                    edit: false,
+                    create: false,
+                    display: function (data) {
+                        //Create an image that will be used to open child table
+                        var achievement = data.record;
+                        var $img = $('<img src="images/details.png" width="24px" title="View Achievement Detail" />');
+                        //Open child table when user clicks the image
+                        $img.click(function () {
+                            $('#AchievementTableContainer').jtable('openChildTable',
+                                    $img.closest('tr'),
+                                    {
+                                        title: 'Achievement Detail - Flat Rule View',
+                                        actions: {
+                                            listAction: '/frontend/rules'
+                                        },
+                                        fields: {
+                                            type: {
+                                                title: 'Rule Type',
+                                                width: '30%'
+                                            },
+                                            event: {
+                                                title: 'Associated Event',
+                                                width: '30%'
+                                            },
+                                            state: {
+                                                title: 'Status',
+                                                width: '30%'
+                                            }
+                                        }
+                                    }, function (data) { //opened handler
+                                        data.childTable.jtable('load', { userId: achievement.userId });
+                                    });
+                        });
+                        //Return image to show on the person row
+                        return $img;
+                    }
+                },
+                gameId: {
+                    title: 'Game Id',
+                    key: true,
+                    list: true,
+                    width: '10%'
+                },
+                name: {
+                    title: 'Achievement',
+                    display: function (data) {
+                        return data.record.name.en;
+                    },
+                    width: '60%'
+                },
+                ownerId: {
+                    title: 'Owner Id',
+                    key: true,
+                    list: true,
+                    width: '10%'
+                },
+                userId: {
+                    title: 'User Id',
+                    width: '10%'
+                },
+                locked: {
+                    title: 'Lock status',
+                    width: '10%',
+                    display: function (data) {
+                        return data.record.locked?"locked":"unlocked";
+                    }
+                }
+            }
+        });
+        $('#AchievementTableContainer').jtable('load');
+    });
+</script>
+
+<script>
+</script>
+</body>
+</html>

@@ -34,15 +34,6 @@ var crypto = require('crypto');
 
 function start(userStore, gameStore, achvSystem) {
 
-    function getIndexHtml(req, res, next) {
-        // FIXME broken, pages does not exist
-        fs.readFile('pages/index.html', function (err, data) {
-            res.writeHead(200, {'Content-Type': 'text/html', 'Content-Length': data.length});
-            res.write(data);
-            res.end();
-        });
-    }
-
     function triggerEvent(req, res, next) {
         var event = {
             "tsInit": new Date().getTime(),
@@ -237,8 +228,76 @@ function start(userStore, gameStore, achvSystem) {
             authN.verifyExpressRequest(req, res, next);
     }, store.getHTMLAchievementInstancesByGameIdAndUserId);
 
+    // setup frontend calls
+
+    app.post('/frontend/achievements', function(req, res, next) {
+        res.json(
+            {
+                "Result":"OK",
+                "Records":[
+                            {
+                                "_id": "485044250d3dd1df638c1c18de002df0",
+                                "_rev": "2-daa95865910effc364d525d8b0829eee",
+                                "name": {
+                                    "de" : "Ein echter Diamantenjäger",
+                                    "en" : "A real Diamond Hunter"
+                                },
+                                "gameId": "DiamondHunterApp",
+                                "ownerId": "AppDeveloper",
+                                "imageURI": "http://server/achievement-diamond_hunter.png",
+                                "description": {
+                                    "de": "Du bist ein echter Hunter! Ganze 50 Diamanten gesammelt.",
+                                    "en": "You are a real hunter! Collected 50 diamonds."
+                                },
+                                "process": [
+                                    [
+                                        {
+                                            "type": "CounterRule",
+                                            "event": "DiamondCollectedEvent",
+                                            "counterMax": 50,
+                                            "counter": 50,
+                                            "state": "satisfied"
+                                        }
+                                    ]
+                                ],
+                                "frequencyCounterMax": 1,
+                                "active": true,
+                                "userId": "userA",
+                                "frequencyCounter": 1,
+                                "locked": false
+                            }
+                        ]
+            }
+        );
+    });
+
+    app.post('/frontend/rules', function(req, res, next) {
+        var userId = req.param("userId");
+        res.json(
+            {
+                "Result":"OK",
+                "Records":[
+                    {
+                        "type": "CounterRule",
+                        "event": "DiamondCollectedEvent" + userId,
+                        "counterMax": 50,
+                        "counter": 50,
+                        "state": "satisfied"
+                    },
+                    {
+                        "type": "OneShotRule",
+                        "event": "DiamondCollectedEvent" + userId,
+                        "counterMax": 50,
+                        "counter": 50,
+                        "state": "satisfied"
+                    }
+                ]
+            }
+        );
+    });
+
     // Setup static html route
-    app.get('/', getIndexHtml);
+    app.use("/", express.static(__dirname + '/../frontend'));
 
     // Run Server
     app.listen(QBadgeConfig.serverPort, function () {
