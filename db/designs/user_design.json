@@ -3,6 +3,9 @@
     "views" : {
         "byUserId" : {
             "map" : "function(doc){ emit(doc.userId, doc)}"
+        },
+        "byOwnerId" : {
+            "map" : "function(doc){ emit(doc.ownerId, doc)}"
         }
     }
 }

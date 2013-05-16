@@ -109,6 +109,7 @@ function start(userStore, gameStore, achvSystem) {
     var app = express();
     app.enable("jsonp callback");
     app.use(express.bodyParser());
+    app.use(express.cookieParser());
     app.set('name', 'Service');
     app.set('views', __dirname + '/../views');
 //    app.set('view options', { layout: false });
@@ -118,11 +119,13 @@ function start(userStore, gameStore, achvSystem) {
         var exampleUser = {
             nonces: {"1234567890": (new Date().getTime())},
             apiKey: crypto.createHash('sha256').update("user"+new Date().getTime()).digest("hex"),
-            userId: "developer"
+            userId: "developer",
+            ownerId: "developer"
         };
         var exampleGame = {
             apiKey: crypto.createHash('sha256').update("game"+new Date().getTime()).digest("hex"),
-            gameId: "mygame"
+            gameId: "mygame",
+            ownerId: "developer"
         };
         userStore.createOrUpdateUser(exampleUser, function(error, body) {
             winston.debug("Example user created.");
@@ -204,6 +207,21 @@ function start(userStore, gameStore, achvSystem) {
             authN.verifyExpressRequest(req, res, next);
     }, store.initAchievementInstances);
 
+    app.get('/store/user/:ownerId/:gameId/:userId', function(req, res, next) {
+        if (!QBadgeConfig.authenticationEnabled) {
+            winston.debug("AuthN disabled. Not checking authentication.");
+            next();
+            return;
+        }
+        var decodedToken = authN.splitAuthToken(req.param("auth"));
+        if (decodedToken==null || decodedToken.userId!=req.params.ownerId || decodedToken.gameId!=req.params.gameId) {
+            winston.info("Request denied: token fields do not match request fields.");
+            res.statusCode = 401;
+            res.end('Unauthorized');
+        } else
+            authN.verifyExpressRequest(req, res, next);
+    }, userStore.createUser);
+
     app.get('/store/instance/:gameId/:userId', function(req, res, next) {
         if (validParams(req, res, ["userId", "gameId"]))
             authN.verifyExpressRequest(req, res, next);
@@ -230,74 +248,144 @@ function start(userStore, gameStore, achvSystem) {
 
     // setup frontend calls
 
-    app.post('/frontend/achievements', function(req, res, next) {
-        res.json(
-            {
-                "Result":"OK",
-                "Records":[
-                            {
-                                "_id": "485044250d3dd1df638c1c18de002df0",
-                                "_rev": "2-daa95865910effc364d525d8b0829eee",
-                                "name": {
-                                    "de" : "Ein echter Diamantenjäger",
-                                    "en" : "A real Diamond Hunter"
-                                },
-                                "gameId": "DiamondHunterApp",
-                                "ownerId": "AppDeveloper",
-                                "imageURI": "http://server/achievement-diamond_hunter.png",
-                                "description": {
-                                    "de": "Du bist ein echter Hunter! Ganze 50 Diamanten gesammelt.",
-                                    "en": "You are a real hunter! Collected 50 diamonds."
-                                },
-                                "process": [
-                                    [
-                                        {
-                                            "type": "CounterRule",
-                                            "event": "DiamondCollectedEvent",
-                                            "counterMax": 50,
-                                            "counter": 50,
-                                            "state": "satisfied"
-                                        }
-                                    ]
-                                ],
-                                "frequencyCounterMax": 1,
-                                "active": true,
-                                "userId": "userA",
-                                "frequencyCounter": 1,
-                                "locked": false
-                            }
-                        ]
-            }
-        );
-    });
+    app.post('/frontend/model/create', function(req, res, next) {
+        if (!QBadgeConfig.authenticationEnabled) {
+            winston.debug("AuthN disabled. Not checking authentication.");
+            next();
+            return;
+        }
+        var doc = req.body;
+        if (typeof req.cookies.ownerId=="undefined" || req.cookies.ownerId!=doc.ownerId || req.cookies.ownerId!=doc.ownerId) {
+            winston.info("Request denied: token fields do not match request fields.");
+            res.statusCode = 401;
+            res.end('Unauthorized');
+        }
+    }, store.createFrontendAchievement);
 
-    app.post('/frontend/rules', function(req, res, next) {
-        var userId = req.param("userId");
-        res.json(
-            {
-                "Result":"OK",
-                "Records":[
-                    {
-                        "type": "CounterRule",
-                        "event": "DiamondCollectedEvent" + userId,
-                        "counterMax": 50,
-                        "counter": 50,
-                        "state": "satisfied"
-                    },
-                    {
-                        "type": "OneShotRule",
-                        "event": "DiamondCollectedEvent" + userId,
-                        "counterMax": 50,
-                        "counter": 50,
-                        "state": "satisfied"
-                    }
-                ]
+    app.post('/frontend/model/rules/process', function(req, res, next) {
+        if (!QBadgeConfig.authenticationEnabled) {
+            winston.debug("AuthN disabled. Not checking authentication.");
+            next();
+            return;
+        }
+        if (typeof req.cookies.ownerId=="undefined" || req.cookies.ownerId==null || req.cookies.ownerId!=req.params.ownerId) {
+            winston.info("Request denied: token fields do not match request fields.");
+            res.statusCode = 401;
+            res.end('Unauthorized');
+        }
+    }, store.getFrontendAchievementRulesJSONByOwnerIdAndId);
+
+    app.post('/frontend/model/rules', function(req, res, next) {
+        if (!QBadgeConfig.authenticationEnabled) {
+            winston.debug("AuthN disabled. Not checking authentication.");
+            next();
+            return;
+        }
+        if (typeof req.cookies.ownerId=="undefined" || req.cookies.ownerId==null || req.cookies.ownerId!=req.params.ownerId) {
+            winston.info("Request denied: token fields do not match request fields.");
+            res.statusCode = 401;
+            res.end('Unauthorized');
+        }
+    }, store.getFrontendAchievementRulesByOwnerIdAndId);
+
+    app.post('/frontend/model', function(req, res, next) {
+        if (!QBadgeConfig.authenticationEnabled) {
+            winston.debug("AuthN disabled. Not checking authentication.");
+            next();
+            return;
+        }
+        if (typeof req.cookies.ownerId=="undefined" || req.cookies.ownerId==null || req.cookies.ownerId!=req.params.ownerId) {
+            winston.info("Request denied: token fields do not match request fields.");
+            res.statusCode = 401;
+            res.end('Unauthorized');
+        }
+    }, store.getFrontendAchievementsByOwnerId);
+
+    app.post('/frontend/game/create', function(req, res, next) {
+        if (!QBadgeConfig.authenticationEnabled) {
+            winston.debug("AuthN disabled. Not checking authentication.");
+            next();
+            return;
+        }
+        var doc = req.body;
+        if (typeof req.cookies.ownerId=="undefined" || req.cookies.ownerId==null || req.cookies.ownerId!=req.params.ownerId) {
+            winston.info("Request denied: token fields do not match request fields.");
+            res.statusCode = 401;
+            res.end('Unauthorized');
+        }
+    }, gameStore.createFrontendGame);
+
+    app.post('/frontend/game/idoptions', function(req, res, next) {
+        if (!QBadgeConfig.authenticationEnabled) {
+            winston.debug("AuthN disabled. Not checking authentication.");
+            next();
+            return;
+        }
+        if (typeof req.cookies.ownerId=="undefined" || req.cookies.ownerId==null || req.cookies.ownerId!=req.params.ownerId) {
+            winston.info("Request denied: token fields do not match request fields.");
+            res.statusCode = 401;
+            res.end('Unauthorized');
+        }
+    }, gameStore.getFrontendGameIdsByOwnerId);
+
+    app.post('/frontend/game', function(req, res, next) {
+        if (!QBadgeConfig.authenticationEnabled) {
+            winston.debug("AuthN disabled. Not checking authentication.");
+            next();
+            return;
+        }
+        if (typeof req.cookies.ownerId=="undefined" || req.cookies.ownerId==null || req.cookies.ownerId!=req.params.ownerId) {
+            winston.info("Request denied: token fields do not match request fields.");
+            res.statusCode = 401;
+            res.end('Unauthorized');
+        }
+    }, gameStore.getFrontendGamesByOwnerId);
+
+    app.post('/frontend/user/create', function(req, res, next) {
+        if (!QBadgeConfig.authenticationEnabled) {
+            winston.debug("AuthN disabled. Not checking authentication.");
+            next();
+            return;
+        }
+        var doc = req.body;
+        if (typeof req.cookies.ownerId=="undefined" || req.cookies.ownerId==null || req.cookies.ownerId!=req.params.ownerId || req.cookies.ownerId!=doc.ownerId) {
+            winston.info("Request denied: token fields do not match request fields.");
+            res.statusCode = 401;
+            res.end('Unauthorized');
+        } else
+            authN.verifyExpressRequest(req, res, next);
+    }, userStore.createFrontendUser);
+
+    app.post('/frontend/user', function(req, res, next) {
+        if (!QBadgeConfig.authenticationEnabled) {
+            winston.debug("AuthN disabled. Not checking authentication.");
+            next();
+            return;
+        }
+        if (typeof req.cookies.ownerId=="undefined" || req.cookies.ownerId==null || req.cookies.ownerId!=req.params.ownerId) {
+            winston.info("Request denied: token fields do not match request fields.");
+            res.statusCode = 401;
+            res.end('Unauthorized');
+        }
+    }, userStore.getFrontendUserByOwnerId);
+
+    app.get('/login', function(req, res, next) {
+        if (typeof req.param("username")=="undefined" || typeof req.param("password")=="undefined")
+            res.redirect("/index.html");
+        var hashedPass = crypto.createHash('sha256').update(req.param("password")).digest("hex");
+        userStore.getUser(req.param("username"), function(error, result) {
+            if (result.length!=1 || result[0].value.password!=hashedPass)
+                res.redirect("/index.html");
+            else {
+                res.cookie("ownerId", result[0].value.userId);
+                res.redirect("/console.html?user=" + result[0].value.userId);
             }
-        );
+        })
     });
 
     // Setup static html route
-    app.use("/", express.static(__dirname + '/../frontend'));
+    if (QBadgeConfig.frontendEnabled)
+        app.use("/", express.static(__dirname + '/../frontend'));
 
     // Run Server
     app.listen(QBadgeConfig.serverPort, function () {

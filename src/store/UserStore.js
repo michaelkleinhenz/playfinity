@@ -28,7 +28,8 @@
  * Functions for operations on user data.
  */
 
-// TODO: users should be stored with a gameId
+var crypto = require('crypto');
+
 userStore = function(conf) {
     var db = conf.db;
     var logger = conf.logger;
@@ -38,6 +39,16 @@ userStore = function(conf) {
         db.view('user', 'byUserId', {"key": userId}, function(error, body) {
             if (error) {
                 logger.error("Not able to get user: userId=" + userId +
+                    ", error=" + JSON.stringify(error));
+            }
+            callback(error, (typeof body=="undefined")?body:body.rows);
+        });
+    };
+
+    self.getUsers = function (ownerId, callback) {
+        db.view('user', 'byOwnerId', {"key": ownerId}, function(error, body) {
+            if (error) {
+                logger.error("Not able to get users: ownerId=" + ownerId +
                     ", error=" + JSON.stringify(error));
             }
             callback(error, (typeof body=="undefined")?body:body.rows);
@@ -65,6 +76,91 @@ userStore = function(conf) {
             callback(error);
         });
     };
+
+    self.createUser = function (req, res, next) {
+        var user = {
+            nonces: {},
+            apiKey: crypto.createHash('sha256').update(Utils.uuid()).digest("hex"),
+            userId: req.param("userId"),
+            ownerId: req.param("ownerId"),
+            gameId: req.param("gameId")
+        };
+        logger.info('createUser(' + JSON.stringify(user) + ')' );
+        self.createOrUpdateUser(user, function(error) {
+            if (error) {
+                res.json("Error creating user.");
+                res.send(500);
+            } else {
+                delete user.nonces;
+                delete user._id;
+                res.json(user);
+            }
+        })
+    }
+
+    self.getFrontendUserByOwnerId = function(req, res, next) {
+        if (typeof req.param("ownerId")=="undefined" || req.param("ownerId")==null)
+            res.json({
+                "Result":"ERROR",
+                "Message": "OwnerId must not be null.",
+                "TotalRecordCount":0,
+                "Records":[]})
+        else
+            self.getUsers(req.param("ownerId"), function(error, result) {
+                var output = [];
+                res.json(Utils.toJTableResult(req.param("jtStartIndex"), req.param("jtPageSize"), req.param("jtSorting"), result));
+            });
+    }
+
+    self.createFrontendUser = function(req, res, next) {
+        if (typeof req.param("ownerId")=="undefined" || req.param("ownerId")==null || req.param("ownerId")!=req.body.ownerId)
+            res.json({
+                "Result":"ERROR",
+                "Message": "OwnerId must not be null.",
+                "TotalRecordCount":0,
+                "Records":[]});
+        else {
+            var doc = {
+                "userId": req.body.userId,
+                "gameId": req.body.gameId,
+                "ownerId": req.body.ownerId,
+                "apiKey": crypto.createHash('sha256').update(Utils.uuid()).digest("hex")
+            };
+            self.getUser(doc.userId, function(error, result) {
+                if (error) {
+                    res.json({
+                        "Result":"ERROR",
+                        "Message": error
+                    });
+                    res.send(404);
+                    logger.error("Not able to insert " + doc + " Reason:" + error);
+                } else
+                if (result.length!=0) {
+                    res.json({
+                        "Result":"ERROR",
+                        "Message": "The given userId is already taken."
+                    });
+                    res.send(404);
+                    logger.error("Not able to insert " + doc + " Reason: The given userId is already taken.");
+                } else {
+                    self.createOrUpdateUser(doc, function(error, result) {
+                        if (error) {
+                            res.json({
+                                "Result":"ERROR",
+                                "Message": error
+                            });
+                            res.send(404);
+                            logger.error("Not able to insert " + doc + " Reason:" + error);
+                        } else
+                            res.json({
+                                "Result":"OK",
+                                "Record": doc
+                            });
+                    });
+                }
+            });
+        }
+    }
 
     return self;
 }

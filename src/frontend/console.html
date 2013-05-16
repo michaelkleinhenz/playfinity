@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QPlay Services Console</title>
+    <link href='http://fonts.googleapis.com/css?family=Voces' rel='stylesheet' type='text/css'>
+    <link href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" rel="stylesheet" type="text/css"/>
+    <link href="jtable-2.3.0/themes/jqueryui/jtable_jqueryui.css" rel="stylesheet" type="text/css"/>
+    <link href="style.css" rel="stylesheet" type="text/css"/>
+    <script src="jquery-ui-1.10.3.custom/js/jquery-1.9.1.js" type="text/javascript"></script>
+    <script src="jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.js" type="text/javascript"></script>
+    <script src="jtable-2.3.0/jquery.jtable.js" type="text/javascript"></script>
+    <script src="utils.js" type="text/javascript"></script>
+    <script>
+        $(function () {
+            $("#content").tabs();
+        });
+        $(function() {
+            $( "#dialog-message" ).dialog({
+                autoOpen: false,
+                width: "25%",
+                modal: true,
+                buttons: {
+                    Ok: function() {
+                        $( this ).dialog( "close" );
+                    }
+                }
+            });
+        });
+        var ownerId=getURLParameter("user");
+    </script>
+    <style>
+        #tabs-1, #tabs-2, #tabs-3 {
+            padding: 0px;
+        }
+        #modeltablecontainer {
+            height: 100%;
+        }
+        input#Edit-name_de {
+            width: 99%;
+        }
+        input#Edit-name_en {
+            width: 99%;
+        }
+        input#Edit-imageURI {
+            width: 99%;
+        }
+    </style>
+</head>
+<body>
+<div id="dialog-message" title="Download complete">
+    <h1><span style="color:#5e802e">Q</span>Play Infinity</h1>
+    <h2>Copyright (c) 2013 Questor GmbH, Berlin</h2>
+
+    <p>This software is licensed under the MIT License.</p>
+
+    <p>Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:</p>
+
+    <p>The above copyright notice and this permission notice shall be included in
+        all copies or substantial portions of the Software.</p>
+
+    <p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+        THE SOFTWARE.</p>
+</div>
+<div id="header">
+    <span style="color:#5e802e;text-shadow: 0px 2px 3px #555;">Q</span><span
+        style="color: #222;text-shadow: 0px 2px 3px #555;">Play Inifinity</span> <span style="color:#666">Developer Console</span>
+</div>
+<div id="content">
+    <ul>
+        <li><a href="#tabs-1">Games</a></li>
+        <li><a href="#tabs-2">Users</a></li>
+        <li><a href="#tabs-3">Achievement Models</a></li>
+    </ul>
+    <div id="tabs-1">
+        <div id="gametablecontainer"></div>
+    </div>
+    <div id="tabs-2">
+        <div id="usertablecontainer"></div>
+    </div>
+    <div id="tabs-3">
+        <div id="modeltablecontainer"></div>
+    </div>
+</div>
+<div id="footer">
+    <span style="color:#555555">Copyright &copy; 2013 Questor GmbH. This is Open Source Software. See <a
+            href="#" onclick="$('#dialog-message').dialog('open');">legal terms</a> for details.</span>
+</div>
+
+<script src="modeltable.js" type="text/javascript"></script>
+<script src="gametable.js" type="text/javascript"></script>
+<script src="usertable.js" type="text/javascript"></script>
+
+</body>
+</html>

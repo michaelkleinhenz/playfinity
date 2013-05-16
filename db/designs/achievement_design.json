@@ -4,6 +4,9 @@
         "byOwnerIdAndActive" : {
             "map" : "function(doc){ emit([doc.ownerId, doc.active], doc) }"
         },
+        "byId" : {
+            "map" : "function(doc){ emit(doc._id, doc)}"
+        },
         "byGameId" : {
             "map" : "function(doc){ emit(doc.gameId, doc)}"
         },
@@ -18,6 +21,9 @@
         },
         "byOwnerIdAndGameId": {
             "map" : "function(doc) { emit([doc.ownerId, doc.gameId], doc) }"
+        },
+        "byOwnerId": {
+            "map" : "function(doc) { emit(doc.ownerId, doc) }"
         }
     }
 }

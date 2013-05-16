@@ -28,6 +28,8 @@
  * Functions for operations on game data.
  */
 
+var crypto = require('crypto');
+
 gameStore = function(conf) {
     var db = conf.db;
     var logger = conf.logger;
@@ -35,6 +37,16 @@ gameStore = function(conf) {
 
     self.getGame = function (gameId, callback) {
         db.view('game', 'byGameId', {"key": gameId}, function(error, body) {
+            if (error) {
+                logger.error("Not able to get game: gameId=" + gameId +
+                    ", error=" + JSON.stringify(error));
+            }
+            callback(error, (typeof body=="undefined")?body:body.rows);
+        });
+    };
+
+    self.getGames = function (ownerId, callback) {
+        db.view('game', 'byOwnerId', {"key": ownerId}, function(error, body) {
             if (error) {
                 logger.error("Not able to get game: gameId=" + gameId +
                     ", error=" + JSON.stringify(error));
@@ -64,6 +76,93 @@ gameStore = function(conf) {
             callback(error);
         });
     };
+
+    self.getFrontendGamesByOwnerId = function(req, res, next) {
+        if (typeof req.param("ownerId")=="undefined" || req.param("ownerId")==null)
+            res.json({
+                "Result":"ERROR",
+                "Message": "OwnerId must not be null.",
+                "TotalRecordCount":0,
+                "Records":[]})
+        else
+            self.getGames(req.param("ownerId"), function(error, result) {
+                var output = [];
+                res.json(Utils.toJTableResult(req.param("jtStartIndex"), req.param("jtPageSize"), req.param("jtSorting"), result));
+            });
+    }
+
+    self.getFrontendGameIdsByOwnerId = function(req, res, next) {
+        if (typeof req.param("ownerId")=="undefined" || req.param("ownerId")==null)
+            res.json({
+                "Result":"ERROR",
+                "Message": "OwnerId must not be null.",
+                "TotalRecordCount":0,
+                "Records":[]})
+        else
+            self.getGames(req.param("ownerId"), function(error, result) {
+                var out = {
+                    "Result":"OK",
+                    "Options": []
+                };
+                for (var i=0; i<result.length; i++) {
+                    out.Options.push({
+                        "DisplayText":result[i].value.gameId,
+                        "Value":result[i].value.gameId
+                    });
+                };
+                res.json(out);
+            });
+    }
+
+    self.createFrontendGame = function(req, res, next) {
+        if (typeof req.param("ownerId")=="undefined" || req.param("ownerId")==null || req.param("ownerId")!=req.body.ownerId)
+            res.json({
+                "Result":"ERROR",
+                "Message": "OwnerId must not be null.",
+                "TotalRecordCount":0,
+                "Records":[]});
+        else {
+            var doc = {
+                "_id": req.body.gameId,
+                "gameId": req.body.gameId,
+                "ownerId": req.body.ownerId,
+                "apiKey": crypto.createHash('sha256').update(Utils.uuid()).digest("hex")
+            };
+            self.getGame(doc.gameId, function(error, result) {
+                if (error) {
+                    res.json({
+                        "Result":"ERROR",
+                        "Message": error
+                    });
+                    res.send(404);
+                    logger.error("Not able to insert " + doc + " Reason:" + error);
+                } else
+                    if (result.length!=0) {
+                        res.json({
+                            "Result":"ERROR",
+                            "Message": "The given gameId is already taken."
+                        });
+                        res.send(404);
+                        logger.error("Not able to insert " + doc + " Reason: The given gameId is already taken.");
+                    } else {
+                        self.createOrUpdateGame(doc, function(error, result) {
+                            if (error) {
+                                res.json({
+                                    "Result":"ERROR",
+                                    "Message": error
+                                });
+                                res.send(404);
+                                logger.error("Not able to insert " + doc + " Reason:" + error);
+                            } else
+                                res.json({
+                                    "Result":"OK",
+                                    "Record": doc
+                                });
+                        });
+                    }
+            });
+        }
+    }
 
     return self;
 }

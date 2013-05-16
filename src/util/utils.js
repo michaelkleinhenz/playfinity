@@ -33,6 +33,64 @@ var Utils = {
             }
         }
         return false;
+    },
+
+    toJTableResult : function(startIndex, pageSize, sorting, dbResultRows) {
+        if (typeof startIndex=="undefined")
+            startIndex = 0;
+        if (typeof pageSize=="undefined")
+            pageSize = dbResultRows.length;
+        var sortField = null;
+        var sortOrder = null;
+        var sortingArray = null;
+        if (typeof sorting!="undefined") {
+            sortingArray = sorting.split(" ");
+            if (sorting.split(" ").length==2) {
+                sortField = sorting.split(" ")[0];
+                sortOrder =  sorting.split(" ")[1];
+            } else
+                return null;
+        }
+        var reqResult = {
+            "Result":"OK",
+            "TotalRecordCount":dbResultRows.length,
+            "Records":[]
+        };
+        if (Array.isArray(dbResultRows)) {
+            for (var i=startIndex; i<startIndex+pageSize; i++)
+                if (typeof dbResultRows[i]!="undefined")
+                    if (typeof dbResultRows[i].value=="undefined")
+                        reqResult.Records.push(dbResultRows[i]);
+                    else
+                        reqResult.Records.push(dbResultRows[i].value);
+        } else
+            reqResult.Records.push(dbResultRows);
+        return reqResult;
+    },
+
+    arrayNormalize: function(result, inputArray) {
+        for (var i=0; i<inputArray.length; i++)
+            if (Array.isArray(inputArray[i]))
+                Utils.arrayNormalize(result, inputArray[i]);
+            else {
+                result.push(inputArray[i]);
+            }
+        return result;
+    },
+
+    uuid: function() {
+        var nbr, randStr = "";
+        do {
+            randStr += (nbr = Math.random()).toString(16).substr(2);
+        } while (randStr.length < 30);
+        return [
+            randStr.substr(0, 8), "-",
+            randStr.substr(8, 4), "-4",
+            randStr.substr(12, 3), "-",
+            ((nbr*4|0)+8).toString(16), // [89ab]
+            randStr.substr(15, 3), "-",
+            randStr.substr(18, 12)
+        ].join("");
     }
 };
 

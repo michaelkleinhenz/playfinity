@@ -23,33 +23,34 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+function syntaxHighlight(json) {
+    if (typeof json != 'string') {
+        json = JSON.stringify(json, undefined, 2);
+    }
+    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        var cls = 'number';
+        if (/^"/.test(match)) {
+            if (/:$/.test(match)) {
+                cls = 'key';
+            } else {
+                cls = 'string';
+            }
+        } else if (/true|false/.test(match)) {
+            cls = 'boolean';
+        } else if (/null/.test(match)) {
+            cls = 'null';
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+    });
+}
 
-global.QBadgeConfig = {
-
-    // REST URL of couchDB server to be used
-    couchUrl : 'http://127.0.0.1:5984/',
-
-    // Name of the couch database for the achievement instances. Must already be created.
-    instanceDbName: 'achievement_instance',
-
-    // Name of the couch database for the achievement models. Must already be created.
-    modelDbName: 'achievement',
-
-    // Name of the couch database for the users. Must already be created.
-    userDbName: 'user',
-
-    // Name of the couch database for the games. Must already be created.
-    gameDbName: 'game',
-
-    // Port to be used. QBadge will bind to 0.0.0.0
-    serverPort: 8080,
-
-    // Debug mode - SET TO FALSE FOR PRODUCTION
-    debugMode: true,
-
-    // AuthN switch - SET TO TRUE FOR PRODUCTION
-    authenticationEnabled: false,
-
-    // Set to true to enable alpha web frontend
-    frontendEnabled: true
+function getURLParameter(sParam) {
+    var sPageURL = window.location.search.substring(1);
+    var sURLVariables = sPageURL.split("&");
+    for (var i = 0; i < sURLVariables.length; i++) {
+        var sParameterName = sURLVariables[i].split("=");
+        if (sParameterName[0] == sParam)
+            return sParameterName[1];
+    }
 }

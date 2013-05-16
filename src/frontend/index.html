@@ -1,107 +1,70 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title></title>
-    <link href="jquery-ui-1.10.3.custom/css/ui-lightness/jquery-ui-1.10.3.custom.css" rel="stylesheet" type="text/css" />
-    <link href="jtable-2.3.0/themes/lightcolor/blue/jtable.css" rel="stylesheet" type="text/css" />
+    <title>QPlay Services Console</title>
+    <link href='http://fonts.googleapis.com/css?family=Voces' rel='stylesheet' type='text/css'>
+    <link href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" rel="stylesheet" type="text/css"/>
+    <link href="jtable-2.3.0/themes/jqueryui/jtable_jqueryui.css" rel="stylesheet" type="text/css"/>
+    <link href="style.css" rel="stylesheet" type="text/css"/>
     <script src="jquery-ui-1.10.3.custom/js/jquery-1.9.1.js" type="text/javascript"></script>
     <script src="jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.js" type="text/javascript"></script>
     <script src="jtable-2.3.0/jquery.jtable.js" type="text/javascript"></script>
-</head>
-<body>
-
-<div id="AchievementTableContainer" height="500px"></div>
-
-<script type="text/javascript">
-    $(document).ready(function () {
-        $('#AchievementTableContainer').jtable({
-            title: 'Achievements',
-            sorting: true,
-            paging: true,
-            pageSize: 5,
-            actions: {
-                listAction: '/frontend/achievements',
-                createAction: '/frontend/CreatePerson'
-            },
-            fields: {
-                details: {
-                    title: '',
-                    width: '5%',
-                    sorting: false,
-                    edit: false,
-                    create: false,
-                    display: function (data) {
-                        //Create an image that will be used to open child table
-                        var achievement = data.record;
-                        var $img = $('<img src="images/details.png" width="24px" title="View Achievement Detail" />');
-                        //Open child table when user clicks the image
-                        $img.click(function () {
-                            $('#AchievementTableContainer').jtable('openChildTable',
-                                    $img.closest('tr'),
-                                    {
-                                        title: 'Achievement Detail - Flat Rule View',
-                                        actions: {
-                                            listAction: '/frontend/rules'
-                                        },
-                                        fields: {
-                                            type: {
-                                                title: 'Rule Type',
-                                                width: '30%'
-                                            },
-                                            event: {
-                                                title: 'Associated Event',
-                                                width: '30%'
-                                            },
-                                            state: {
-                                                title: 'Status',
-                                                width: '30%'
-                                            }
-                                        }
-                                    }, function (data) { //opened handler
-                                        data.childTable.jtable('load', { userId: achievement.userId });
-                                    });
-                        });
-                        //Return image to show on the person row
-                        return $img;
-                    }
-                },
-                gameId: {
-                    title: 'Game Id',
-                    key: true,
-                    list: true,
-                    width: '10%'
-                },
-                name: {
-                    title: 'Achievement',
-                    display: function (data) {
-                        return data.record.name.en;
-                    },
-                    width: '60%'
-                },
-                ownerId: {
-                    title: 'Owner Id',
-                    key: true,
-                    list: true,
-                    width: '10%'
-                },
-                userId: {
-                    title: 'User Id',
-                    width: '10%'
-                },
-                locked: {
-                    title: 'Lock status',
-                    width: '10%',
-                    display: function (data) {
-                        return data.record.locked?"locked":"unlocked";
+    <script src="utils.js" type="text/javascript"></script>
+    <script>
+        $(function () {
+            $("#dialog-message").dialog({
+                autoOpen: false,
+                width: "25%",
+                modal: true,
+                buttons: {
+                    Ok: function () {
+                        $(this).dialog("close");
                     }
                 }
-            }
+            });
         });
-        $('#AchievementTableContainer').jtable('load');
-    });
-</script>
+    </script>
+    <style>
+        .loginform {
+            margin-left:auto;
+            margin-right:auto;
+            margin-top: 10%;
+            width:30%;
+        }
+    </style>
+</head>
+<body>
+<div id="dialog-message" title="Download complete">
+    Login failed.
+</div>
+<div id="header">
+    <span style="color:#5e802e;text-shadow: 0px 2px 3px #555;">Q</span><span
+        style="color: #222;text-shadow: 0px 2px 3px #555;">Play Inifinity</span> <span style="color:#666">Developer Console</span>
+</div>
+<div id="content">
 
-<script>
-</script>
+    <div class="loginform">
+
+        <h1>Login</h1>
+
+        <form action="/login">
+
+            <table>
+                <tr><td>Username</td><td><input type="text" name="username" placeholder="username"></td></tr>
+                <tr><td>Password</td><td><input type="password" name="password" placeholder="password"></td></tr>
+            </table>
+
+            <input type="submit" value="Login">
+
+        </form>
+
+    </div>
+
+</div>
+<div id="footer">
+    <span style="color:#555555">Copyright &copy; 2013 Questor GmbH. This is Open Source Software. See <a
+            href="#" onclick="$('#dialog-message').dialog('open');">legal terms</a> for details.</span>
+</div>
+
 </body>
 </html>

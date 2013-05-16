@@ -46,7 +46,30 @@ ACHV.achievementStore = function (conf) {
             if (error) {
                 logger.error("Not able to get achievement: ownerId=" + ownerId +
                     ", gameId=" + gameId +
-                    ", error=" + JSON().stringify(error));
+                    ", error=" + JSON.stringify(error));
+            }
+            callback(error, body.rows);
+        }
+    };
+
+    self.getAchievementsByOwnerId = function (ownerId, callback) {
+        db.view('achievement', 'byOwnerId', {"key": ownerId}, getAchievementCallback);
+
+        function getAchievementCallback(error, body) {
+            if (error) {
+                logger.error("Not able to get achievement: ownerId=" + ownerId +
+                    ", error=" + JSON.stringify(error));
+            }
+            callback(error, body.rows);
+        }
+    };
+
+    self.getAchievementById = function (id, callback) {
+        db.view('achievement', 'byId', {"key": id}, getAchievementCallback);
+        function getAchievementCallback(error, body) {
+            if (error) {
+                logger.error("Not able to get achievement: id=" + id +
+                    ", error=" + JSON.stringify(error));
             }
             callback(error, body.rows);
         }

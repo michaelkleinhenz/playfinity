@@ -49,9 +49,15 @@ var achievementStore = require('./AchievementStore'),
         "logger": logger
     },
     achvInstanceStore = achievementInstanceStore.achievementInstanceStore(achvInstanceStoreConf),
+    userStoreConf = {
+        "logger": logger,
+        "db": nano.use(QBadgeConfig.userDbName)
+    },
+    userStore = require('./UserStore').userStore(userStoreConf),
     achvInitConf = {
         "achvModelStore": achievementStore.achievementStore(achvStoreConf),
-        "achvInstanceStore": achvInstanceStore
+        "achvInstanceStore": achvInstanceStore,
+        "userStore": userStore
     };
 
 exports.readAchievements = function(req, res, next) {
@@ -338,3 +344,86 @@ exports.initAchievementInstances = function (req, res, next) {
         }
     }
 }
+
+exports.getFrontendAchievementRulesByOwnerIdAndId = function(req, res, next) {
+    achievementStore.achievementStore(achvStoreConf).getAchievementById(req.param("id"), function(error, result) {
+        var output = [];
+        if (typeof req.param("ownerId")=="undefined" || req.param("ownerId")==null || req.param("ownerId")!=result[0].value.ownerId)
+            res.json({
+                "Result":"ERROR",
+                "Message": "Authorization failed.",
+                "TotalRecordCount":0,
+                "Records":[]})
+        else
+            res.json(Utils.toJTableResult(req.param("jtStartIndex"), req.param("jtPageSize"), req.param("jtSorting"), Utils.arrayNormalize(output, result[0].value.process)));
+    });
+}
+
+exports.getFrontendAchievementRulesJSONByOwnerIdAndId = function(req, res, next) {
+    achievementStore.achievementStore(achvStoreConf).getAchievementById(req.param("id"), function(error, result) {
+        var output = [];
+        if (typeof req.param("ownerId")=="undefined" || req.param("ownerId")==null || req.param("ownerId")!=result[0].value.ownerId)
+            res.json({
+                "Result":"ERROR",
+                "Message": "Authorization failed.",
+                "TotalRecordCount":0,
+                "Records":[]})
+        else
+            res.json({
+                "Result":"OK",
+                "TotalRecordCount":1,
+                "Records":[{
+                    "process": result[0].value.process
+                }]});
+    });
+}
+
+exports.getFrontendAchievementsByOwnerId = function(req, res, next) {
+    achievementStore.achievementStore(achvStoreConf).getAchievementsByOwnerId(req.param("ownerId"), function(error, result) {
+        if (error) {
+            res.json({
+                "Result":"ERROR",
+                "Message": error,
+                "TotalRecordCount":0,
+                "Records":[]})
+        } else {
+            res.json(Utils.toJTableResult(req.param("jtStartIndex"), req.param("jtPageSize"), req.param("jtSorting"), result));
+        }
+    });
+}
+
+exports.createFrontendAchievement = function(req, res, next) {
+    // FIXME check if process is valid JSON
+    // FIXME check if gameId belongs to ownerId
+    var doc = {
+        gameId: req.body.gameId,
+        ownerId: req.body.ownerId,
+        name: {
+            en: req.body.name_en,
+            de: req.body.name_de
+        },
+        description: {
+            en: req.body.description_en,
+            de: req.body.description_de
+        },
+        imageURI: req.body.imageURI,
+        frequencyCounterMax: req.body.frequencyCounterMax,
+        process: JSON.parse(req.body.process)
+    };
+    logger.info('createAchievement(' + JSON.stringify(doc) + ')' );
+    achvModelDB.insert(doc, function (error, body, headers) {
+        if (error) {
+            res.json({
+                "Result":"ERROR",
+                "Message": error
+                });
+            res.send(404);
+            logger.error("Not able to insert " + doc + " Reason:" + error);
+        } else
+            logger.debug(JSON.stringify(body));
+            res.json({
+                "Result":"OK",
+                "Record": doc
+            });
+    });
+};

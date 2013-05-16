@@ -35,7 +35,8 @@
     ACHV.achievementInstanceInitializer = function (conf) {
         var self = {},
             achvModelStore = conf.achvModelStore,
-            achvInstanceStore = conf.achvInstanceStore;
+            achvInstanceStore = conf.achvInstanceStore,
+            userStore = conf.userStore;
 
         self.initAchievementInstances = function (id, next) {
 

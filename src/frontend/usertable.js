@@ -24,32 +24,40 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-global.QBadgeConfig = {
-
-    // REST URL of couchDB server to be used
-    couchUrl : 'http://127.0.0.1:5984/',
-
-    // Name of the couch database for the achievement instances. Must already be created.
-    instanceDbName: 'achievement_instance',
-
-    // Name of the couch database for the achievement models. Must already be created.
-    modelDbName: 'achievement',
-
-    // Name of the couch database for the users. Must already be created.
-    userDbName: 'user',
-
-    // Name of the couch database for the games. Must already be created.
-    gameDbName: 'game',
-
-    // Port to be used. QBadge will bind to 0.0.0.0
-    serverPort: 8080,
-
-    // Debug mode - SET TO FALSE FOR PRODUCTION
-    debugMode: true,
-
-    // AuthN switch - SET TO TRUE FOR PRODUCTION
-    authenticationEnabled: false,
-
-    // Set to true to enable alpha web frontend
-    frontendEnabled: true
-}
+$(document).ready(function () {
+    $('#usertablecontainer').jtable({
+        title: '&nbsp;',
+        jqueryuiTheme: true,
+        sorting: true,
+        paging: true,
+        pageSize: 5,
+        actions: {
+            listAction: '/frontend/user',
+            createAction: '/frontend/user/create'
+        },
+        fields: {
+            gameId: {
+                title: 'Game Id',
+                options: '/frontend/game/idoptions?ownerId=' + ownerId,
+                width: '15%'
+            },
+            userId: {
+                title: 'User Id',
+                width: '15%'
+            },
+            apiKey: {
+                title: 'API Key',
+                width: '70%',
+                edit: false,
+                create: false
+            },
+            ownerId: {
+                defaultValue: ownerId,
+                list: false,
+                edit: false,
+                type: "hidden"
+            }
+        }
+    });
+    $('#usertablecontainer').jtable('load', { ownerId: ownerId });
+});
