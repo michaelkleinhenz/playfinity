@@ -1,3 +1,10 @@
+@font-face {
+    font-family: 'Voces';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Voces'), local('Voces-Regular'), url(images/voces.woff) format('woff');
+}
+
 html {
     height: 100%;
 }
