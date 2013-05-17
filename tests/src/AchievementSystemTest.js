@@ -36,13 +36,13 @@ global.JsMockito = require('../libs/jsmockito-1.0.4.js').JsMockito;
 JsMockito.Integration.Nodeunit();
 
 // load achievement system class
-global.ACHV = require("../../src/core/ACHV.js");
-require('require-dir')('../../src/core/engine');
-require('../../src/core/AchievementProcessor');
-require('../../src/core/AchievementEngine');
-require('../../src/core/AchievementSystem');
-require('../../src/store/AchievementStore');
-require('../../src/store/AchievementInstanceStore');
+global.ACHV = require("../../src/achievements/ACHV.js");
+require('require-dir')('../../src/achievements/engine');
+require('../../src/achievements/AchievementProcessor');
+require('../../src/achievements/AchievementEngine');
+require('../../src/achievements/AchievementSystem');
+var store = require('../../src/store/AchievementStore');
+var instanceStore = require('../../src/store/AchievementInstanceStore');
 
 // load fixtures
 require('../fixtures/AchievementFixtures.js');
@@ -51,14 +51,8 @@ module.exports = {
 
     setUp: function (callback) {
         this.eventBus = new EventEmitter();
-        var achvInstanceStoreMock = this.achvInstanceStoreMock = mock(ACHV.achievementInstanceStore({}));
-        var achvStoreMock = mock(ACHV.achievementStore({}));
-        var achvSysConf = {
-                "achievementStore" : achvStoreMock,
-                "achievementInstanceStore" : achvInstanceStoreMock,
-                "achievementEngines": {},
-                "eventBus": this.eventBus
-        };
+        var achvInstanceStoreMock = this.achvInstanceStoreMock = mock(instanceStore.achievementInstanceStore({}));
+        var achvStoreMock = mock(store.achievementStore({}));
 
         // AchievementInstanceStore getAchievementsForGameIdAndUserId
         // Valid
@@ -166,7 +160,7 @@ module.exports = {
                 callback("Some Error", null, null);
             });
 
-        this.defaultAchvSys = new ACHV.AchievementSystem(achvSysConf);
+        this.defaultAchvSys = new ACHV.AchievementSystem(achvInstanceStoreMock, this.eventBus);
         callback();
     },
 
@@ -189,13 +183,9 @@ module.exports = {
         var achievementEngine = mock(new ACHV.AchievementEngine(achvEngineConf));
         when(achievementEngine).getAchievements().thenReturn([achievement]);
         var achievement = FIXTURE.getStartGameAchievement();
-        var achvSystemConf = {
-                achievementStore: mock(ACHV.achievementStore({})),
-                achievementInstanceStore: mock(ACHV.achievementInstanceStore({})),
-                achievementEngines: { "1_2": achievementEngine},
-                eventBus: eventBus
-            };
-        var achievementSystem = new ACHV.AchievementSystem(achvSystemConf);
+
+        var achievementSystem = new ACHV.AchievementSystem(mock(instanceStore.achievementInstanceStore({})), eventBus);
+        achievementSystem.setAchievementEngines({ "1_2": achievementEngine});
         test.ok(!achievementSystem.isAchievementUnlocked(1, 2, achievement));
         test.done();
     },

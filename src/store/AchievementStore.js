@@ -24,16 +24,15 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/*
- * Functions for operations on model data.
+/**
+ * Operations on database model data. Needs configuration with "db" and "logger".
+ *
+ * @param db
+ * @param logger
+ * @returns {{}}
  */
-
-/*global ACHV*/
-ACHV.achievementStore = function (conf) {
-    "use strict";
-    var db = conf.db,
-        logger = conf.logger,
-        self = {};
+achievementStore = function (db, logger) {
+    var self = {};
 
     self.getAchievementsForGameId = function (gameId, callback) {
         db.view('achievement', 'byGameId', {"key": gameId}, callback);
@@ -116,7 +115,6 @@ ACHV.achievementStore = function (conf) {
 
     self.getAchievement = function (ownerId, gameId, name, callback) {
         db.view('achievement', 'byOwnerIdAndGameIdAndName', {"key": [ownerId, gameId, name]}, getAchievementCallback);
-
         function getAchievementCallback(error, body) {
             if (error) {
                 logger.error("Not able to get achievement names: ownerId=" + ownerId +
@@ -130,7 +128,19 @@ ACHV.achievementStore = function (conf) {
             callback(error, result);
         }
     };
+
+    self.createAchievement = function(achievement, callback) {
+        db.insert(achievement, function (error, body, headers) {
+            if (error) {
+                logger.error("Not able to create achievement: ownerId=" + achievement.ownerId +
+                    ", gameId=" + achievement.gameId +
+                    ", error=" + JSON.stringify(error));
+            }
+            callback(error, body);
+        });
+    }
+
     return self;
 };
 
-exports.achievementStore = ACHV.achievementStore;
+exports.achievementStore = achievementStore;

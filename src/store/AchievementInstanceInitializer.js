@@ -24,22 +24,16 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/*
- * Functions for creating instances from models.
- */
-
-/*global ACHV*/
 (function () {
     "use strict";
-
-    ACHV.achievementInstanceInitializer = function (conf) {
-        var self = {},
-            achvModelStore = conf.achvModelStore,
-            achvInstanceStore = conf.achvInstanceStore,
-            userStore = conf.userStore;
+    ACHV.achievementInstanceInitializer = function (achvModelStore, achvInstanceStore) {
+        var self = {};
 
         self.initAchievementInstances = function (id, next) {
 
+            /**
+             * Creates an instance from an achievement model.
+             */
             achvModelStore.getAchievementsByOwnerIdAndGameId(id.ownerId, id.gameId, createInstances);
 
             function createInstances(error, rows) {
@@ -79,7 +73,6 @@
         };
         return self;
     };
-
-    exports.achievementInstanceInitializer = ACHV.achievementInstanceInitializer;
-
 }());
+
+exports.achievementInstanceInitializer = ACHV.achievementInstanceInitializer;

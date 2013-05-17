@@ -24,15 +24,15 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/*
- * Functions for operations on instance data.
+/**
+ * Operations on achievement instance database data. Needs configuration with "db" and "logger".
+ *
+ * @param db
+ * @param logger
+ * @returns {{}}
  */
-
-ACHV.achievementInstanceStore = function (conf) {
-    "use strict";
-    var logger = conf.logger,
-        db = conf.db,
-        self = {};
+achievementInstanceStore = function (db, logger) {
+    var self = {};
 
     self.createOrUpdateAchievementInstance = function (doc, callback) {
         db.insert(doc, function (error, body, headers) {
@@ -77,4 +77,5 @@ ACHV.achievementInstanceStore = function (conf) {
 
     return self;
 };
-exports.achievementInstanceStore = ACHV.achievementInstanceStore;
+
+exports.achievementInstanceStore = achievementInstanceStore;

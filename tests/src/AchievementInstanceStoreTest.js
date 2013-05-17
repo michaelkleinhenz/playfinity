@@ -37,13 +37,13 @@ global.JsMockito = require('../libs/jsmockito-1.0.4.js').JsMockito;
 JsMockito.Integration.Nodeunit();
 
 // load achievement system class
-global.ACHV = require("../../src/core/ACHV.js");
-require('require-dir')('../../src/core/engine');
-require('../../src/core/AchievementProcessor');
-require('../../src/core/AchievementEngine');
-require('../../src/core/AchievementSystem');
+global.ACHV = require("../../src/achievements/ACHV.js");
+require('require-dir')('../../src/achievements/engine');
+require('../../src/achievements/AchievementProcessor');
+require('../../src/achievements/AchievementEngine');
+require('../../src/achievements/AchievementSystem');
 require('../../src/store/AchievementStore');
-require('../../src/store/AchievementInstanceStore');
+var instanceStore = require('../../src/store/AchievementInstanceStore');
 
 // load fixtures
 require('../fixtures/AchievementFixtures.js');
@@ -59,10 +59,6 @@ module.exports = {
         var logger = {
                 error: function () {}
         };
-        var conf = {
-                "db": dbMock,
-                "logger": logger
-        };
 
         when(dbMock).insert(anything()).
             then(function (doc, callback) {
@@ -77,7 +73,7 @@ module.exports = {
                     callback(null, "Body");
                 }
             });
-        this.store = ACHV.achievementInstanceStore(conf);
+        this.store = instanceStore.achievementInstanceStore(dbMock, logger);
         callback();
     },
 

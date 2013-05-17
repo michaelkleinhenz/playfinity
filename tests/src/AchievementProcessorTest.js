@@ -37,11 +37,11 @@ global.JsMockito = require('../libs/jsmockito-1.0.4.js').JsMockito;
 JsMockito.Integration.Nodeunit();
 
 // load achievement system class
-global.ACHV = require("../../src/core/ACHV.js");
-require('require-dir')('../../src/core/engine');
-require('../../src/core/AchievementProcessor');
-require('../../src/core/AchievementEngine');
-require('../../src/core/AchievementSystem');
+global.ACHV = require("../../src/achievements/ACHV.js");
+require('require-dir')('../../src/achievements/engine');
+require('../../src/achievements/AchievementProcessor');
+require('../../src/achievements/AchievementEngine');
+require('../../src/achievements/AchievementSystem');
 require('../../src/store/AchievementStore');
 require('../../src/store/AchievementInstanceStore');
 

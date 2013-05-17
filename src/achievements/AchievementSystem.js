@@ -29,16 +29,15 @@
  * i/o and events.
  */
 
-ACHV.AchievementSystem = function (conf) {
+ACHV.AchievementSystem = function (achvInstanceStore, eventBus) {
     "use strict";
-    var self = {},
-        achvInstanceStore = conf.achievementInstanceStore,
-        achvEngines = this.achievementEngines = conf.achievementEngines,
-        achvEngineConf = {
-            "eventBus": conf.eventBus
-        };
+    var self = {};
+    var achvEngineConf = {
+            "eventBus": eventBus
+    };
+    var achvEngines = this.achievementEngines = {};
 
-    self.ee = this.ee = conf.eventBus;
+    self.ee = this.ee = eventBus;
 
     function initAchievementEngine(event, unlockCallback) {
         // console.log("initAchievmentEngine()");
@@ -99,6 +98,11 @@ ACHV.AchievementSystem = function (conf) {
         achv_removed: achvInstanceStore.deleteAchievement
     });
 };
+
+ACHV.AchievementSystem.prototype.setAchievementEngines = function(engines) {
+    // this method is only used for tests to inject custom mocks of engines
+    this.achievementEngines = engines;
+}
 
 ACHV.AchievementSystem.prototype.getAchievementEngineForGameAndUser = function(gameId, userId, callback) {
     callback(this.achievementEngines[gameId + "_" + userId]);

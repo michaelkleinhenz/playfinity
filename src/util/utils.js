@@ -25,6 +25,7 @@
  */
 
 var Utils = {
+
     arrayContains : function(array, obj) {
         var i = array.length;
         while (i--) {
@@ -91,6 +92,52 @@ var Utils = {
             randStr.substr(15, 3), "-",
             randStr.substr(18, 12)
         ].join("");
+    },
+
+    validParams: function(req, res, keys) {
+        if (!QBadgeConfig.authenticationEnabled) {
+            return true;
+        }
+        // make sure the token fields match the request fields
+        var decodedToken = authN.splitAuthToken(req.param("auth"));
+        for (var key in keys) {
+            if (decodedToken==null || decodedToken[key]!=req.params[key]) {
+                res.statusCode = 401;
+                res.end('Request denied: token fields do not match request fields.');
+                return false;
+            }
+        }
+        return true;
+    },
+
+    cors: function(req, res, next) {
+        var oneof = false;
+        if (req.headers.origin) {
+            //console.log("req.headers.origin=" + req.headers.origin);
+            res.set('Access-Control-Allow-Origin', req.headers.origin);
+            res.set('Access-Control-Allow-Methods', 'POST, GET, OPTIONS, PUT, DELETE, HEAD');
+            res.set('Access-Control-Allow-Headers', 'Content-Type, *');
+            oneof = true;
+        }
+        if (req.headers['access-control-request-method']) {
+            res.header('Access-Control-Allow-Methods', req.headers['access-control-request-method']);
+            oneof = true;
+        }
+        if (req.headers['access-control-request-headers']) {
+            res.header('Access-Control-Allow-Headers', req.headers['access-control-request-headers']);
+            oneof = true;
+        }
+        if (oneof) {
+            res.header('Access-Control-Max-Age', 60 * 60 * 24 * 365);
+        }
+
+        // intercept OPTIONS method
+        if (oneof && req.method == 'OPTIONS') {
+            //console.log("cors intercept OPTIONS");
+            res.send(200);
+        } else {
+            next();
+        }
     }
 };
 

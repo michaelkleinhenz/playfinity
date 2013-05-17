@@ -31,61 +31,40 @@ require('./config.js');
 Utils = require('./util/utils');
 Async = require('async');
 var EventEmitter = require('./util/EventEmitter-4.0.2.min.js').EventEmitter;
-
-// Create Achievement System Class
-ACHV = require('./core/ACHV');
-require('require-dir')('./core/engine');
-require('./core/AchievementProcessor');
-require('./core/AchievementEngine');
-
-// import other core modules
-var achvSystem = require('./core/AchievementSystem');
-var achvStore = require('./store/AchievementStore');
-var achvInstanceStore = require('./store/AchievementInstanceStore');
-var achvUserStore = require('./store/UserStore');
-var achvGameStore = require('./store/GameStore');
-var server = require('./server/Server');
-
-// Create data storage
 var logger = require('winston');
+
+// Import data storage
 var nano = require('nano')(QBadgeConfig.couchUrl);
 
-// Create User Store
-var userStoreConf = {
-    "logger": logger,
-    "db": nano.use(QBadgeConfig.userDbName)
-};
-var userStore = achvUserStore.userStore(userStoreConf);
+// Create core achievement system class
+ACHV = require('./achievements/ACHV');
+require('require-dir')('./achievements/engine');
+require('./achievements/AchievementProcessor');
+require('./achievements/AchievementEngine');
+var achievementSystem = require('./achievements/AchievementSystem');
 
-// Create Game Store
-var gameStoreConf = {
-    "logger": logger,
-    "db": nano.use(QBadgeConfig.gameDbName)
-};
-var gameStore = achvGameStore.gameStore(gameStoreConf);
+// Import stores
+var achievementInstanceInitializer = require('./store/AchievementInstanceInitializer');
+var achievementStore = require('./store/AchievementStore');
+var achievementInstanceStore = require('./store/AchievementInstanceStore');
+var userStore = require('./store/UserStore');
+var gameStore = require('./store/GameStore');
 
-// Create Achievement Model Store
-var achvStoreConf = {
-    "logger": logger,
-    "db": nano.use(QBadgeConfig.modelDbName)
-};
-var achievementStore = achvStore.achievementStore(achvStoreConf);
+// Import server
+var server = require('./server/Server');
 
-// Create Achievement Instance Store
-var achvInstanceStoreConf = {
-    "logger": logger,
-    "db": nano.use(QBadgeConfig.instanceDbName)
-};
-var achievementInstanceStore = achvInstanceStore.achievementInstanceStore(achvInstanceStoreConf);
+// Create stores
+var userStoreInstance = userStore.userStore(nano.use(QBadgeConfig.userDbName), logger);
+var gameStoreInstance = gameStore.gameStore(nano.use(QBadgeConfig.gameDbName), logger);
+var achievementStoreInstance = achievementStore.achievementStore(nano.use(QBadgeConfig.modelDbName), logger);
+var achievementInstanceStoreInstance = achievementInstanceStore.achievementInstanceStore(nano.use(QBadgeConfig.instanceDbName), logger);
 
-// Create Achievement System - Only this is relevant for embedded use!
-var achvSystemConfiguration = {
-    "achievementStore":  achievementStore,
-    "achievementInstanceStore": achievementInstanceStore,
-    "achievementEngines": {},
-    "eventBus": new EventEmitter()
-};
+// Create achievement initializer
+var achievementInstanceInitializerInstance = achievementInstanceInitializer.achievementInstanceInitializer(achievementStoreInstance, achievementInstanceStoreInstance);
+
+// Create Achievement System - only this is relevant for embedded use!
+var achievementSystemInstance = new achievementSystem.AchievementSystem(achievementInstanceStoreInstance, new EventEmitter());
 
 // Start achievement system
-var achvSystemInstance = new achvSystem.AchievementSystem(achvSystemConfiguration);
-server.start(userStore, gameStore, achvSystemInstance);
+server.start(userStoreInstance, gameStoreInstance, achievementStoreInstance, achievementInstanceStoreInstance,
+    achievementSystemInstance, achievementInstanceInitializerInstance, logger);

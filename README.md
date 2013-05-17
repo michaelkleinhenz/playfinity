@@ -64,9 +64,9 @@ the calls below. In production mode, each call has to carry a parameter "auth" w
 
 ## Create achievement models
 
-    curl --upload-file doc/examples/example-achievement-oneshot.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model
-    curl --upload-file doc/examples/example-achievement-counter.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model
-    curl --upload-file doc/examples/example-achievement-stopwatch.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model
+    curl --upload-file doc/example-achievements/example-achievement-oneshot.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model
+    curl --upload-file doc/example-achievements/example-achievement-counter.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model
+    curl --upload-file doc/example-achievements/example-achievement-stopwatch.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model
 
 ## Read achievement models
 
