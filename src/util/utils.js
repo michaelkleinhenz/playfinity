@@ -24,6 +24,8 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+var crypto = require('crypto');
+
 var Utils = {
 
     arrayContains : function(array, obj) {
@@ -77,6 +79,10 @@ var Utils = {
                 result.push(inputArray[i]);
             }
         return result;
+    },
+
+    hash: function(data) {
+        return crypto.createHash('sha256').update("game"+new Date().getTime()).digest("hex");
     },
 
     uuid: function() {

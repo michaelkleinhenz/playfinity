@@ -1,0 +1,17 @@
+{
+    "_id" : "_design/storage",
+    "views" : {
+        "byId" : {
+            "map" : "function(doc){ emit(doc.storageId, doc)}"
+        },
+        "byGameId" : {
+            "map" : "function(doc){ emit(doc.gameId, doc)}"
+        },
+        "byOwnerId" : {
+            "map" : "function(doc){ emit(doc.ownerId, doc)}"
+        },
+        "byGameIdAndUserId" : {
+            "map" : "function(doc){ emit([doc.gameId, doc.userId], doc)}"
+        }
+    }
+}

@@ -327,6 +327,58 @@ AuthService.prototype.verifyExpressRequest = function(req, res, next) {
     });
 };
 
+AuthService.prototype.retrieveUser = function(userId, callback) {
+    if (typeof userId!="undefined" && userId!=null)
+        this.userStore.getUser(userId, function(error, body) {
+            if (body.length!=1 || error)
+                callback(null);
+            else
+                callback(body[0].value);
+        });
+    else
+        callback(null);
+}
+
+AuthService.prototype.retrieveGame = function(gameId, callback) {
+    if (typeof gameId!="undefined" && gameId!=null)
+        this.gameStore.getGame(gameId, function(error, body) {
+            if (body.length!=1 || error)
+                callback(null);
+            else
+                callback(body[0].value);
+        });
+    else
+        callback(null);
+}
+
+AuthService.prototype.retrieveOwnerInfo = function(ownerId, userId, userIduserId, callback) {
+    var self = this;
+    Async.series({
+        owner: function(callback) {
+            self.retrieveUser(ownerId, function(result) {
+                callback(null, result);
+            })
+        },
+        user: function(callback){
+            self.retrieveUser(userId, function(result) {
+                callback(null, result);
+            })
+        },
+        game: function(callback){
+            self.retrieveGame(gameId, function(result) {
+                callback(null, result);
+            })
+        }
+    },
+    function(err, results) {
+        callback({
+            owner: results.owner,
+            user: results.user,
+            game: results.game
+        });
+    });
+}
+
 // node integration, if running in node
 if (typeof exports != "undefined") {
     exports.AuthService = AuthService;

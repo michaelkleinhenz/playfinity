@@ -32,6 +32,7 @@ var authService = require('../auth/authService.js');
 var achievementRESTHandler = require('../server/requesthandler/AchievementRESTHandler');
 var achievementInstanceRESTHandler = require('../server/requesthandler/AchievementInstanceRESTHandler');
 var userStoreRESTHandler = require('../server/requesthandler/UserStoreRESTHandler');
+var storageStoreRESTHandler = require('../server/requesthandler/StorageStoreRESTHandler');
 
 var achievementInstanceIFrameHandler = require('../server/requesthandler/AchievementInstanceIFrameHandler');
 
@@ -50,11 +51,12 @@ var restService = require('./RESTService');
  * @param gameStore
  * @param achievementStore
  * @param achievementInstanceStore
+ * @param storageStore
  * @param achievementSystemInstance
  * @param achievementInstanceInitializer
  * @param logger
  */
-function start(userStore, gameStore, achievementStore, achievementInstanceStore, achievementSystemInstance, achievementInstanceInitializer, logger) {
+function start(userStore, gameStore, achievementStore, achievementInstanceStore, storageStore, achievementSystemInstance, achievementInstanceInitializer, logger) {
 
     // setup authN
     var authN = new authService.AuthService(userStore, gameStore);
@@ -62,6 +64,7 @@ function start(userStore, gameStore, achievementStore, achievementInstanceStore,
     // setup server
     var app = express();
     app.enable("jsonp callback");
+    app.use(express.limit('128kb'));
     app.use(express.bodyParser());
     app.use(express.cookieParser());
     app.set('name', 'Service');
@@ -73,7 +76,8 @@ function start(userStore, gameStore, achievementStore, achievementInstanceStore,
             nonces: {"1234567890": (new Date().getTime())},
             apiKey: crypto.createHash('sha256').update("user"+new Date().getTime()).digest("hex"),
             userId: "developer",
-            ownerId: "developer"
+            ownerId: "developer",
+            gameId: "mygame"
         };
         var exampleGame = {
             apiKey: crypto.createHash('sha256').update("game"+new Date().getTime()).digest("hex"),
@@ -114,8 +118,9 @@ function start(userStore, gameStore, achievementStore, achievementInstanceStore,
 
     // create handlers
     var achievementRESTHandlerInstance = achievementRESTHandler.achievementRESTHandler(achievementStore, logger);
-    var achievementInstanceRESTHandlerInstance = achievementInstanceRESTHandler.achievementInstanceRESTHandler(achievementInstanceStore, achievementInstanceInitializer);
+    var achievementInstanceRESTHandlerInstance = achievementInstanceRESTHandler.achievementInstanceRESTHandler(achievementInstanceStore, achievementInstanceInitializer, logger);
     var userStoreRESTHandlerInstance = userStoreRESTHandler.userStoreRESTHandler(userStore, logger);
+    var storageStoreRESTHandlerInstance = storageStoreRESTHandler.storageStoreRESTHandler(authN, storageStore, logger);
 
     var achievementInstanceIFrameHandlerInstance = achievementInstanceIFrameHandler.achievementInstanceIFrameHandler(achievementInstanceStore, achievementInstanceInitializer, logger);
 
@@ -124,7 +129,7 @@ function start(userStore, gameStore, achievementStore, achievementInstanceStore,
     var gameStoreFrontendRequestHandlerInstance = gameStoreFrontendRequestHandler.gameStoreFrontendRequestHandler(gameStore, logger);
 
     // add services
-    restService.restService(authN, app, achievementRESTHandlerInstance, achievementInstanceRESTHandlerInstance, userStoreRESTHandlerInstance, achievementSystemInstance, logger);
+    restService.restService(authN, app, achievementRESTHandlerInstance, achievementInstanceRESTHandlerInstance, userStoreRESTHandlerInstance, storageStoreRESTHandlerInstance, achievementSystemInstance, logger);
     iFrameService.iFrameService(authN, app, achievementInstanceIFrameHandlerInstance, logger);
     frontendService.frontendService(authN, app, achievementFrontendRequestHandlerInstance, userStoreFrontendRequestHandlerInstance, gameStoreFrontendRequestHandlerInstance, logger)
 

@@ -24,7 +24,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-function restService(authN, app, achievementRESTHandler, achievementInstanceRESTHandler, userStoreRESTHandler, achievementSystem, logger) {
+function restService(authN, app, achievementRESTHandler, achievementInstanceRESTHandler, userStoreRESTHandler, storageStoreRESTHandler, achievementSystem, logger) {
 
     app.put('/store/model', function(req, res, next) {
         if (!QBadgeConfig.authenticationEnabled) {
@@ -114,6 +114,70 @@ function restService(authN, app, achievementRESTHandler, achievementInstanceREST
         achievementSystem.triggerEvent(event, function (achievement) {});
         res.status(204);
         res.send();
+    });
+
+    // Storage Endpoints
+
+    app.put('/storage/:gameId/:userId', function(req, res, next) {
+        if (Utils.validParams(req, res, ["userId", "gameId"]))
+            authN.verifyExpressRequest(req, res, function() {
+                storageStoreRESTHandler.putStorage(req, res);
+            });
+    });
+
+    app.get('/storage/:gameId/:userId/:storageId/:time', function(req, res, next) {
+        if (Utils.validParams(req, res, ["userId", "gameId"]))
+            authN.verifyExpressRequest(req, res, function() {
+                storageStoreRESTHandler.getStorageByStorageId(req, res);
+            });
+    });
+
+    app.get('/storage/:gameId/:userId/:storageId', function(req, res, next) {
+        if (Utils.validParams(req, res, ["userId", "gameId"]))
+            authN.verifyExpressRequest(req, res, function() {
+                storageStoreRESTHandler.getStorageByStorageId(req, res);
+            });
+    });
+
+    app.delete('/storage/:gameId/:userId/:storageId', function(req, res, next) {
+        if (Utils.validParams(req, res, ["userId", "gameId"]))
+            authN.verifyExpressRequest(req, res, function() {
+                storageStoreRESTHandler.deleteStorageByStorageId(req, res);
+            });
+    });
+
+    app.get('/storage/:gameId', function(req, res, next) {
+        if (!QBadgeConfig.authenticationEnabled) {
+            logger.debug("AuthN disabled. Not checking authentication.");
+            next();
+            return;
+        }
+        var decodedToken = authN.splitAuthToken(req.param("auth"));
+        if (decodedToken==null || decodedToken.userId!=req.params.ownerId || decodedToken.gameId!=req.params.gameId) {
+            logger.info("Request denied: token fields do not match request fields.");
+            res.statusCode = 401;
+            res.end('Unauthorized');
+        } else
+            authN.verifyExpressRequest(req, res, next);
+    }, function(req, res, next) {
+        storageStoreRESTHandler.listStorageByGameIdAndUserId(req, res);
+    });
+
+    app.get('/storage/:gameId/:userId', function(req, res, next) {
+        if (!QBadgeConfig.authenticationEnabled) {
+            logger.debug("AuthN disabled. Not checking authentication.");
+            next();
+            return;
+        }
+        var decodedToken = authN.splitAuthToken(req.param("auth"));
+        if (decodedToken==null || decodedToken.userId!=req.params.ownerId || decodedToken.gameId!=req.params.gameId) {
+            logger.info("Request denied: token fields do not match request fields.");
+            res.statusCode = 401;
+            res.end('Unauthorized');
+        } else
+            authN.verifyExpressRequest(req, res, next);
+    }, function(req, res, next) {
+        storageStoreRESTHandler.listStorageByGameIdAndUserId(req, res);
     });
 }
 

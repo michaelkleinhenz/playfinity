@@ -49,6 +49,7 @@ var achievementStore = require('./store/AchievementStore');
 var achievementInstanceStore = require('./store/AchievementInstanceStore');
 var userStore = require('./store/UserStore');
 var gameStore = require('./store/GameStore');
+var storageStore = require('./store/StorageStore');
 
 // Import server
 var server = require('./server/Server');
@@ -58,6 +59,7 @@ var userStoreInstance = userStore.userStore(nano.use(QBadgeConfig.userDbName), l
 var gameStoreInstance = gameStore.gameStore(nano.use(QBadgeConfig.gameDbName), logger);
 var achievementStoreInstance = achievementStore.achievementStore(nano.use(QBadgeConfig.modelDbName), logger);
 var achievementInstanceStoreInstance = achievementInstanceStore.achievementInstanceStore(nano.use(QBadgeConfig.instanceDbName), logger);
+var storageStoreInstance = storageStore.storageStore(nano.use(QBadgeConfig.storageDbName), logger);
 
 // Create achievement initializer
 var achievementInstanceInitializerInstance = achievementInstanceInitializer.achievementInstanceInitializer(achievementStoreInstance, achievementInstanceStoreInstance);
@@ -66,5 +68,5 @@ var achievementInstanceInitializerInstance = achievementInstanceInitializer.achi
 var achievementSystemInstance = new achievementSystem.AchievementSystem(achievementInstanceStoreInstance, new EventEmitter());
 
 // Start achievement system
-server.start(userStoreInstance, gameStoreInstance, achievementStoreInstance, achievementInstanceStoreInstance,
+server.start(userStoreInstance, gameStoreInstance, achievementStoreInstance, achievementInstanceStoreInstance, storageStoreInstance,
     achievementSystemInstance, achievementInstanceInitializerInstance, logger);
