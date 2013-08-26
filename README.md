@@ -1,4 +1,4 @@
-# PLAYFINITY Scalable Middleware Services for Game Developers
+# Playfinity Scalable Middleware Services for Game and Gamification Projects
 
 Copyright (c) 2013 Questor GmbH, Berlin
 
