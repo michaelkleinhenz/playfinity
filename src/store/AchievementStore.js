@@ -1,5 +1,5 @@
 /*
- * QBadge
+ * Playfinity
  * Questor Achievement System
  *
  * Copyright (c) 2013 Questor GmbH

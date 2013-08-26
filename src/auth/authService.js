@@ -309,7 +309,7 @@ AuthService.prototype.verifyAuthToken = function(token, callback) {
  * @param next
  */
 AuthService.prototype.verifyExpressRequest = function(req, res, next) {
-    if (!QBadgeConfig.authenticationEnabled) {
+    if (!PlayfinityConfig.authenticationEnabled) {
         winston.debug("AuthN disabled. Not checking authentication.");
         next();
         return;

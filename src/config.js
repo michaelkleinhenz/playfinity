@@ -1,5 +1,5 @@
 /*
- * QBadge
+ * Playfinity
  * Questor Achievement System
  *
  * Copyright (c) 2013 Questor GmbH
@@ -24,7 +24,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-global.QBadgeConfig = {
+global.PlayfinityConfig = {
 
     // REST URL of couchDB server to be used
     couchUrl : 'http://127.0.0.1:5984/',
@@ -47,7 +47,7 @@ global.QBadgeConfig = {
     // Name of the couch database for the leaderboard. Must already be created.
     leaderboardDbName: 'leaderboard',
 
-    // Port to be used. QBadge will bind to 0.0.0.0
+    // Port to be used. Playfinity will bind to 0.0.0.0
     serverPort: 8080,
 
     // Debug mode - SET TO FALSE FOR PRODUCTION

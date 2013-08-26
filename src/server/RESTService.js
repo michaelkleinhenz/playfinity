@@ -1,5 +1,5 @@
 /*
- * QBadge
+ * Playfinity
  * Questor Achievement System
  *
  * Copyright (c) 2013 Questor GmbH
@@ -27,7 +27,7 @@
 function restService(authN, app, achievementRESTHandler, achievementInstanceRESTHandler, userStoreRESTHandler, storageStoreRESTHandler, achievementSystem, logger) {
 
     app.put('/store/model', function(req, res, next) {
-        if (!QBadgeConfig.authenticationEnabled) {
+        if (!PlayfinityConfig.authenticationEnabled) {
             logger.debug("AuthN disabled. Not checking authentication.");
             next();
             return;
@@ -43,7 +43,7 @@ function restService(authN, app, achievementRESTHandler, achievementInstanceREST
     }, achievementRESTHandler.createAchievement);
 
     app.get('/store/model/:ownerId/:gameId', function(req, res, next) {
-        if (!QBadgeConfig.authenticationEnabled) {
+        if (!PlayfinityConfig.authenticationEnabled) {
             logger.debug("AuthN disabled. Not checking authentication.");
             next();
             return;
@@ -58,7 +58,7 @@ function restService(authN, app, achievementRESTHandler, achievementInstanceREST
     }, achievementRESTHandler.getAchievementsByOwnerIdAndGameId);
 
     app.get('/store/model/:ownerId/:gameId/:userId', function(req, res, next) {
-        if (!QBadgeConfig.authenticationEnabled) {
+        if (!PlayfinityConfig.authenticationEnabled) {
             logger.debug("AuthN disabled. Not checking authentication.");
             next();
             return;
@@ -84,7 +84,7 @@ function restService(authN, app, achievementRESTHandler, achievementInstanceREST
     }, achievementInstanceRESTHandler.getUnlockedAchievementsByGameIdAndUserId);
 
     app.get('/store/user/:ownerId/:gameId/:userId', function(req, res, next) {
-        if (!QBadgeConfig.authenticationEnabled) {
+        if (!PlayfinityConfig.authenticationEnabled) {
             logger.debug("AuthN disabled. Not checking authentication.");
             next();
             return;
@@ -147,7 +147,7 @@ function restService(authN, app, achievementRESTHandler, achievementInstanceREST
     });
 
     app.get('/storage/:gameId', function(req, res, next) {
-        if (!QBadgeConfig.authenticationEnabled) {
+        if (!PlayfinityConfig.authenticationEnabled) {
             logger.debug("AuthN disabled. Not checking authentication.");
             next();
             return;
@@ -164,7 +164,7 @@ function restService(authN, app, achievementRESTHandler, achievementInstanceREST
     });
 
     app.get('/storage/:gameId/:userId', function(req, res, next) {
-        if (!QBadgeConfig.authenticationEnabled) {
+        if (!PlayfinityConfig.authenticationEnabled) {
             logger.debug("AuthN disabled. Not checking authentication.");
             next();
             return;

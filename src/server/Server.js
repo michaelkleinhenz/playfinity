@@ -1,5 +1,5 @@
 /*
- * QBadge
+ * Playfinity
  * Questor Achievement System
  *
  * Copyright (c) 2013 Questor GmbH
@@ -72,7 +72,7 @@ function start(userStore, gameStore, achievementStore, achievementInstanceStore,
     app.set('views', __dirname + '/../views');
 
     // create example user and game if in debug mode
-    if (QBadgeConfig.debugMode) {
+    if (PlayfinityConfig.debugMode) {
         var exampleUser = {
             nonces: {"1234567890": (new Date().getTime())},
             apiKey: crypto.createHash('sha256').update("user"+new Date().getTime()).digest("hex"),
@@ -99,7 +99,7 @@ function start(userStore, gameStore, achievementStore, achievementInstanceStore,
                     authN.verifyAuthToken(token, function(result, msg) {
                         if (result) {
                             logger.debug("Running in debug mode. Use the following auth token dispenser to get tokens for demo queries:");
-                            logger.debug("http://localhost:" + QBadgeConfig.serverPort + "/token");
+                            logger.debug("http://localhost:" + PlayfinityConfig.serverPort + "/token");
                         }
                         else
                             logger.debug("Token system verification check failed: " + msg);
@@ -136,11 +136,11 @@ function start(userStore, gameStore, achievementStore, achievementInstanceStore,
     frontendService.frontendService(authN, app, achievementFrontendRequestHandlerInstance, userStoreFrontendRequestHandlerInstance, gameStoreFrontendRequestHandlerInstance, logger)
 
         // Run Server
-    app.listen(QBadgeConfig.serverPort, function () {
-        logger.info("QBadge Achievement System");
+    app.listen(PlayfinityConfig.serverPort, function () {
+        logger.info("Playfinity Achievement System");
         logger.info("Copyright (c) 2013 Questor GmbH, Berlin");
-        logger.info(app.get('name') + " listening at port " + QBadgeConfig.serverPort);
-        if (!QBadgeConfig.authenticationEnabled) {
+        logger.info(app.get('name') + " listening at port " + PlayfinityConfig.serverPort);
+        if (!PlayfinityConfig.authenticationEnabled) {
             logger.info("WARNING: AUTHENTICATION IS DISABLED. SEE DOCUMENTATION FOR DETAILS.")
         }
     });

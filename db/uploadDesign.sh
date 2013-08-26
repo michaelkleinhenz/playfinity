@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# QBadge - Questor Achievement System
+# Playfinity - Questor Achievement System
 #
 # Copyright (c) 2013 Questor GmbH
 #

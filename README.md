@@ -1,14 +1,14 @@
-# QBADGE Achievement and Badge System
+# PLAYFINITY Scalable Middleware Services for Game Developers
 
 Copyright (c) 2013 Questor GmbH, Berlin
 
-QBadge is a universal achievement and badge system based on a flexible state engine. QBadge uses a technology based on process definitions and elements from common Business Process Management Systems (BPMS) to provide an easy, yet flexible approach to achievements.
+Playfinity is a scalable service middleware which provides an achievement and badge system based on a flexible state engine, a leaderboard service, a savegame synchronization service, and a game logic hosting service. Playfinity uses a technology based on process definitions and elements from common Business Process Management Systems (BPMS) to provide an easy, yet flexible approach to achievements.
 
-QBadge can be used as a cloud-hosted service, a self-hosted service on your own servers or as an embedded library on all platforms that support JavaScript as a scripting language. Common targets include Windows, Linux, Mac, iOS, Android, and even web browsers.
+Playfinity can be used as a cloud-hosted service, a self-hosted service on your own servers or as an embedded library on all platforms that support JavaScript as a scripting language. Common targets include Windows, Linux, Mac, iOS, Android, and even web browsers.
 
 See additional documentation at:
 
-    https://bitbucket.org/questor-ondemand/qbadge/wiki/Home
+    https://bitbucket.org/questor-ondemand/playfinity/wiki/Home
 
 # Simple Usage Example
 
@@ -44,7 +44,7 @@ Create the following databases:
 
 Note the example auth token reported on the console:
 
-    info: QBadge Achievement System
+    info: Playfinity System
     info: Copyright (c) 2013 Questor GmbH, Berlin
     info: Service listening at port 8080
     debug: Example game created.

@@ -1,5 +1,5 @@
 /*
- * QBadge
+ * Playfinity
  * Questor Achievement System
  *
  * Copyright (c) 2013 Questor GmbH
@@ -101,7 +101,7 @@ var Utils = {
     },
 
     validParams: function(req, res, keys) {
-        if (!QBadgeConfig.authenticationEnabled) {
+        if (!PlayfinityConfig.authenticationEnabled) {
             return true;
         }
         // make sure the token fields match the request fields

@@ -1,5 +1,5 @@
 /*
- * QBadge
+ * Playfinity
  * Questor Achievement System
  *
  * Copyright (c) 2013 Questor GmbH
@@ -34,7 +34,7 @@ var EventEmitter = require('./util/EventEmitter-4.0.2.min.js').EventEmitter;
 var logger = require('winston');
 
 // Import data storage
-var nano = require('nano')(QBadgeConfig.couchUrl);
+var nano = require('nano')(PlayfinityConfig.couchUrl);
 
 // Create core achievement system class
 ACHV = require('./achievements/ACHV');
@@ -56,12 +56,12 @@ var leaderboardStore = require('./store/LeaderboardStore');
 var server = require('./server/Server');
 
 // Create stores
-var userStoreInstance = userStore.userStore(nano.use(QBadgeConfig.userDbName), logger);
-var gameStoreInstance = gameStore.gameStore(nano.use(QBadgeConfig.gameDbName), logger);
-var achievementStoreInstance = achievementStore.achievementStore(nano.use(QBadgeConfig.modelDbName), logger);
-var achievementInstanceStoreInstance = achievementInstanceStore.achievementInstanceStore(nano.use(QBadgeConfig.instanceDbName), logger);
-var storageStoreInstance = storageStore.storageStore(nano.use(QBadgeConfig.storageDbName), logger);
-var leaderboardStoreInstance = leaderboardStore.leaderboardStore(nano.use(QBadgeConfig.leaderboardDbName), logger);
+var userStoreInstance = userStore.userStore(nano.use(PlayfinityConfig.userDbName), logger);
+var gameStoreInstance = gameStore.gameStore(nano.use(PlayfinityConfig.gameDbName), logger);
+var achievementStoreInstance = achievementStore.achievementStore(nano.use(PlayfinityConfig.modelDbName), logger);
+var achievementInstanceStoreInstance = achievementInstanceStore.achievementInstanceStore(nano.use(PlayfinityConfig.instanceDbName), logger);
+var storageStoreInstance = storageStore.storageStore(nano.use(PlayfinityConfig.storageDbName), logger);
+var leaderboardStoreInstance = leaderboardStore.leaderboardStore(nano.use(PlayfinityConfig.leaderboardDbName), logger);
 
 // Create achievement initializer
 var achievementInstanceInitializerInstance = achievementInstanceInitializer.achievementInstanceInitializer(achievementStoreInstance, achievementInstanceStoreInstance);

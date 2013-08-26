@@ -1,5 +1,5 @@
 /*
- * QBadge
+ * Playfinity
  * Questor Achievement System
  *
  * Copyright (c) 2013 Questor GmbH
@@ -30,7 +30,7 @@ var crypto = require('crypto');
 frontendService = function(authN, app, achievementFrontendRequestHandler, userStoreFrontendRequestHandler, gameStoreFrontendRequestHandler, logger) {
 
     app.post('/frontend/model/create', function(req, res, next) {
-        if (!QBadgeConfig.authenticationEnabled) {
+        if (!PlayfinityConfig.authenticationEnabled) {
             logger.debug("AuthN disabled. Not checking authentication.");
             next();
             return;
@@ -44,7 +44,7 @@ frontendService = function(authN, app, achievementFrontendRequestHandler, userSt
     }, achievementFrontendRequestHandler.createFrontendAchievement);
 
     app.post('/frontend/model/rules/process', function(req, res, next) {
-        if (!QBadgeConfig.authenticationEnabled) {
+        if (!PlayfinityConfig.authenticationEnabled) {
             logger.debug("AuthN disabled. Not checking authentication.");
             next();
             return;
@@ -57,7 +57,7 @@ frontendService = function(authN, app, achievementFrontendRequestHandler, userSt
     }, achievementFrontendRequestHandler.getFrontendAchievementRulesJSONByOwnerIdAndId);
 
     app.post('/frontend/model/rules', function(req, res, next) {
-        if (!QBadgeConfig.authenticationEnabled) {
+        if (!PlayfinityConfig.authenticationEnabled) {
             logger.debug("AuthN disabled. Not checking authentication.");
             next();
             return;
@@ -70,7 +70,7 @@ frontendService = function(authN, app, achievementFrontendRequestHandler, userSt
     }, achievementFrontendRequestHandler.getFrontendAchievementRulesByOwnerIdAndId);
 
     app.post('/frontend/model', function(req, res, next) {
-        if (!QBadgeConfig.authenticationEnabled) {
+        if (!PlayfinityConfig.authenticationEnabled) {
             logger.debug("AuthN disabled. Not checking authentication.");
             next();
             return;
@@ -83,7 +83,7 @@ frontendService = function(authN, app, achievementFrontendRequestHandler, userSt
     }, achievementFrontendRequestHandler.getFrontendAchievementsByOwnerId);
 
     app.post('/frontend/game/create', function(req, res, next) {
-        if (!QBadgeConfig.authenticationEnabled) {
+        if (!PlayfinityConfig.authenticationEnabled) {
             logger.debug("AuthN disabled. Not checking authentication.");
             next();
             return;
@@ -96,7 +96,7 @@ frontendService = function(authN, app, achievementFrontendRequestHandler, userSt
     }, gameStoreFrontendRequestHandler.createFrontendGame);
 
     app.post('/frontend/game/idoptions', function(req, res, next) {
-        if (!QBadgeConfig.authenticationEnabled) {
+        if (!PlayfinityConfig.authenticationEnabled) {
             logger.debug("AuthN disabled. Not checking authentication.");
             next();
             return;
@@ -109,7 +109,7 @@ frontendService = function(authN, app, achievementFrontendRequestHandler, userSt
     }, gameStoreFrontendRequestHandler.getFrontendGameIdsByOwnerId);
 
     app.post('/frontend/game', function(req, res, next) {
-        if (!QBadgeConfig.authenticationEnabled) {
+        if (!PlayfinityConfig.authenticationEnabled) {
             logger.debug("AuthN disabled. Not checking authentication.");
             next();
             return;
@@ -122,7 +122,7 @@ frontendService = function(authN, app, achievementFrontendRequestHandler, userSt
     }, gameStoreFrontendRequestHandler.getFrontendGamesByOwnerId);
 
     app.post('/frontend/user/create', function(req, res, next) {
-        if (!QBadgeConfig.authenticationEnabled) {
+        if (!PlayfinityConfig.authenticationEnabled) {
             logger.debug("AuthN disabled. Not checking authentication.");
             next();
             return;
@@ -137,7 +137,7 @@ frontendService = function(authN, app, achievementFrontendRequestHandler, userSt
     }, userStoreFrontendRequestHandler.createFrontendUser);
 
     app.post('/frontend/user', function(req, res, next) {
-        if (!QBadgeConfig.authenticationEnabled) {
+        if (!PlayfinityConfig.authenticationEnabled) {
             logger.debug("AuthN disabled. Not checking authentication.");
             next();
             return;
@@ -168,7 +168,7 @@ frontendService = function(authN, app, achievementFrontendRequestHandler, userSt
     });
 
     // Setup static html route
-    if (QBadgeConfig.frontendEnabled)
+    if (PlayfinityConfig.frontendEnabled)
         app.use("/", express.static(__dirname + '/../frontend'));
 }
 
