@@ -33,6 +33,7 @@ var achievementRESTHandler = require('../server/requesthandler/AchievementRESTHa
 var achievementInstanceRESTHandler = require('../server/requesthandler/AchievementInstanceRESTHandler');
 var userStoreRESTHandler = require('../server/requesthandler/UserStoreRESTHandler');
 var storageStoreRESTHandler = require('../server/requesthandler/StorageStoreRESTHandler');
+var leaderboardStoreRESTHandler = require('../server/requesthandler/LeaderboardStoreRESTHandler');
 
 var achievementInstanceIFrameHandler = require('../server/requesthandler/AchievementInstanceIFrameHandler');
 
@@ -56,7 +57,7 @@ var restService = require('./RESTService');
  * @param achievementInstanceInitializer
  * @param logger
  */
-function start(userStore, gameStore, achievementStore, achievementInstanceStore, storageStore, achievementSystemInstance, achievementInstanceInitializer, logger) {
+function start(userStore, gameStore, achievementStore, achievementInstanceStore, storageStore, leaderboardStore, achievementSystemInstance, achievementInstanceInitializer, logger) {
 
     // setup authN
     var authN = new authService.AuthService(userStore, gameStore);
@@ -121,6 +122,7 @@ function start(userStore, gameStore, achievementStore, achievementInstanceStore,
     var achievementInstanceRESTHandlerInstance = achievementInstanceRESTHandler.achievementInstanceRESTHandler(achievementInstanceStore, achievementInstanceInitializer, logger);
     var userStoreRESTHandlerInstance = userStoreRESTHandler.userStoreRESTHandler(userStore, logger);
     var storageStoreRESTHandlerInstance = storageStoreRESTHandler.storageStoreRESTHandler(authN, storageStore, logger);
+    var leaderboardStoreRESTHandlerInstance = leaderboardStoreRESTHandler.leaderboardStoreRESTHandler(authN, leaderboardStore, logger);
 
     var achievementInstanceIFrameHandlerInstance = achievementInstanceIFrameHandler.achievementInstanceIFrameHandler(achievementInstanceStore, achievementInstanceInitializer, logger);
 

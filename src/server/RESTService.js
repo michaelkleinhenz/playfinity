@@ -179,6 +179,43 @@ function restService(authN, app, achievementRESTHandler, achievementInstanceREST
     }, function(req, res, next) {
         storageStoreRESTHandler.listStorageByGameIdAndUserId(req, res);
     });
+
+    // Leaderboard Endpoints
+
+    app.put('/leaderboard/:ownerId/:gameId', function(req, res, next) {
+        if (Utils.validParams(req, res, ["userId", "gameId"]))
+            authN.verifyExpressRequest(req, res, function() {
+                storageStoreRESTHandler.createLeaderboard(req, res);
+            });
+    });
+
+    app.delete('/leaderboard/:ownerId/:gameId/:leaderboardId', function(req, res, next) {
+        if (Utils.validParams(req, res, ["userId", "gameId"]))
+            authN.verifyExpressRequest(req, res, function() {
+                storageStoreRESTHandler.deleteLeaderboardByleaderboardId(req, res);
+            });
+    });
+
+    app.post('/leaderboard/:gameId/:leaderboardId/:userId', function(req, res, next) {
+        if (Utils.validParams(req, res, ["userId", "gameId"]))
+            authN.verifyExpressRequest(req, res, function() {
+                storageStoreRESTHandler.addScore(req, res);
+            });
+    });
+
+    app.get('/leaderboard/player/:gameId/:leaderboardId/:userId/:timeFrame', function(req, res, next) {
+        if (Utils.validParams(req, res, ["userId", "gameId"]))
+            authN.verifyExpressRequest(req, res, function() {
+                storageStoreRESTHandler.getPlayerLeaderboard(req, res);
+            });
+    });
+
+    app.get('/leaderboard/global/:gameId/:leaderboardId/:userId/:timeFrame', function(req, res, next) {
+        if (Utils.validParams(req, res, ["userId", "gameId"]))
+            authN.verifyExpressRequest(req, res, function() {
+                storageStoreRESTHandler.getGlobalLeaderboard(req, res);
+            });
+    });
 }
 
 exports.restService = restService;

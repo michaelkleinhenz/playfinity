@@ -37,6 +37,10 @@ var crypto = require('crypto');
 userStoreFrontendRequestHandler = function(userStore, logger) {
     var self = {};
 
+    self.getUser = function(userId, callback) {
+        userStore.getUser(userId, callback);
+    }
+
     self.getFrontendUserByOwnerId = function(req, res, next) {
         if (typeof req.param("ownerId")=="undefined" || req.param("ownerId")==null)
             res.json({

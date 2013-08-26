@@ -1,0 +1,14 @@
+{
+    "_id" : "_design/leaderboard",
+    "views" : {
+        "byId" : {
+            "map" : "function(doc){ emit(doc.leaderboardId, doc)}"
+        },
+        "byGameId" : {
+            "map" : "function(doc){ emit(doc.gameId, doc)}"
+        },
+        "byOwnerId" : {
+            "map" : "function(doc){ emit(doc.ownerId, doc)}"
+        }
+    }
+}
