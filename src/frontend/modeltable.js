@@ -108,7 +108,7 @@ $(document).ready(function () {
                 create: false,
                 display: function (data) {
                     var achievement = data.record;
-                    var $img = $('<img src="images/details.png" width="24px" title="View Achievement Detail" />');
+                    var $img = $('<img src="images/edit.png" width="24px" title="View Achievement Detail" />');
                     $img.click(function () {
                         $('#modeltablecontainer').jtable('openChildTable',
                             $img.closest('tr'),
