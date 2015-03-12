@@ -10,4 +10,5 @@ test-reports/
 node_modules/
 test-results/
 *.swp
-
+playfinity.iml
+atlassian-ide-plugin.xml

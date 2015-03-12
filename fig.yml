@@ -1,0 +1,18 @@
+playfinity:
+  image: playfinity
+  links:
+   - couchdb:couchdb
+  ports:
+   - "0.0.0.0:8080:8080"
+  volumes:
+   - ./logs:/opt/app/logs
+   - ./config.json:/opt/app/config.json  
+
+couchdb:
+  image: klaemo/couchdb
+  ports:
+   - "1234:5984"
+  volumes:
+   - ./couchdb-data:/usr/local/var/lib/couchdb
+   - ./couchdb-logs:/usr/local/var/log/couchdb
+

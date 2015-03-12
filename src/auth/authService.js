@@ -215,7 +215,7 @@ AuthService.prototype.apiKeyAndHashValidation = function(hash, userId, gameId, e
                 callback(true, "Success");
         })
     });
-}
+};
 
 /**
  * Creates an auth token from the given data.
@@ -234,7 +234,7 @@ AuthService.prototype.createAuthToken = function(userId, gameId, epoch, nonce, c
             callback(calculatedHash + "%" + userId + "%" + gameId + "%" + epoch + "%" + nonce);
         })
     })
-}
+};
 
 /**
  * Verifies the plain auth data. Calls callback with results.
