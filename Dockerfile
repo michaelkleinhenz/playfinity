@@ -27,4 +27,4 @@ ADD . /opt/app
  
 EXPOSE 8080
 
-CMD ["node", "src/main.js"]
+CMD ["node", "playfinity.js"]

@@ -35,6 +35,8 @@ var userStoreRESTHandler = require('../server/requesthandler/UserStoreRESTHandle
 var storageStoreRESTHandler = require('../server/requesthandler/StorageStoreRESTHandler');
 var leaderboardStoreRESTHandler = require('../server/requesthandler/LeaderboardStoreRESTHandler');
 
+var healthRESTService = require('../server/HealthRESTService');
+
 var achievementInstanceIFrameHandler = require('../server/requesthandler/AchievementInstanceIFrameHandler');
 
 var achievementFrontendRequestHandler = require('../server/requesthandler/AchievementFrontendRequestHandler');
@@ -133,15 +135,17 @@ function start(userStore, gameStore, achievementStore, achievementInstanceStore,
     // add services
     restService.restService(authN, app, achievementRESTHandlerInstance, achievementInstanceRESTHandlerInstance, userStoreRESTHandlerInstance, storageStoreRESTHandlerInstance, achievementSystemInstance, logger);
     iFrameService.iFrameService(authN, app, achievementInstanceIFrameHandlerInstance, logger);
-    frontendService.frontendService(authN, app, achievementFrontendRequestHandlerInstance, userStoreFrontendRequestHandlerInstance, gameStoreFrontendRequestHandlerInstance, logger)
+    frontendService.frontendService(authN, app, achievementFrontendRequestHandlerInstance, userStoreFrontendRequestHandlerInstance, gameStoreFrontendRequestHandlerInstance, logger);
 
-        // Run Server
+    require("../server/HealthRESTService").registerServices(authN, app, logger);
+
+    // Run Server
     app.listen(PlayfinityConfig.serverPort, function () {
         logger.info("Playfinity Achievement System");
         logger.info("Copyright (c) 2013 Questor GmbH, Berlin");
         logger.info(app.get('name') + " listening at port " + PlayfinityConfig.serverPort);
         if (!PlayfinityConfig.authenticationEnabled) {
-            logger.info("WARNING: AUTHENTICATION IS DISABLED. SEE DOCUMENTATION FOR DETAILS.")
+            logger.info("Authentication disabled, see documentation for details.")
         }
     });
 }

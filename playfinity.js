@@ -28,32 +28,32 @@
 require('./config.js');
 
 // Import global utility modules
-Utils = require('./util/utils');
+Utils = require('./service/util/utils');
 Async = require('async');
-var EventEmitter = require('./util/EventEmitter-4.0.2.min.js').EventEmitter;
+var EventEmitter = require('./service/util/EventEmitter-4.0.2.min.js').EventEmitter;
 var logger = require('winston');
 
 // Import data storage
 var nano = require('nano')(PlayfinityConfig.couchUrl);
 
 // Create core achievement system class
-ACHV = require('./achievements/ACHV');
-require('require-dir')('./achievements/engine');
-require('./achievements/AchievementProcessor');
-require('./achievements/AchievementEngine');
-var achievementSystem = require('./achievements/AchievementSystem');
+ACHV = require('./service/achievements/ACHV');
+require('require-dir')('./service/achievements/engine');
+require('./service/achievements/AchievementProcessor');
+require('./service/achievements/AchievementEngine');
+var achievementSystem = require('./service/achievements/AchievementSystem');
 
 // Import stores
-var achievementInstanceInitializer = require('./store/AchievementInstanceInitializer');
-var achievementStore = require('./store/AchievementStore');
-var achievementInstanceStore = require('./store/AchievementInstanceStore');
-var userStore = require('./store/UserStore');
-var gameStore = require('./store/GameStore');
-var storageStore = require('./store/StorageStore');
-var leaderboardStore = require('./store/LeaderboardStore');
+var achievementInstanceInitializer = require('./service/store/AchievementInstanceInitializer');
+var achievementStore = require('./service/store/AchievementStore');
+var achievementInstanceStore = require('./service/store/AchievementInstanceStore');
+var userStore = require('./service/store/UserStore');
+var gameStore = require('./service/store/GameStore');
+var storageStore = require('./service/store/StorageStore');
+var leaderboardStore = require('./service/store/LeaderboardStore');
 
 // Import server
-var server = require('./server/Server');
+var server = require('./service/server/Server');
 
 // Create stores
 var userStoreInstance = userStore.userStore(nano.use(PlayfinityConfig.userDbName), logger);

@@ -61,7 +61,6 @@ mode*** at the given address (in this case "http://localhost:8080/token").
 ***Important***: In the default configuration, the authentication is disabled entirely. You'll need no auth tokens for
 the calls below. In production mode, each call has to carry a parameter "auth" which contains the token.
 
-
 ## Create achievement models
 
     curl --upload-file doc/example-achievements/example-achievement-oneshot.json -H "Content-Type: application/json" -X PUT http://localhost:8080/store/model

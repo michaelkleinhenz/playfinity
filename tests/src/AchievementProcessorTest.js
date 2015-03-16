@@ -25,10 +25,10 @@
  */
 
 // load libraries
-var EventEmitter = require('../../src/util/EventEmitter-4.0.2.min.js').EventEmitter;
+var EventEmitter = require('../../service/util/EventEmitter-4.0.2.min.js').EventEmitter;
 
 global.Async = require('async');
-global.Utils = require('../../src/util/utils');
+global.Utils = require('../../service/util/utils');
 
 global.JsHamcrest = require('../libs/jshamcrest-0.6.8.js').JsHamcrest;
 JsHamcrest.Integration.Nodeunit();
@@ -37,13 +37,13 @@ global.JsMockito = require('../libs/jsmockito-1.0.4.js').JsMockito;
 JsMockito.Integration.Nodeunit();
 
 // load achievement system class
-global.ACHV = require("../../src/achievements/ACHV.js");
+global.ACHV = require("../../service/achievements/ACHV.js");
 require('require-dir')('../../src/achievements/engine');
-require('../../src/achievements/AchievementProcessor');
-require('../../src/achievements/AchievementEngine');
-require('../../src/achievements/AchievementSystem');
-require('../../src/store/AchievementStore');
-require('../../src/store/AchievementInstanceStore');
+require('../../service/achievements/AchievementProcessor');
+require('../../service/achievements/AchievementEngine');
+require('../../service/achievements/AchievementSystem');
+require('../../service/store/AchievementStore');
+require('../../service/store/AchievementInstanceStore');
 
 // load fixtures
 require('../fixtures/AchievementFixtures.js');
