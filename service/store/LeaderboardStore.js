@@ -25,6 +25,7 @@
  */
 
 var crypto = require("crypto");
+var nano = require("nano")(PlayfinityConfig.couchUrl);
 
 var design = {
     "_id" : "_design/leaderboard",
@@ -54,18 +55,39 @@ var design = {
     }
 };
 
+exports.checkDatabase = function(callback) {
+    nano.db.get(PlayfinityConfig.leaderboardDbName, function(error, body) {
+        if (error) {
+            Logger.info("Creating database " + PlayfinityConfig.leaderboardDbName + "..");
+            nano.db.create(PlayfinityConfig.leaderboardDbName, function(err, body) {
+                if (!err) {
+                    Logger.info("Database created.");
+                } else {
+                    Logger.info("Error creating database.");
+                }
+                callback();
+            });
+        } else {
+            Logger.info("Using existing database.");
+            callback();
+        }
+    });
+};
+
 exports.updateDatabaseViews = function() {
-    leaderboardDB.get("_design/leaderboard", { revs_info: true }, function(error, body) {
-        if (!error) {
-            Logger.info("Updating existing leaderboard views.");
-            design._rev = body._rev;
-        } else
-            Logger.info("New database, creating leaderboard views.");
-        leaderboardDB.insert(design, "_design/leaderboard", function(error, body) {
-            if (error)
-                Logger.error("Error creating/updating leaderboard views: " + JSON.stringify(error));
-            else
-                Logger.info("Successfully created/updated leaderboard views.");
+    exports.checkDatabase(function() {
+        leaderboardDB.get("_design/leaderboard", { revs_info: true }, function(error, body) {
+            if (!error) {
+                Logger.info("Updating existing leaderboard views.");
+                design._rev = body._rev;
+            } else
+                Logger.info("New database, creating leaderboard views.");
+            leaderboardDB.insert(design, "_design/leaderboard", function(error, body) {
+                if (error)
+                    Logger.error("Error creating/updating leaderboard views: " + JSON.stringify(error));
+                else
+                    Logger.info("Successfully created/updated leaderboard views.");
+            });
         });
     });
 };
