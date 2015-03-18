@@ -1,0 +1,82 @@
+{
+  "docs": [
+    {
+      "_id": "entry1",
+      "type": "leaderboardEntry",
+      "ownerId": "owner",
+      "gameId": "game1",
+      "leaderboardId": "leaderboard1",
+      "userId": "user1",
+      "score": 2,
+      "timestamp": "1",
+      "epoch": 1,
+      "extraData": { "nickname": "nickname1" },
+      "active": false
+    },
+    {
+      "_id": "entry2",
+      "type": "leaderboardEntry",
+      "ownerId": "owner",
+      "gameId": "game1",
+      "leaderboardId": "leaderboard1",
+      "userId": "user1",
+      "score": 1,
+      "timestamp": "2",
+      "epoch": 2,
+      "extraData": { "nickname": "nickname1" },
+      "active": true
+    },
+    {
+      "_id": "entry3",
+      "type": "leaderboardEntry",
+      "ownerId": "owner",
+      "gameId": "game1",
+      "leaderboardId": "leaderboard1",
+      "userId": "user2",
+      "score": 5,
+      "timestamp": "3",
+      "epoch": 3,
+      "extraData": { "nickname": "nickname2" },
+      "active": true
+    },
+    {
+      "_id": "entry4",
+      "type": "leaderboardEntry",
+      "ownerId": "owner",
+      "gameId": "game1",
+      "leaderboardId": "leaderboard1",
+      "userId": "user2",
+      "score": 10,
+      "timestamp": "5",
+      "epoch": 5,
+      "extraData": { "nickname": "nickname2" },
+      "active": false
+    },
+    {
+      "_id": "entry5",
+      "type": "leaderboardEntry",
+      "ownerId": "owner",
+      "gameId": "game2",
+      "leaderboardId": "leaderboard1",
+      "userId": "user1",
+      "score": 10,
+      "timestamp": "10",
+      "epoch": 10,
+      "extraData": { "nickname": "nickname1" },
+      "active": true
+    },
+    {
+      "_id": "entry6",
+      "type": "leaderboardEntry",
+      "ownerId": "owner",
+      "gameId": "game1",
+      "leaderboardId": "leaderboard2",
+      "userId": "user1",
+      "score": 3,
+      "timestamp": "6",
+      "epoch": 6,
+      "extraData": { "nickname": "nickname1" },
+      "active": true
+    }
+  ]
+}
