@@ -30,14 +30,14 @@ exports.registerServices = function(app) {
     // update database views
     leaderboardStore.updateDatabaseViews();
     // register routes
-    app.post("/leaderboard", this.addScore);
-    app.get("/leaderboard/game/:ownerId/:gameId/:leaderboardId/:timeframe/:mode", this.getGameLeaderboard);
-    app.get("/leaderboard/player/:ownerId/:gameId/:leaderboardId/:userId/:timeframe/:mode", this.getPlayerLeaderboardEntry);
+    app.post("/leaderboard/:mode", this.addScore);
+    app.get("/leaderboard/game/:ownerId/:gameId/:leaderboardId", this.getLeaderboard);
+    app.get("/leaderboard/player/:ownerId/:gameId/:leaderboardId/:userId", this.getPlayerLeaderboardEntry);
 };
 
 exports.addScore = function(req, res) {
     var storeEntry = req.body;
-    leaderboardStore.addScore(storeEntry,
+    leaderboardStore.addScore(storeEntry, req.params.mode,
         function(result) {
             res.json(201, result);
         },
@@ -46,13 +46,11 @@ exports.addScore = function(req, res) {
         });
 };
 
-exports.getGameLeaderboard = function(req, res) {
+exports.getLeaderboard = function(req, res) {
     var ownerId = req.params.ownerId;
     var gameId = req.params.gameId;
     var leaderboardId = req.params.leaderboardId;
-    var timeframe = req.params.timeframe;
-    var mode = req.params.mode;
-    leaderboardStore.getGameLeaderboard(ownerId, gameId, leaderboardId, timeframe, mode,
+    leaderboardStore.getLeaderboard(ownerId, gameId, leaderboardId,
         function(result) {
             res.json(200, result);
         },
@@ -65,11 +63,9 @@ exports.getPlayerLeaderboardEntry = function(req, res) {
     var ownerId = req.params.ownerId;
     var gameId = req.params.gameId;
     var leaderboardId = req.params.leaderboardId;
-    var timeframe = req.params.timeframe;
     var userId = req.params.userId;
-    var mode = req.params.mode;
 
-    leaderboardStore.getGameLeaderboard(ownerId, gameId, leaderboardId, timeframe, userId, mode,
+    leaderboardStore.getPlayerLeaderboardEntry(ownerId, gameId, leaderboardId, userId,
         function(result) {
             res.json(200, result);
         },

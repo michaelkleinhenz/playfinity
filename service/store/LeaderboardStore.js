@@ -39,13 +39,17 @@ var design = {
             "map" : "function(doc){ emit(doc.ownerId, doc)}"
         },
         "byTimestamp" : {
-            "map" : "function(doc){emit(doc.timestamp, 1)}"
+            "map" : "function(doc){emit(doc.timestamp, doc)}"
+        },
+        "byActive" : {
+            "map" : "function(doc){if (doc.active) emit([doc.ownerId, doc.gameId, doc.leaderboardId, doc.userId], doc)}"
+        },
+        "byLeaderboard" : {
+            "map" : "function(doc){if (doc.active) emit([doc.ownerId, doc.gameId, doc.leaderboardId], doc)}"
         },
         "findGameLeaderboard" : {
-            "map" : "function(doc){emit(doc.timestamp, 1)}"
-        },
-        "findPlayerEntry" : {
-            "map" : "function(doc){emit(doc.timestamp, 1)}"
+            "map" : "function(doc){emit([doc.userId, doc.ownerId, doc.gameId, doc.leaderboardId, doc.epoch], 1)}",
+            "reduce": "function(keys, values, rereduce) { var max = 0, ks = rereduce ? values : keys; for (var i = 1, l = ks.length; i < l; ++i) { if (ks[max][0][4] < ks[i][0][4]) max = i; } return ks[max]; }"
         }
     }
 };
@@ -66,7 +70,9 @@ exports.updateDatabaseViews = function() {
     });
 };
 
-exports.addScore = function(scoreEntry, successCallback, failCallback) {
+exports.addScore = function(scoreEntry, mode, successCallback, failCallback) {
+
+    // FIXME: add more modes: latest and highest
 
     // calculate id
     var date = new Date();
@@ -86,36 +92,80 @@ exports.addScore = function(scoreEntry, successCallback, failCallback) {
         score: scoreEntry.score,
         timestamp: date,
         epoch: date.getTime(),
-        extraData: scoreEntry.extraData
+        extraData: scoreEntry.extraData,
+        active: true
     };
 
+    // make last leaderboard entry inactive
+    var filter = [scoreEntry.ownerId, scoreEntry.gameId, scoreEntry.leaderboardId, scoreEntry.userId];
+    leaderboardDB.view("leaderboard", "byActive", { key: filter }, function(error, body) {
+        if (body.rows.length>1) {
+            var error = "Filter by active returned more than one row. Inconsistent data for filter " + JSON.stringify(filter);
+            Logger.error(error);
+            failCallback(error);
+        }
+        else {
+            if (body.rows.length==1) {
+                // update set active to false
+                var updatedEntry = body.rows[0].value;
+                updatedEntry.active = false;
+                leaderboardDB.insert(updatedEntry, function (error) {
+                    if (error) {
+                        Logger.error("Error updating existing leaderboardEntry:" + JSON.stringify(error));
+                        failCallback(error);
+                    } else {
+                        // insert new entry
+                        exports.insertLeaderboardEntry(leaderboardEntry, successCallback, failCallback);
+                    }
+                })
+            } else
+                // insert new entry
+                exports.insertLeaderboardEntry(leaderboardEntry, successCallback, failCallback);
+        }
+    })
+};
+
+exports.insertLeaderboardEntry = function(leaderboardEntry, successCallback, failCallback) {
     // add to database
     leaderboardDB.insert(leaderboardEntry, function (error) {
         if (error) {
-            Logger.error("Error adding leaderboardEntry:" + JSON.stringify(error));
+            Logger.error("Error adding new leaderboardEntry:" + JSON.stringify(error));
             failCallback(error);
         } else
             successCallback(leaderboardEntry);
     });
 };
 
-exports.getGameLeaderboard = function(ownerId, gameId, leaderboardId, timeframe, mode, successCallback, failCallback) {
+exports.getLeaderboard = function(ownerId, gameId, leaderboardId, successCallback, failCallback) {
     //?descending=true&limit=10&include_docs=true
-    leaderboardDB.view("leaderboard", "byTimestamp", { "descending": false, "include_docs": true }, function(error, body) {
+    var filter = [ ownerId, gameId, leaderboardId];
+    leaderboardDB.view("leaderboard", "byLeaderboard", { key: filter }, function(error, body) {
         if (error) {
             Logger.error("Error getting game leaderboard: " + JSON.stringify(error));
             failCallback(error);
-        } else
-            successCallback((typeof body=="undefined")?body:body.rows);
+        } else {
+            var result = [];
+            for (var i=0; i<body.rows.length; i++)
+                result.push(body.rows[i].value);
+            successCallback(result);
+        }
     });
 };
 
-exports.getPlayerLeaderboardEntry = function(ownerId, gameId, leaderboardId, timeframe, userId, mode, successCallback, failCallback) {
-    db.view("leaderboard", "byTimestamp", { "keys": ["key1", "key2", "key_n"] }, function(error, body) {
+exports.getPlayerLeaderboardEntry = function(ownerId, gameId, leaderboardId, userId, successCallback, failCallback) {
+    var filter = [ ownerId, gameId, leaderboardId, userId];
+    leaderboardDB.view("leaderboard", "byActive", { key: filter }, function(error, body) {
         if (error) {
-            Logger.error("Error getting game leaderboard: " + JSON.stringify(error));
+            Logger.error("Error getting player leaderboard entry: " + JSON.stringify(error));
             failCallback(error);
         } else
-            successCallback((typeof body=="undefined")?body:body.rows);
+            if (body.rows.length!=1) {
+                console.log(body.rows);
+                var error = "Filter by active returned more than one row. Inconsistent data for filter " + JSON.stringify(filter);
+                Logger.error(error);
+                failCallback(error);
+            } else {
+                successCallback(body.rows[0].value);
+            }
     });
 };
