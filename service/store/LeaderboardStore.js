@@ -145,8 +145,11 @@ exports.getLeaderboard = function(ownerId, gameId, leaderboardId, successCallbac
             failCallback(error);
         } else {
             var result = [];
-            for (var i=0; i<body.rows.length; i++)
-                result.push(body.rows[i].value);
+            for (var i=0; i<body.rows.length; i++) {
+                var thisEntry = body.rows[i].value;
+                thisEntry.position = i;
+                result.push(thisEntry);
+            }
             successCallback(result);
         }
     });
@@ -160,12 +163,14 @@ exports.getPlayerLeaderboardEntry = function(ownerId, gameId, leaderboardId, use
             failCallback(error);
         } else
             if (body.rows.length!=1) {
-                console.log(body.rows);
                 var error = "Filter by active returned more than one row. Inconsistent data for filter " + JSON.stringify(filter);
                 Logger.error(error);
                 failCallback(error);
             } else {
-                successCallback(body.rows[0].value);
+                var thisEntry = body.rows[0].value;
+                // TODO: retrieve position
+                thisEntry = 42;
+                successCallback();
             }
     });
 };
