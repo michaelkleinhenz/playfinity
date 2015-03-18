@@ -25,7 +25,7 @@
  */
 
 exports.registerServices = function(app) {
-    app.get("/heartbeat", this.heartbeat);
+    app.get("/healthcheck", this.heartbeat);
 };
 
 exports.heartbeat = function(req, res) {
