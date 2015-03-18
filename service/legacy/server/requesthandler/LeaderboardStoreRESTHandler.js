@@ -36,19 +36,8 @@ var crypto = require('crypto');
  */
 leaderboardStoreRESTHandler = function(authN, leaderboardStore, logger) {
     var self = {};
-/*
-    var leaderboard = {
-        leaderboardId: "uniqueid",
-        name: {
-            de: "DE name",
-            en: "EN name"
-        },
-        type: "absolute"|"time"|"fraction",
-        order: "ascending"|"descending",
-        ownerId: owner,
-        gameId: game
-    }
 
+/*
     var entry = {
         leaderboardEntryId: "uniqueid",
         leaderboardId: leaderboardId,
@@ -61,35 +50,26 @@ leaderboardStoreRESTHandler = function(authN, leaderboardStore, logger) {
 
     // result of POST SCORE
     var resultEntry = {
+        leaderboardEntryId: "uniqueid",
         leaderboardId: leaderboardId,
         userId: userId,
         gameId: gameId,
-        ownerId: ownerId,
-        highscore : [
-            {
-                frame: DAY|WEEK|ALLTIME,
-                type: PERSONAL|GLOBAL
-            }
-        ],
-        standing: [
-            {
-                frame: DAY|WEEK|ALLTIME,
-                position: 42
-            }
-        ]
+        ownerId: ownerId
     }
 */
     self.addScore = function(req, res) {
+        console.log(req.body);
+
         // TODO
-    }
+    };
 
     self.getPlayerLeaderboard = function(req, res) {
         // TODO
-    }
+    };
 
-    self.getGlobalLeaderboard = function(req, res) {
+    self.getGameLeaderboard = function(req, res) {
         // TODO
-    }
+    };
 
     self.deleteLeaderboardByleaderboardId = function(req, res) {
         var userId = req.params.userId;

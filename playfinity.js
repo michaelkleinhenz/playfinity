@@ -24,51 +24,35 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-// Import configuration
-require('./config.js');
+// configuration
+require("./config.js");
 
-// Import global utility modules
-Utils = require('./service/util/utils');
-Async = require('async');
-var EventEmitter = require('./service/util/EventEmitter-4.0.2.min.js').EventEmitter;
-var logger = require('winston');
+// global utils
+global.Async = require("async");
+global.Logger = require("winston");
 
-// Import data storage
-var nano = require('nano')(PlayfinityConfig.couchUrl);
+// local utils
+var express = require("express");
+var cookieParser = require("cookie-parser");
+var bodyParser = require("body-parser");
 
-// Create core achievement system class
-ACHV = require('./service/achievements/ACHV');
-require('require-dir')('./service/achievements/engine');
-require('./service/achievements/AchievementProcessor');
-require('./service/achievements/AchievementEngine');
-var achievementSystem = require('./service/achievements/AchievementSystem');
+// init data storage
+var nano = require("nano")(PlayfinityConfig.couchUrl);
+global.leaderboardDB = nano.use(PlayfinityConfig.leaderboardDbName);
 
-// Import stores
-var achievementInstanceInitializer = require('./service/store/AchievementInstanceInitializer');
-var achievementStore = require('./service/store/AchievementStore');
-var achievementInstanceStore = require('./service/store/AchievementInstanceStore');
-var userStore = require('./service/store/UserStore');
-var gameStore = require('./service/store/GameStore');
-var storageStore = require('./service/store/StorageStore');
-var leaderboardStore = require('./service/store/LeaderboardStore');
+// setup server
+var app = express();
+app.enable("jsonp callback");
+app.use(bodyParser.json());
+app.use(cookieParser());
 
-// Import server
-var server = require('./service/server/Server');
+// register service modules
+require("./service/HealthRESTService.js").registerServices(app);
+require("./service/LeaderboardRESTService.js").registerServices(app);
 
-// Create stores
-var userStoreInstance = userStore.userStore(nano.use(PlayfinityConfig.userDbName), logger);
-var gameStoreInstance = gameStore.gameStore(nano.use(PlayfinityConfig.gameDbName), logger);
-var achievementStoreInstance = achievementStore.achievementStore(nano.use(PlayfinityConfig.modelDbName), logger);
-var achievementInstanceStoreInstance = achievementInstanceStore.achievementInstanceStore(nano.use(PlayfinityConfig.instanceDbName), logger);
-var storageStoreInstance = storageStore.storageStore(nano.use(PlayfinityConfig.storageDbName), logger);
-var leaderboardStoreInstance = leaderboardStore.leaderboardStore(nano.use(PlayfinityConfig.leaderboardDbName), logger);
-
-// Create achievement initializer
-var achievementInstanceInitializerInstance = achievementInstanceInitializer.achievementInstanceInitializer(achievementStoreInstance, achievementInstanceStoreInstance);
-
-// Create Achievement System - only this is relevant for embedded use!
-var achievementSystemInstance = new achievementSystem.AchievementSystem(achievementInstanceStoreInstance, new EventEmitter());
-
-// Start achievement system
-server.start(userStoreInstance, gameStoreInstance, achievementStoreInstance, achievementInstanceStoreInstance, storageStoreInstance, leaderboardStoreInstance,
-    achievementSystemInstance, achievementInstanceInitializerInstance, logger);
+// Run Server
+app.listen(PlayfinityConfig.serverPort, function () {
+    Logger.info("Playfinity");
+    Logger.info("Copyright (c) 2013, 2014, 2015 Questor GmbH, Berlin");
+    Logger.info("Listening on port " + PlayfinityConfig.serverPort);
+});

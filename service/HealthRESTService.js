@@ -24,35 +24,10 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-$(document).ready(function () {
-    $('#gametablecontainer').jtable({
-        title: '&nbsp;',
-        jqueryuiTheme: true,
-        sorting: true,
-        paging: true,
-        pageSize: 5,
-        actions: {
-            listAction: '/frontend/game',
-            createAction: '/frontend/game/create'
-        },
-        fields: {
-            gameId: {
-                title: 'Game Id',
-                width: '30%'
-            },
-            apiKey: {
-                title: 'API Key',
-                width: '70%',
-                edit: false,
-                create: false
-            },
-            ownerId: {
-                defaultValue: ownerId,
-                list: false,
-                edit: false,
-                type: "hidden"
-            }
-        }
-    });
-    $('#gametablecontainer').jtable('load', { ownerId: ownerId });
-});
+exports.registerServices = function(app) {
+    app.get("/heartbeat", this.heartbeat);
+};
+
+exports.heartbeat = function(req, res) {
+    res.send(200, {});
+};

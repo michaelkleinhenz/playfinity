@@ -35,7 +35,7 @@ var userStoreRESTHandler = require('../server/requesthandler/UserStoreRESTHandle
 var storageStoreRESTHandler = require('../server/requesthandler/StorageStoreRESTHandler');
 var leaderboardStoreRESTHandler = require('../server/requesthandler/LeaderboardStoreRESTHandler');
 
-var healthRESTService = require('../server/HealthRESTService');
+var healthRESTService = require('../../server/HealthRESTService');
 
 var achievementInstanceIFrameHandler = require('../server/requesthandler/AchievementInstanceIFrameHandler');
 
@@ -43,7 +43,6 @@ var achievementFrontendRequestHandler = require('../server/requesthandler/Achiev
 var userStoreFrontendRequestHandler = require('../server/requesthandler/UserStoreFrontendRequestHandler');
 var gameStoreFrontendRequestHandler = require('../server/requesthandler/GameStoreFrontendRequestHandler');
 
-var frontendService = require('./FrontendService');
 var iFrameService = require('./IFrameService');
 var restService = require('./RESTService');
 
@@ -133,11 +132,10 @@ function start(userStore, gameStore, achievementStore, achievementInstanceStore,
     var gameStoreFrontendRequestHandlerInstance = gameStoreFrontendRequestHandler.gameStoreFrontendRequestHandler(gameStore, logger);
 
     // add services
-    restService.restService(authN, app, achievementRESTHandlerInstance, achievementInstanceRESTHandlerInstance, userStoreRESTHandlerInstance, storageStoreRESTHandlerInstance, achievementSystemInstance, logger);
+    restService.restService(authN, app, achievementRESTHandlerInstance, achievementInstanceRESTHandlerInstance, userStoreRESTHandlerInstance, storageStoreRESTHandlerInstance, achievementSystemInstance, leaderboardStoreRESTHandlerInstance, logger);
     iFrameService.iFrameService(authN, app, achievementInstanceIFrameHandlerInstance, logger);
-    frontendService.frontendService(authN, app, achievementFrontendRequestHandlerInstance, userStoreFrontendRequestHandlerInstance, gameStoreFrontendRequestHandlerInstance, logger);
 
-    require("../server/HealthRESTService").registerServices(authN, app, logger);
+    require("../../server/HealthRESTService").registerServices(authN, app, logger);
 
     // Run Server
     app.listen(PlayfinityConfig.serverPort, function () {

@@ -24,93 +24,98 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var crypto = require('crypto');
+var crypto = require("crypto");
 
-/**
- * Operations for access to database leaderboard data.
- *
- * @param db
- * @param logger
- * @returns {{}}
- */
-leaderboardStore = function(db, logger) {
-    var self = {};
+var design = {
+    "_id" : "_design/leaderboard",
+    "views" : {
+        "byId" : {
+            "map" : "function(doc){ emit(doc.leaderboardId, doc)}"
+        },
+        "byGameId" : {
+            "map" : "function(doc){ emit(doc.gameId, doc)}"
+        },
+        "byOwnerId" : {
+            "map" : "function(doc){ emit(doc.ownerId, doc)}"
+        },
+        "byTimestamp" : {
+            "map" : "function(doc){emit(doc.timestamp, 1)}"
+        },
+        "findGameLeaderboard" : {
+            "map" : "function(doc){emit(doc.timestamp, 1)}"
+        },
+        "findPlayerEntry" : {
+            "map" : "function(doc){emit(doc.timestamp, 1)}"
+        }
+    }
+};
 
-    self.getLeaderboard = function (leaderboardId, callback) {
-        db.view('leaderboard', 'byId', {"key": leaderboardId}, function(error, body) {
-            if (error) {
-                logger.error("Not able to get leaderboard: leaderboardId=" + leaderboardId +
-                    ", error=" + JSON.stringify(error));
-            }
-            callback(error, (typeof body=="undefined")?body:body.rows);
+exports.updateDatabaseViews = function() {
+    leaderboardDB.get("_design/leaderboard", { revs_info: true }, function(error, body) {
+        if (!error) {
+            Logger.info("Updating existing leaderboard views.");
+            design._rev = body._rev;
+        } else
+            Logger.info("New database, creating leaderboard views.");
+        leaderboardDB.insert(design, "_design/leaderboard", function(error, body) {
+            if (error)
+                Logger.error("Error creating/updating leaderboard views: " + JSON.stringify(error));
+            else
+                Logger.info("Successfully created/updated leaderboard views.");
         });
+    });
+};
+
+exports.addScore = function(scoreEntry, successCallback, failCallback) {
+
+    // calculate id
+    var date = new Date();
+    var idText = (scoreEntry.ownerId + scoreEntry.gameId + scoreEntry.leaderboardId + scoreEntry.userId + date.getTime());
+    var sha256 = crypto.createHash("sha256");
+    sha256.update(idText, "utf8");
+    var entryId = sha256.digest("base64");
+
+    // create entry structure
+    var leaderboardEntry = {
+        _id: entryId,
+        type: "leaderboardEntry",
+        ownerId: scoreEntry.ownerId,
+        gameId: scoreEntry.gameId,
+        leaderboardId: scoreEntry.leaderboardId,
+        userId: scoreEntry.userId,
+        score: scoreEntry.score,
+        timestamp: date,
+        epoch: date.getTime(),
+        extraData: scoreEntry.extraData
     };
 
-    self.getLeaderboards = function (ownerId, callback) {
-        db.view('leaderboard', 'byOwnerId', {"key": ownerId}, function(error, body) {
-            if (error) {
-                logger.error("Not able to get leaderboard: leaderboardId=" + leaderboardId +
-                    ", error=" + JSON.stringify(error));
-            }
-            callback(error, (typeof body=="undefined")?body:body.rows);
-        });
-    };
+    // add to database
+    leaderboardDB.insert(leaderboardEntry, function (error) {
+        if (error) {
+            Logger.error("Error adding leaderboardEntry:" + JSON.stringify(error));
+            failCallback(error);
+        } else
+            successCallback(leaderboardEntry);
+    });
+};
 
-    self.listLeaderboardByGameId = function (gameId, callback) {
-        db.view('leaderboard', 'byGameId', {"key": gameId}, function(error, body) {
-            if (error) {
-                logger.error("Not able to get leaderboard: leaderboardId=" + leaderboardId +
-                    ", error=" + JSON.stringify(error));
-            }
-            callback(error, (typeof body=="undefined")?body:body.rows);
-        });
-    };
+exports.getGameLeaderboard = function(ownerId, gameId, leaderboardId, timeframe, mode, successCallback, failCallback) {
+    //?descending=true&limit=10&include_docs=true
+    leaderboardDB.view("leaderboard", "byTimestamp", { "descending": false, "include_docs": true }, function(error, body) {
+        if (error) {
+            Logger.error("Error getting game leaderboard: " + JSON.stringify(error));
+            failCallback(error);
+        } else
+            successCallback((typeof body=="undefined")?body:body.rows);
+    });
+};
 
-    self.deleteLeaderboard = function (leaderboard, callback) {
-        db.destroy(leaderboard._id, leaderboard._rev, function(error, body) {
-            if (error) {
-                logger.error("Not able to delete leaderboard: leaderboardId=" + leaderboard.id +
-                    ", revision=" + leaderboard.revision +
-                    ", error" + JSON.stringify(error));
-            }
-            callback(error);
-        });
-    };
-
-    self.createOrUpdateLeaderboard = function (leaderboard, callback) {
-        leaderboard._id = leaderboard.leaderboardId;
-        db.insert(leaderboard, function (error, body, headers) {
-            if (error) {
-                logger.error("Not able to insert leaderboard" +
-                    JSON.stringify(leaderboard) + " Reason:" + error);
-            }
-            callback(error);
-        });
-    };
-
-    self.deleteLeaderboardEntry = function (leaderboardEntry, callback) {
-        db.destroy(leaderboardEntry._id, leaderboardEntry._rev, function(error, body) {
-            if (error) {
-                logger.error("Not able to delete leaderboard: leaderboardId=" + leaderboardEntry.id +
-                    ", revision=" + leaderboardEntry.revision +
-                    ", error" + JSON.stringify(error));
-            }
-            callback(error);
-        });
-    };
-
-    self.createOrUpdateLeaderboardEntry = function (leaderboardEntry, callback) {
-        leaderboardEntry._id = leaderboardEntry.leaderboardId;
-        db.insert(leaderboardEntry, function (error, body, headers) {
-            if (error) {
-                logger.error("Not able to insert leaderboard" +
-                    JSON.stringify(leaderboardEntry) + " Reason:" + error);
-            }
-            callback(error);
-        });
-    };
-
-    return self;
-}
-
-exports.leaderboardStore = leaderboardStore;
+exports.getPlayerLeaderboardEntry = function(ownerId, gameId, leaderboardId, timeframe, userId, mode, successCallback, failCallback) {
+    db.view("leaderboard", "byTimestamp", { "keys": ["key1", "key2", "key_n"] }, function(error, body) {
+        if (error) {
+            Logger.error("Error getting game leaderboard: " + JSON.stringify(error));
+            failCallback(error);
+        } else
+            successCallback((typeof body=="undefined")?body:body.rows);
+    });
+};

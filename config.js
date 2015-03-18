@@ -51,11 +51,11 @@ global.PlayfinityConfig = {
     serverPort: 8080,
 
     // Debug mode - SET TO FALSE FOR PRODUCTION
-    debugMode: true,
+    debugMode: false,
 
     // AuthN switch - SET TO TRUE FOR PRODUCTION
     authenticationEnabled: false,
 
     // Set to true to enable alpha web frontend
-    frontendEnabled: true
+    frontendEnabled: false
 }
