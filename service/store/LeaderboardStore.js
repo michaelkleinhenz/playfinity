@@ -170,7 +170,7 @@ exports.getPlayerLeaderboardEntry = function(ownerId, gameId, leaderboardId, use
                 var thisEntry = body.rows[0].value;
                 // TODO: retrieve position
                 thisEntry = 42;
-                successCallback();
+                successCallback(thisEntry);
             }
     });
 };
