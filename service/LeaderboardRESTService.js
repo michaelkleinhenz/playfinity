@@ -31,15 +31,17 @@ exports.registerServices = function(app) {
     leaderboardStore.updateDatabaseViews();
     // register routes
     app.post("/leaderboard/:mode", this.addScore);
+    app.get("/leaderboard/all/:ownerId/:gameId/:leaderboardId", this.getAllEntries);
     app.get("/leaderboard/game/:ownerId/:gameId/:leaderboardId", this.getLeaderboard);
     app.get("/leaderboard/player/:ownerId/:gameId/:leaderboardId/:userId", this.getPlayerLeaderboardEntry);
+    app.delete("/leaderboard/player/:ownerId/:userId", this.setPlayerInactive);
 };
 
 exports.addScore = function(req, res) {
     var storeEntry = req.body;
     leaderboardStore.addScore(storeEntry, req.params.mode,
         function(result) {
-            res.json(201, result);
+            res.status(201).json(result);
         },
         function(error) {
             res.send(500, "Error handling request: " + error);
@@ -52,7 +54,20 @@ exports.getLeaderboard = function(req, res) {
     var leaderboardId = req.params.leaderboardId;
     leaderboardStore.getLeaderboard(ownerId, gameId, leaderboardId,
         function(result) {
-            res.json(200, result);
+            res.status(200).json(result);
+        },
+        function(error) {
+            res.send(500, "Error handling request: " + error);
+        });
+};
+
+exports.getAllEntries = function(req, res) {
+    var ownerId = req.params.ownerId;
+    var gameId = req.params.gameId;
+    var leaderboardId = req.params.leaderboardId;
+    leaderboardStore.getAllEntries(ownerId, gameId, leaderboardId,
+        function(result) {
+            res.status(200).json(result);
         },
         function(error) {
             res.send(500, "Error handling request: " + error);
@@ -64,10 +79,21 @@ exports.getPlayerLeaderboardEntry = function(req, res) {
     var gameId = req.params.gameId;
     var leaderboardId = req.params.leaderboardId;
     var userId = req.params.userId;
-
     leaderboardStore.getPlayerLeaderboardEntry(ownerId, gameId, leaderboardId, userId,
         function(result) {
-            res.json(200, result);
+            res.status(200).json(result);
+        },
+        function(error) {
+            res.send(500, "Error handling request: " + error);
+        });
+};
+
+exports.setPlayerInactive = function(req, res) {
+    var ownerId = req.params.ownerId;
+    var userId = req.params.userId;
+    leaderboardStore.setPlayerInactive(ownerId, userId,
+        function(result) {
+            res.status(200).json(result);
         },
         function(error) {
             res.send(500, "Error handling request: " + error);

@@ -42,11 +42,17 @@ var design = {
         "byTimestamp" : {
             "map" : "function(doc){emit(doc.timestamp, doc)}"
         },
+        "byOwnerAndGame" : {
+            "map" : "function(doc){ emit([doc.ownerId, doc.gameId, doc.leaderboardId], doc)}"
+        },
         "byActive" : {
             "map" : "function(doc){if (doc.active) emit([doc.ownerId, doc.gameId, doc.leaderboardId, doc.userId], doc)}"
         },
         "byLeaderboard" : {
             "map" : "function(doc){if (doc.active) emit([doc.ownerId, doc.gameId, doc.leaderboardId], doc)}"
+        },
+        "byUserId" : {
+            "map" : "function(doc){if (doc.active) emit([doc.ownerId, doc.userId], doc)}"
         },
         "findGameLeaderboard" : {
             "map" : "function(doc){emit([doc.userId, doc.ownerId, doc.gameId, doc.leaderboardId, doc.epoch], 1)}",
@@ -119,7 +125,7 @@ exports.addScore = function(scoreEntry, mode, successCallback, failCallback) {
     };
 
     // make last leaderboard entry inactive
-    var filter = [scoreEntry.ownerId, scoreEntry.gameId, scoreEntry.leaderboardId, scoreEntry.userId];
+    var filter = [scoreEntry.ownerId, scoreEntry.gameId, scoreEntry.leaderboardId, scoreEntry.userId ];
     leaderboardDB.view("leaderboard", "byActive", { key: filter }, function(error, body) {
         if (body.rows.length>1) {
             var error = "Filter by active returned more than one row. Inconsistent data for filter " + JSON.stringify(filter);
@@ -158,9 +164,57 @@ exports.insertLeaderboardEntry = function(leaderboardEntry, successCallback, fai
     });
 };
 
+exports.setPlayerInactive = function(ownerId, userId, successCallback, failCallback) {
+    var filter = [ ownerId, userId ];
+    leaderboardDB.view("leaderboard", "byUserId", { key: filter }, function(error, body) {
+        if (error) {
+            Logger.error("Error getting player leaderboard entry: " + JSON.stringify(error));
+            failCallback(error);
+        } else {
+            Async.each(body.rows, function(item, callback) {
+                var thisEntry = item.value;
+                if (thisEntry.active) {
+                    thisEntry.active = false;
+                    leaderboardDB.insert(thisEntry, function (error) {
+                        if (error) {
+                            Logger.error("Error updating existing leaderboardEntry:" + JSON.stringify(error));
+                            callback(error);
+                        } else
+                            callback();
+                    })
+                } else
+                    callback();
+            }, function(updateError) {
+                if (updateError)
+                    // at least one of the updates produced an error
+                    failCallback(updateError);
+                else
+                    successCallback({});
+            });
+        }
+    });
+};
+
+exports.getAllEntries = function(ownerId, gameId, leaderboardId, successCallback, failCallback)  {
+    var filter = [ ownerId, gameId, leaderboardId ];
+    leaderboardDB.view("leaderboard", "byOwnerAndGame", { key: filter }, function(error, body) {
+        if (error) {
+            Logger.error("Error getting game entries: " + JSON.stringify(error));
+            failCallback(error);
+        } else {
+            var result = [];
+            for (var i=0; i<body.rows.length; i++) {
+                var thisEntry = body.rows[i].value;
+                result.push(thisEntry);
+            }
+            successCallback(result);
+        }
+    });
+};
+
 exports.getLeaderboard = function(ownerId, gameId, leaderboardId, successCallback, failCallback) {
     //?descending=true&limit=10&include_docs=true
-    var filter = [ ownerId, gameId, leaderboardId];
+    var filter = [ ownerId, gameId, leaderboardId ];
     leaderboardDB.view("leaderboard", "byLeaderboard", { key: filter }, function(error, body) {
         if (error) {
             Logger.error("Error getting game leaderboard: " + JSON.stringify(error));
@@ -185,9 +239,9 @@ exports.getPlayerLeaderboardEntry = function(ownerId, gameId, leaderboardId, use
             failCallback(error);
         } else
             if (body.rows.length!=1) {
-                var error = "Filter by active returned more than one row. Inconsistent data for filter " + JSON.stringify(filter);
-                Logger.error(error);
-                failCallback(error);
+                var errorMsg = "Filter by active returned more than one row. Inconsistent data for filter " + JSON.stringify(filter);
+                Logger.error(errorMsg);
+                failCallback(errorMsg);
             } else {
                 var thisEntry = body.rows[0].value;
                 // TODO: retrieve position
