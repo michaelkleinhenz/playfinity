@@ -24,10 +24,24 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+var nano = require("nano")(PlayfinityConfig.couchUrl);
+
 exports.registerServices = function(app) {
-    app.get("/healthcheck", this.heartbeat);
+    app.get("/heartbeat", this.heartbeat);
+    app.get("/healthcheck", this.healthcheck);
 };
 
 exports.heartbeat = function(req, res) {
     res.send(200, {});
+};
+
+exports.healthcheck = function(req, res) {
+    nano.db.get(PlayfinityConfig.leaderboardDbName, function(error, body) {
+        if (error) {
+            Logger.info("Database check failed " + PlayfinityConfig.leaderboardDbName + ".");
+            res.send(500, { error: error });
+        } else {
+            res.send(200, {});
+        }
+    });
 };
