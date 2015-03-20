@@ -49,7 +49,7 @@ var design = {
             "map" : "function(doc){if (doc.active) emit([doc.ownerId, doc.gameId, doc.leaderboardId, doc.userId], doc)}"
         },
         "byLeaderboard" : {
-            "map" : "function(doc){if (doc.active) emit([doc.ownerId, doc.gameId, doc.leaderboardId], doc)}"
+            "map" : "function(doc){if (doc.active) emit([doc.ownerId, doc.gameId, doc.leaderboardId, doc.score], doc)}"
         },
         "byUserId" : {
             "map" : "function(doc){if (doc.active) emit([doc.ownerId, doc.userId], doc)}"
@@ -212,14 +212,23 @@ exports.getAllEntries = function(ownerId, gameId, leaderboardId, successCallback
     });
 };
 
-exports.getLeaderboard = function(ownerId, gameId, leaderboardId, successCallback, failCallback) {
-    //?descending=true&limit=10&include_docs=true
+exports.getLeaderboard = function(ownerId, gameId, leaderboardId, limit, skip, successCallback, failCallback) {
     var filter = [ ownerId, gameId, leaderboardId ];
-    leaderboardDB.view("leaderboard", "byLeaderboard", { key: filter }, function(error, body) {
+    var options = {
+        descending: true,
+        endkey: filter
+    };
+    if (limit)
+        options.limit = limit;
+    if (skip)
+        options.skip = skip;
+    console.log(options);
+    leaderboardDB.view("leaderboard", "byLeaderboard", options, function(error, body) {
         if (error) {
             Logger.error("Error getting game leaderboard: " + JSON.stringify(error));
             failCallback(error);
         } else {
+            console.log(body.rows);
             var result = [];
             for (var i=0; i<body.rows.length; i++) {
                 var thisEntry = body.rows[i].value;

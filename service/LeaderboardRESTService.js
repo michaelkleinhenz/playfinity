@@ -52,7 +52,14 @@ exports.getLeaderboard = function(req, res) {
     var ownerId = req.params.ownerId;
     var gameId = req.params.gameId;
     var leaderboardId = req.params.leaderboardId;
-    leaderboardStore.getLeaderboard(ownerId, gameId, leaderboardId,
+    console.log(req.query);
+    var limit;
+    if (req.query.limit)
+        limit = parseInt(req.query.limit);
+    var skip;
+    if (req.query.skip)
+        skip = parseInt(req.query.skip);
+    leaderboardStore.getLeaderboard(ownerId, gameId, leaderboardId, limit, skip,
         function(result) {
             res.status(200).json(result);
         },
