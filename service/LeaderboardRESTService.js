@@ -79,9 +79,14 @@ exports.getPlayerLeaderboardEntry = function(req, res) {
     var gameId = req.params.gameId;
     var leaderboardId = req.params.leaderboardId;
     var userId = req.params.userId;
-    leaderboardStore.getPlayerLeaderboardEntry(ownerId, gameId, leaderboardId, userId,
+    leaderboardStore.getLeaderboard(ownerId, gameId, leaderboardId,
         function(result) {
-            res.status(200).json(result);
+            for (var i=0; i<result.length; i++)
+                if (result[i].userId===userId) {
+                    res.status(200).json(result[i]);
+                    return;
+                }
+            res.status(404).json({});
         },
         function(error) {
             res.send(500, "Error handling request: " + error);
