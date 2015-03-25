@@ -218,11 +218,10 @@ exports.getLeaderboard = function(ownerId, gameId, leaderboardId, limit, skip, s
         descending: true,
         endkey: filter
     };
-    if (limit)
+    if (limit && limit!=null && limit!="")
         options.limit = limit;
-    if (skip)
+    if (skip && skip!=null && skip!="")
         options.skip = skip;
-    console.log(options);
     leaderboardDB.view("leaderboard", "byLeaderboard", options, function(error, body) {
         if (error) {
             Logger.error("Error getting game leaderboard: " + JSON.stringify(error));
