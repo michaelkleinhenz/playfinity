@@ -86,7 +86,7 @@ exports.getPlayerLeaderboardEntry = function(req, res) {
     var gameId = req.params.gameId;
     var leaderboardId = req.params.leaderboardId;
     var userId = req.params.userId;
-    leaderboardStore.getLeaderboard(ownerId, gameId, leaderboardId,
+    leaderboardStore.getLeaderboard(ownerId, gameId, leaderboardId, null, null,
         function(result) {
             for (var i=0; i<result.length; i++)
                 if (result[i].userId===userId) {
