@@ -213,8 +213,8 @@ exports.getAllEntries = function(ownerId, gameId, leaderboardId, successCallback
 };
 
 exports.getLeaderboard = function(ownerId, gameId, leaderboardId, limit, skip, successCallback, failCallback) {
-    var endkey = [ ownerId, gameId, leaderboardId, {} ];
-    var startkey = [ ownerId, gameId, leaderboardId, 0 ];
+    var endkey = [ ownerId, gameId, leaderboardId, 0 ];
+    var startkey = [ ownerId, gameId, leaderboardId, {} ];
     var options = {
         descending: true,
         startkey: startkey,
