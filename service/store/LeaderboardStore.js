@@ -213,11 +213,15 @@ exports.getAllEntries = function(ownerId, gameId, leaderboardId, successCallback
 };
 
 exports.getLeaderboard = function(ownerId, gameId, leaderboardId, limit, skip, successCallback, failCallback) {
-    var filter = [ ownerId, gameId, leaderboardId ];
+    var endkey = [ ownerId, gameId, leaderboardId, {} ];
+    var startkey = [ ownerId, gameId, leaderboardId, 0 ];
     var options = {
         descending: true,
-        endkey: filter
+        startkey: startkey,
+        endkey: endkey
     };
+    console.log("ENDKEY:");
+    console.log(options);
     if (limit && limit!=null && limit!="")
         options.limit = limit;
     if (skip && skip!=null && skip!="")
