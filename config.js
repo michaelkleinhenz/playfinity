@@ -47,6 +47,9 @@ global.PlayfinityConfig = {
     // Name of the couch database for the leaderboard. Must already be created.
     leaderboardDbName: 'leaderboard',
 
+    // create database on start if database is not found
+    createDb: true,
+
     // Port to be used. Playfinity will bind to 0.0.0.0
     serverPort: 8080,
 
@@ -58,4 +61,4 @@ global.PlayfinityConfig = {
 
     // Set to true to enable alpha web frontend
     frontendEnabled: false
-}
+};

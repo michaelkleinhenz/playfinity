@@ -64,15 +64,16 @@ var design = {
 exports.checkDatabase = function(callback) {
     nano.db.get(PlayfinityConfig.leaderboardDbName, function(error, body) {
         if (error) {
-            Logger.info("Creating database " + PlayfinityConfig.leaderboardDbName + "..");
-            nano.db.create(PlayfinityConfig.leaderboardDbName, function(err, body) {
-                if (!err) {
-                    Logger.info("Database created.");
-                } else {
-                    Logger.info("Error creating database.");
-                }
-                callback();
-            });
+            Logger.info("Creating database " + PlayfinityConfig.leaderboardDbName + ": " + error);
+            if (typeof PlayfinityConfig.createDb!="undefined" && PlayfinityConfig.createDb)
+                nano.db.create(PlayfinityConfig.leaderboardDbName, function(err, body) {
+                    if (!err) {
+                        Logger.info("Database created.");
+                    } else {
+                        Logger.info("Error creating database.");
+                    }
+                    callback();
+                });
         } else {
             Logger.info("Using existing database.");
             callback();
@@ -220,8 +221,6 @@ exports.getLeaderboard = function(ownerId, gameId, leaderboardId, limit, skip, s
         startkey: startkey,
         endkey: endkey
     };
-    console.log("ENDKEY:");
-    console.log(options);
     if (limit && limit!=null && limit!="")
         options.limit = limit;
     if (skip && skip!=null && skip!="")
@@ -231,7 +230,6 @@ exports.getLeaderboard = function(ownerId, gameId, leaderboardId, limit, skip, s
             Logger.error("Error getting game leaderboard: " + JSON.stringify(error));
             failCallback(error);
         } else {
-            console.log(body.rows);
             var result = [];
             for (var i=0; i<body.rows.length; i++) {
                 var thisEntry = body.rows[i].value;
