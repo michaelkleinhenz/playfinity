@@ -65,7 +65,7 @@ exports.checkDatabase = function(callback) {
     nano.db.get(PlayfinityConfig.leaderboardDbName, function(error, body) {
         if (error) {
             Logger.info("Creating database " + PlayfinityConfig.leaderboardDbName + ": " + error);
-            if (typeof PlayfinityConfig.createDb!="undefined" && PlayfinityConfig.createDb)
+            //if (typeof PlayfinityConfig.createDb!="undefined" && PlayfinityConfig.createDb)
                 nano.db.create(PlayfinityConfig.leaderboardDbName, function(err, body) {
                     if (!err) {
                         Logger.info("Database created.");
