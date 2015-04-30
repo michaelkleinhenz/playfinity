@@ -52,7 +52,6 @@ exports.getLeaderboard = function(req, res) {
     var ownerId = req.params.ownerId;
     var gameId = req.params.gameId;
     var leaderboardId = req.params.leaderboardId;
-    console.log(req.query);
     var limit;
     if (req.query.limit)
         limit = parseInt(req.query.limit);

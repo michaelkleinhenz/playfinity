@@ -234,6 +234,8 @@ exports.getLeaderboard = function(ownerId, gameId, leaderboardId, limit, skip, s
             for (var i=0; i<body.rows.length; i++) {
                 var thisEntry = body.rows[i].value;
                 thisEntry.position = i;
+                if (skip && skip!=null && skip!="")
+                    thisEntry.position = thisEntry.position+skip;
                 result.push(thisEntry);
             }
             successCallback(result);
