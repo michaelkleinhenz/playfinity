@@ -49,7 +49,7 @@ var design = {
             "map" : "function(doc){if (doc.active) emit([doc.ownerId, doc.gameId, doc.leaderboardId, doc.userId], doc)}"
         },
         "byLeaderboard" : {
-            "map" : "function(doc){if (doc.active) emit([doc.ownerId, doc.gameId, doc.leaderboardId, doc.score], doc)}"
+            "map" : "function(doc){if (doc.active) emit([doc.ownerId, doc.gameId, doc.leaderboardId, doc.score, doc.epoch], doc)}"
         },
         "byUserId" : {
             "map" : "function(doc){if (doc.active) emit([doc.ownerId, doc.userId], doc)}"
