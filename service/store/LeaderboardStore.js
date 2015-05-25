@@ -49,13 +49,13 @@ var design = {
             "map" : "function(doc){if (doc.active) emit([doc.ownerId, doc.gameId, doc.leaderboardId, doc.userId], doc)}"
         },
         "byLeaderboard" : {
-            "map" : "function(doc){if (doc.active) emit([doc.ownerId, doc.gameId, doc.leaderboardId, doc.score, doc.epoch], doc)}"
+            "map" : "function(doc){if (doc.active) emit([doc.ownerId, doc.gameId, doc.leaderboardId, doc.score, -1*doc.epoch], doc)}"
         },
         "byUserId" : {
             "map" : "function(doc){if (doc.active) emit([doc.ownerId, doc.userId], doc)}"
         },
         "findGameLeaderboard" : {
-            "map" : "function(doc){emit([doc.userId, doc.ownerId, doc.gameId, doc.leaderboardId, doc.epoch], 1)}",
+            "map" : "function(doc){emit([doc.userId, doc.ownerId, doc.gameId, doc.leaderboardId, -1*doc.epoch], 1)}",
             "reduce": "function(keys, values, rereduce) { var max = 0, ks = rereduce ? values : keys; for (var i = 1, l = ks.length; i < l; ++i) { if (ks[max][0][4] < ks[i][0][4]) max = i; } return ks[max]; }"
         }
     }
