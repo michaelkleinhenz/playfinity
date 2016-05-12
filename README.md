@@ -95,5 +95,4 @@ In this case, the user is the same as the developer ("developer").
 
     http://localhost:8080/store/unlocked/mygame/developer
 
-## Build using Docker
 
